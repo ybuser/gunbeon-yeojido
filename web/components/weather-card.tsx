@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import type { Settings } from '@/lib/domain';
 type Forecast = {
   mode: string;
+  fetchedAt?: string;
+  region?: string;
+  hours?: { time: string }[];
   condition?: Settings['weather'];
   maxRainProbability?: number | null;
   maxWindSpeed?: number | null;
@@ -19,7 +22,10 @@ export default function WeatherCard({
   onApply,
 }: {
   region: string;
-  onApply?: (value: Settings['weather']) => void;
+  onApply?: (
+    value: Settings['weather'],
+    provenance: Settings['weatherForecast'],
+  ) => void;
 }) {
   const [forecast, setForecast] = useState<Forecast>({ mode: 'idle' });
   const [revision, setRevision] = useState(0);
@@ -85,7 +91,22 @@ export default function WeatherCard({
           {onApply && forecast.condition && (
             <Button
               variant="outline"
-              onClick={() => onApply(forecast.condition!)}
+              disabled={
+                !forecast.coverageComplete ||
+                !forecast.fetchedAt ||
+                !forecast.hours?.length
+              }
+              onClick={() =>
+                onApply(forecast.condition!, {
+                  region,
+                  fetchedAt: forecast.fetchedAt!,
+                  validUntil: new Date(
+                    Date.parse(forecast.fetchedAt!) + 8 * 3600000,
+                  ).toISOString(),
+                  baseDate: forecast.base_date || '',
+                  baseTime: forecast.base_time || '',
+                })
+              }
             >
               이 예보를 시간 보정에 반영
             </Button>
