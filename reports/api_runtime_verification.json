@@ -1,0 +1,310 @@
+{
+  "verified_at": "2026-09-07T07:34:40.766Z",
+  "mode": "live_check",
+  "key_source": "DATA_GO_KR_SERVICE_KEY",
+  "metadata_only": true,
+  "raw_responses_persisted": false,
+  "key_logged": false,
+  "full_request_urls_logged": false,
+  "region_code_source": "첨부 v4.1 XLSX 시도,시군구코드: areaCd=51, signguCd는 5자리 법정동 시군구 코드",
+  "max_api_calls": 12,
+  "services": [
+    {
+      "name": "관광지 집중률",
+      "service": "TatsCnctrRateService",
+      "operation": "tatsCnctrRatedList",
+      "monthly": false,
+      "official_catalog": "https://www.data.go.kr/data/15128555/openapi.do",
+      "probes": [
+        {
+          "requested_at": "2026-09-07T07:34:40.771Z",
+          "service": "TatsCnctrRateService",
+          "operation": "tatsCnctrRatedList",
+          "parameters": {
+            "MobileOS": "WEB",
+            "MobileApp": "GunbeonGangwon",
+            "_type": "json",
+            "numOfRows": 1,
+            "pageNo": 1,
+            "areaCd": "51",
+            "signguCd": "51780"
+          },
+          "http_status": 200,
+          "status": "success",
+          "authorization_outcome": "request_accepted",
+          "result_code": "0000",
+          "total_count": 1170,
+          "row_count": 1,
+          "response_fields": [
+            "areaCd",
+            "areaNm",
+            "baseYmd",
+            "cnctrRate",
+            "signguCd",
+            "signguNm",
+            "tAtsNm"
+          ],
+          "nonempty_fields": [
+            "areaCd",
+            "areaNm",
+            "baseYmd",
+            "cnctrRate",
+            "signguCd",
+            "signguNm",
+            "tAtsNm"
+          ],
+          "base_month_values": [],
+          "base_date_values": [
+            "20260907"
+          ],
+          "expected_origin_region_match_count": 1,
+          "id_nonempty_counts": {
+            "contentid": 0,
+            "tAtsCd": 0,
+            "hubTatsCd": 0,
+            "rlteTatsCd": 0
+          },
+          "coordinate_fields_present": []
+        }
+      ],
+      "key_request_accepted": true,
+      "nonempty_sample_verified": true
+    },
+    {
+      "name": "기초지자체 중심 관광지",
+      "service": "LocgoHubTarService1",
+      "operation": "areaBasedList1",
+      "monthly": true,
+      "official_catalog": "https://www.data.go.kr/data/15128559/openapi.do",
+      "probes": [
+        {
+          "requested_at": "2026-09-07T07:34:41.153Z",
+          "service": "LocgoHubTarService1",
+          "operation": "areaBasedList1",
+          "parameters": {
+            "MobileOS": "WEB",
+            "MobileApp": "GunbeonGangwon",
+            "_type": "json",
+            "numOfRows": 1,
+            "pageNo": 1,
+            "areaCd": "51",
+            "signguCd": "51780",
+            "baseYm": "202608"
+          },
+          "http_status": 200,
+          "status": "success",
+          "authorization_outcome": "request_accepted",
+          "result_code": "0000",
+          "total_count": 0,
+          "row_count": 0,
+          "response_fields": [],
+          "nonempty_fields": [],
+          "base_month_values": [],
+          "base_date_values": [],
+          "expected_origin_region_match_count": 0,
+          "id_nonempty_counts": {
+            "contentid": 0,
+            "tAtsCd": 0,
+            "hubTatsCd": 0,
+            "rlteTatsCd": 0
+          },
+          "coordinate_fields_present": []
+        },
+        {
+          "requested_at": "2026-09-07T07:34:41.486Z",
+          "service": "LocgoHubTarService1",
+          "operation": "areaBasedList1",
+          "parameters": {
+            "MobileOS": "WEB",
+            "MobileApp": "GunbeonGangwon",
+            "_type": "json",
+            "numOfRows": 1,
+            "pageNo": 1,
+            "areaCd": "51",
+            "signguCd": "51780",
+            "baseYm": "202607"
+          },
+          "http_status": 200,
+          "status": "success",
+          "authorization_outcome": "request_accepted",
+          "result_code": "0000",
+          "total_count": 100,
+          "row_count": 1,
+          "response_fields": [
+            "areaCd",
+            "areaNm",
+            "baseYm",
+            "hubCtgryLclsNm",
+            "hubCtgryMclsNm",
+            "hubRank",
+            "hubTatsCd",
+            "hubTatsNm",
+            "mapX",
+            "mapY",
+            "signguCd",
+            "signguNm"
+          ],
+          "nonempty_fields": [
+            "areaCd",
+            "areaNm",
+            "baseYm",
+            "hubCtgryLclsNm",
+            "hubCtgryMclsNm",
+            "hubRank",
+            "hubTatsCd",
+            "hubTatsNm",
+            "mapX",
+            "mapY",
+            "signguCd",
+            "signguNm"
+          ],
+          "base_month_values": [
+            "202607"
+          ],
+          "base_date_values": [],
+          "expected_origin_region_match_count": 1,
+          "id_nonempty_counts": {
+            "contentid": 0,
+            "tAtsCd": 0,
+            "hubTatsCd": 1,
+            "rlteTatsCd": 0
+          },
+          "coordinate_fields_present": [
+            "mapX",
+            "mapY"
+          ]
+        }
+      ],
+      "key_request_accepted": true,
+      "nonempty_sample_verified": true
+    },
+    {
+      "name": "관광지별 연관 관광지",
+      "service": "TarRlteTarService1",
+      "operation": "areaBasedList1",
+      "monthly": true,
+      "official_catalog": "https://www.data.go.kr/data/15128560/openapi.do",
+      "probes": [
+        {
+          "requested_at": "2026-09-07T07:34:41.630Z",
+          "service": "TarRlteTarService1",
+          "operation": "areaBasedList1",
+          "parameters": {
+            "MobileOS": "WEB",
+            "MobileApp": "GunbeonGangwon",
+            "_type": "json",
+            "numOfRows": 1,
+            "pageNo": 1,
+            "areaCd": "51",
+            "signguCd": "51780",
+            "baseYm": "202608"
+          },
+          "http_status": 200,
+          "status": "success",
+          "authorization_outcome": "request_accepted",
+          "result_code": "0000",
+          "total_count": 0,
+          "row_count": 0,
+          "response_fields": [],
+          "nonempty_fields": [],
+          "base_month_values": [],
+          "base_date_values": [],
+          "expected_origin_region_match_count": 0,
+          "id_nonempty_counts": {
+            "contentid": 0,
+            "tAtsCd": 0,
+            "hubTatsCd": 0,
+            "rlteTatsCd": 0
+          },
+          "coordinate_fields_present": []
+        },
+        {
+          "requested_at": "2026-09-07T07:34:41.821Z",
+          "service": "TarRlteTarService1",
+          "operation": "areaBasedList1",
+          "parameters": {
+            "MobileOS": "WEB",
+            "MobileApp": "GunbeonGangwon",
+            "_type": "json",
+            "numOfRows": 1,
+            "pageNo": 1,
+            "areaCd": "51",
+            "signguCd": "51780",
+            "baseYm": "202607"
+          },
+          "http_status": 200,
+          "status": "success",
+          "authorization_outcome": "request_accepted",
+          "result_code": "0000",
+          "total_count": 630,
+          "row_count": 1,
+          "response_fields": [
+            "areaCd",
+            "areaNm",
+            "baseYm",
+            "rlteCtgryLclsNm",
+            "rlteCtgryMclsNm",
+            "rlteCtgrySclsNm",
+            "rlteRank",
+            "rlteRegnCd",
+            "rlteRegnNm",
+            "rlteSignguCd",
+            "rlteSignguNm",
+            "rlteTatsCd",
+            "rlteTatsNm",
+            "signguCd",
+            "signguNm",
+            "tAtsCd",
+            "tAtsNm"
+          ],
+          "nonempty_fields": [
+            "areaCd",
+            "areaNm",
+            "baseYm",
+            "rlteCtgryLclsNm",
+            "rlteCtgryMclsNm",
+            "rlteCtgrySclsNm",
+            "rlteRank",
+            "rlteRegnCd",
+            "rlteRegnNm",
+            "rlteSignguCd",
+            "rlteSignguNm",
+            "rlteTatsCd",
+            "rlteTatsNm",
+            "signguCd",
+            "signguNm",
+            "tAtsCd",
+            "tAtsNm"
+          ],
+          "base_month_values": [
+            "202607"
+          ],
+          "base_date_values": [],
+          "expected_origin_region_match_count": 1,
+          "id_nonempty_counts": {
+            "contentid": 0,
+            "tAtsCd": 1,
+            "hubTatsCd": 0,
+            "rlteTatsCd": 1
+          },
+          "coordinate_fields_present": []
+        }
+      ],
+      "key_request_accepted": true,
+      "nonempty_sample_verified": true
+    }
+  ],
+  "limitations": [
+    "Success verifies access and the sampled response only; it does not certify all dates, districts, or full pagination.",
+    "Tourism analytical IDs are not assumed to equal KorService2 contentid.",
+    "Concentration is a forecast index, not real-time traffic, parking occupancy, or delay minutes."
+  ],
+  "api_calls": 5,
+  "completed_at": "2026-09-07T07:34:41.978Z",
+  "summary": {
+    "services_checked": 3,
+    "key_accepted_services": 3,
+    "nonempty_services": 3,
+    "error_probes": 0
+  }
+}

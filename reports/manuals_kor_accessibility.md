@@ -76,6 +76,6 @@ JSON 기본 봉투는 `response.header.resultCode/resultMsg`, `response.body.ite
 - 횟수80회 상한,15초 timeout, 정해진 오류코드만 기록. 목록 총수·수신수·중복ID수·결측·응답필드 이름·표본contentid만 저장하며 원문 관광정보는 메모리에서 처리한다.
 - 이전237건을 구 코드 부분 조회로 명시하고 현재 결과와 비교할 메타데이터로 남긴다.
 
-매뉴얼 추가 검토 직후 실제 재실행을 시도했으나 root `.env.local`·`.env`가 없어 `blocked_missing_key`, API0회로 종료했다. **새 국문 법정동25조합 성공을 주장하지 않는다.** 선행 무장애 실검증의108건은 기존 `reports/accessibility_validation.json`에 별도로 보존되어 있다. 공통 키 설정 후 동일 스크립트를 실행하면 `reports/tour_api_live_validation.json`에 최신 국문 결과가 기록된다.
+매뉴얼 추가 검토 직후 root 키 파일 부재로0회 종료했던 시도는 공통 키 재설정으로 해결했다. 2026-09-07 16:33 KST 재실행에서 **법정동5군×지정5유형25조합 전부 완전 페이징,520건,좌표 결측0,오류0**을 확인했다. 국문·무장애를 합쳐37회 호출했고5군 전용 무장애 목록 대표 상세도 각각1행을 받았다. 철원114/화천81/양구69/인제107/고성149이며, 선택한5개 유형의 API 조회 범위일 뿐 모든 현실 시설을 포괄하지 않는다. 최신 근거는 `reports/tour_api_live_validation.json`이다. 선행 무장애 전체목록108건은 `reports/accessibility_validation.json`에 별도 보존했다.
 
 후속 실행: `node scripts/validate_tour_api.mjs`. 공사 API 응답을 장소JSON에 영구 적재하는 동기화는 이번 변경에서 실행하지 않았다. 공모전의 저장 별도 신청 조건은 API 매뉴얼의 기술적 동기화 기능 존재와 구분한다.
