@@ -151,6 +151,7 @@ export default function TripBuilder({
   );
   const [extra, setExtra] = useState<Place[]>([]);
   const [referencesLoading, setReferencesLoading] = useState(false);
+  const [referenceRetry, setReferenceRetry] = useState(0);
   const [departure, setDeparture] = useState(
     localInputDate(initial?.plan?.departureAt || new Date().toISOString()),
   );
@@ -279,7 +280,7 @@ export default function TripBuilder({
     return () => {
       ignore = true;
     };
-  }, [originId, stops, places]);
+  }, [originId, stops, places, referenceRetry]);
   const change = () => {
     setDirty(true);
     setNotice('');
@@ -565,6 +566,17 @@ export default function TripBuilder({
                       변경
                     </Button>
                   </div>
+                  {missing.length > 0 && !referencesLoading && (
+                    <div className="warning">
+                      저장한 장소 정보를 연결하지 못했습니다.
+                      <Button
+                        variant="outline"
+                        onClick={() => setReferenceRetry((v) => v + 1)}
+                      >
+                        장소 정보 다시 확인
+                      </Button>
+                    </div>
+                  )}
                   <ol className="builder-stops">
                     {stops.map((stop, i) => {
                       const p = allPlaces.find((p) => p.id === stop.placeId);

@@ -286,6 +286,7 @@ export default function PassportApp() {
   const [mapKey, setMapKey] = useState('');
   const [selectedId, setSelectedId] = useState('');
   const [reviewEntry, setReviewEntry] = useState<Entry | null>(null);
+  const [savedReferencesLoading, setSavedReferencesLoading] = useState(false);
   const [radarRecordId, setRadarRecordId] = useState('');
   const [notice, setNotice] = useState('');
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -450,9 +451,7 @@ export default function PassportApp() {
       : view === 'passport'
         ? entries.slice(0, 4)
         : [];
-    const plans = candidates
-      .filter((e) => e.plan?.kind === 'custom')
-      .map((e) => e.plan!);
+    const plans = candidates.filter((e) => e.plan).map((e) => e.plan!);
     const ids = [
       ...new Set([
         ...plans.flatMap((plan) => [
@@ -463,6 +462,7 @@ export default function PassportApp() {
     ].filter(
       (id) => id.startsWith('tourapi:') && !places.some((p) => p.id === id),
     );
+    setSavedReferencesLoading(ids.length > 0);
     if (!ids.length) return;
     let canceled = false;
     const batches = Array.from({ length: Math.ceil(ids.length / 13) }, (_, i) =>
@@ -489,6 +489,7 @@ export default function PassportApp() {
             ]),
           ).values(),
         ]);
+      if (!canceled) setSavedReferencesLoading(false);
     });
     return () => {
       canceled = true;
@@ -1070,7 +1071,7 @@ export default function PassportApp() {
             </div>
             {!selected || !origin ? (
               <div className="list-empty">
-                {live.mode === 'loading'
+                {live.mode === 'loading' || savedReferencesLoading
                   ? '장소 정보를 다시 확인하고 있어요.'
                   : reviewEntry
                     ? '저장한 장소 정보를 연결하지 못했습니다. 다른 장소로 바꾸지 않았어요.'
