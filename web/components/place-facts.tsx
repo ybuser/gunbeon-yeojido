@@ -6,6 +6,7 @@ const clean = (v: unknown) =>
     .replace(/&nbsp;/g, ' ')
     .trim();
 export function VerifiedFacts({ place }: { place: Place }) {
+  if (place.source === 'manual' || place.sigungu !== '철원군') return null;
   const item = conditions.places.find(
     (x) =>
       x.place_id === place.id ||
