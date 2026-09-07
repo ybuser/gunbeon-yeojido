@@ -1,0 +1,43 @@
+{
+  "startedAt": "2026-09-07T10:31:58.645Z",
+  "base": "http://localhost:3000",
+  "liveApis": true,
+  "deviceMode": "Desktop browsers with viewport/touch emulation; not physical phones or mobile OS browsers",
+  "cases": [
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "touchEmulated": false,
+      "name": "wide",
+      "checks": [
+        "Live TourAPI response received",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Kakao tiles/pins loaded; pin opens detail and closes",
+        "Three-step edit, save, reload and exact place order restore"
+      ],
+      "screenshots": [
+        "chrome-wide-home.png",
+        "chrome-wide-editor.png",
+        "chrome-wide-mission.png"
+      ],
+      "apiRequests": {
+        "/api/catalog": 2,
+        "/api/status": 2,
+        "/api/places": 2,
+        "/api/weather": 3,
+        "/api/place-detail": 1
+      },
+      "pageErrors": [],
+      "status": "passed"
+    }
+  ],
+  "completedAt": "2026-09-07T10:32:04.137Z",
+  "passed": 1,
+  "failed": 0
+}

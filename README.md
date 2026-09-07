@@ -8,7 +8,7 @@
 - 공개 거점/2~3장소 미션, 거리 추정 복귀시계·도보·날씨 시나리오
 - 방문 조건 디코더, 현재 법정동 기반 TourAPI 서버 조회, 장소 상세·부모 무장애 상세
 - 부모 독립 브리핑, 동일 브라우저 전용 초대·범위 설정·해제
-- 비무장 여권 5장·자기 기록 스탬프·정보를 제한한 SVG 공유 카드
+- 공개 장소 참조와 순서를 보존하는 내 여행, 비무장 여권 5장·준비/방문 자기 기록·정보를 제한한 SVG 공유 카드
 - 현충시설 후보/제도 준비 체크, 출처와 API 오류 확인
 - PWA manifest와 네트워크 단절 안내(관광 API 응답은 오프라인 캐시하지 않음)
 
@@ -16,7 +16,7 @@
 
 여행 서비스 6종을 조사해 사진과 조건 비교 중심으로 화면을 전면 개편했습니다. 네 메뉴는 **둘러보기 / 지도·미션 / 가족 / 내 여행**입니다. 조건은 3단계 편집창에서 바꾸고, 지도 번호와 장소 목록·상세가 연결됩니다. 부모는 초대코드 없이도 여행안을 만들 수 있습니다. [디자인 컨셉과 화면 설계](reports/design_concept_v2.md).
 
-교통·도보는 거리 기반 추정이며, 날씨는 기상청 예보와 사용자가 적용하는 시간 버퍼를 구분합니다. 가족 초대는 같은 브라우저의 시연 기능이고 다른 기기와 동기화되지 않습니다. 스탬프는 개인 기록입니다. 브라우저·실기기 사용성, 현장 운영조건과 심사위원 접근 설정은 제출 전에 확인해야 합니다.
+교통·도보는 거리 기반 추정이며, 날씨는 기상청 예보와 사용자가 적용하는 시간 버퍼를 구분합니다. 가족 초대는 같은 브라우저의 시연 기능이고 다른 기기와 동기화되지 않습니다. 스탬프는 개인 기록입니다. Chrome·Edge의 4가지 화면 크기로 계획·지도·저장 흐름을 점검했습니다. 실제 휴대폰·부모 사용성, 현장 운영조건과 심사위원 접근 설정은 별도 확인이 필요합니다. [제품 및 브라우저 검증 보고서](reports/browser_qa_report.md).
 
 ## 시작
 
@@ -38,7 +38,11 @@ cd web
 npm run typecheck
 npm test
 npm run build
+# 설치된 Chrome·Edge에서 실제 API 사용 (별도 브라우저 프로필)
+npm run test:browser
 ```
+
+브라우저 재현 방법과 API 실패 검사 설정은 [QA 보고서](reports/browser_qa_report.md)에 있습니다. CI는 키 없이 Chromium에서 장애 대응 흐름을 실행합니다.
 
 ## 구조
 
@@ -50,7 +54,7 @@ npm run build
 - `data/raw/public/`: 공개 원천/명세와 `data/processed/`: 변환 결과
 - `reports/`: 공고·Notion·제출양식·데이터 품질·구현 계획
 
-[개발 계획](reports/implementation_plan.md) · [공식 규정](reports/notion_requirements.md) · [데이터 검증](reports/data_validation_summary.md) · [제출물](reports/submission_assets.md)
+[다음 작업](reports/next_steps_after_review.md) · [개발 계획](reports/implementation_plan.md) · [공식 규정](reports/notion_requirements.md) · [데이터 검증](reports/data_validation_summary.md) · [제출물](reports/submission_assets.md)
 
 ## 출처와 범위
 
