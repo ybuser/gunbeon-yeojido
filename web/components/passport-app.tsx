@@ -2193,6 +2193,11 @@ export default function PassportApp() {
         <button onClick={() => go('data')}>
           출처·데이터 상태 확인 <ArrowUpRight size={14} />
         </button>
+        <button onClick={async () => {
+          const response = await fetch('/api/test-access', { method: 'DELETE' });
+          if (response.ok) window.location.assign('/login');
+          else setNotice('테스트를 종료하지 못했습니다. 다시 시도해 주세요.');
+        }}>테스트 입장 종료</button>
       </footer>
       <Sheet open={editing} onOpenChange={setEditing}>
         <SheetContent side="bottom" className="trip-editor">

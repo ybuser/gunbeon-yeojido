@@ -149,10 +149,13 @@ for (const channel of channels) {
           (result.apiRequests[u.pathname] || 0) + 1;
     });
     try {
+      await p.goto(new URL('/login', base).href);
+      await p.locator('.test-entry[data-ready="true"]').waitFor();
+      await p.getByLabel('테스트 비밀번호', { exact: true }).fill(process.env.QA_TEST_PASSWORD || '1234');
       const placeResponse = p.waitForResponse(
         (r) => new URL(r.url()).pathname === '/api/places',
       );
-      await p.goto(base);
+      await p.getByRole('button', { name: '여행 시작하기', exact: true }).click();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
       const response = await placeResponse;
       const responseData = await response.json();

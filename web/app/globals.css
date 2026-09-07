@@ -2581,3 +2581,17 @@ input {
     height: clamp(280px, calc(100dvh - 435px), 510px);
   }
 }
+.test-entry { min-height:100dvh; padding:32px 24px; display:flex; flex-direction:column; align-items:center; background:#fff; }
+.test-entry-brand { display:flex; align-items:center; gap:10px; color:#256dee; width:min(100%,400px); }
+.test-entry-brand strong { color:#252c32; font-size:21px; letter-spacing:-.8px; }
+.test-entry-brand span { color:#74808d; font-weight:400; font-size:15px; }
+.test-entry-panel { width:min(100%,400px); margin:auto 0; padding:64px 0; }
+.test-entry-eyebrow { color:#246ded; font-size:14px; font-weight:650; margin:0 0 20px; }
+.test-entry-panel h1 { font-size:clamp(32px,5vw,42px); line-height:1.32; letter-spacing:-1.5px; font-weight:750; margin:0 0 22px; }
+.test-entry-copy { font-size:16px; color:#65707d; line-height:1.7; margin:0 0 36px; }
+.test-entry-panel label { display:block; font-size:14px; font-weight:600; margin:0 0 10px; }
+.test-entry-panel input { height:54px; font-size:18px; width:100%; }
+.test-entry-panel [role=alert] { color:#bd342b; font-size:14px; min-height:24px; margin:8px 0; }
+.test-entry-panel button { width:100%; min-height:54px; font-size:16px; gap:12px; }
+.test-entry-note { margin:24px 0 0; font-size:14px; color:#74808d; line-height:1.7; }
+.test-entry-footer { margin-top:auto; font-size:14px; color:#8b929c; }
