@@ -2567,3 +2567,17 @@ input {
     font-size: 14px;
   }
 }
+
+@media (min-width: 761px) {
+  .route-map-pane {
+    display: flex;
+    flex-direction: column;
+  }
+  .route-map-pane .map-clock {
+    order: -1;
+    margin: 0 0 12px;
+  }
+  .route-map-pane .map-wrap {
+    height: clamp(280px, calc(100dvh - 435px), 510px);
+  }
+}

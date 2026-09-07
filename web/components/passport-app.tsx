@@ -312,6 +312,18 @@ export default function PassportApp() {
     prompt: () => Promise<void>;
   } | null>(null);
   useEffect(() => {
+    const readView = () => {
+      const key = window.location.hash.slice(1);
+      setView(Object.hasOwn(LABELS, key) ? key : 'home');
+      setEditing(false);
+      setPlaceOpen(null);
+      setShared(null);
+    };
+    readView();
+    window.addEventListener('popstate', readView);
+    return () => window.removeEventListener('popstate', readView);
+  }, []);
+  useEffect(() => {
     setNow(new Date());
     fetch('/api/catalog')
       .then((r) => r.json())
@@ -561,6 +573,15 @@ export default function PassportApp() {
       setSelectedId(settings.region + '-실내');
   }
   function go(v: string) {
+    if (!Object.hasOwn(LABELS, v)) return;
+    if (v !== view)
+      window.history.pushState(
+        null,
+        '',
+        v === 'home'
+          ? window.location.pathname + window.location.search
+          : '#' + v,
+      );
     setView(v);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -713,7 +734,12 @@ export default function PassportApp() {
           ? '오늘 비추천'
           : '계산 확인 필요';
   return (
-    <div className="app-shell">
+    <div
+      className="app-shell"
+      data-ready={loaded}
+      inert={!loaded}
+      aria-busy={!loaded}
+    >
       <header className="topbar travel-header">
         <button className="brand" onClick={() => go('home')}>
           <Navigation size={23} strokeWidth={2.6} />

@@ -12,7 +12,8 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --experimental-transform-types --test tests/*.test.mjs"
+    "test": "node --experimental-strip-types --experimental-transform-types --test tests/*.test.mjs",
+    "test:browser": "node scripts/browser-qa.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",
@@ -48,6 +49,7 @@
     "oxfmt": "0.61.0",
     "oxlint": "1.76.0",
     "oxlint-tsgolint": "7.0.2001",
+    "playwright": "1.62.1",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
     "vite": "^8.2.2",
