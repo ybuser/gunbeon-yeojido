@@ -48,6 +48,7 @@ export default defineConfig(async () => {
     resolve: { dedupe: ['react', 'react-dom', 'react-server-dom-webpack'] },
     optimizeDeps: {
       include: [
+        '@base-ui/react/dialog',
         '@base-ui/react/tabs',
         '@base-ui/react/select',
         '@base-ui/react/checkbox',
