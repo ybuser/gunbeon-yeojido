@@ -25,10 +25,17 @@ import {
   Database,
   ExternalLink,
   LockKeyhole,
-  Sun,
   AlertTriangle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   Select,
@@ -45,7 +52,6 @@ import { VerifiedFacts, ApiFacts } from './place-facts';
 import {
   regions,
   chapters,
-  chapterStories,
   defaultSettings,
   makeMissions,
   chooseOrigin,
@@ -71,14 +77,27 @@ import type {
 const PHOTO =
   'https://www.kogl.or.kr/upload_recommend/thumb_V/%EC%A7%80%EC%97%AD%EB%B3%84%EA%B4%80%EA%B4%91%EC%A7%80/%EA%B0%95%EC%9B%90%EB%8F%84/%EC%B2%A0%EC%9B%90/thumb_%EA%B3%A0%EC%84%9D%EC%A0%95_05.jpg';
 const LABELS = {
-  home: '오늘의 여행',
-  planner: '복귀 미션',
-  family: '부모 브리핑',
-  passport: '패스포트',
+  home: '둘러보기',
+  planner: '지도·미션',
+  family: '가족',
+  passport: '내 여행',
   radar: '휴가회수 레이더',
   data: '데이터·출처',
 };
 const STORAGE = 'gangwon-passport-v1';
+const transportLabels = {
+  car: '자차',
+  transit: '대중교통',
+  taxi: '택시+버스',
+  unknown: '미정',
+} as const;
+function transportValue(label: string): Settings['transport'] {
+  return (
+    (Object.keys(transportLabels) as Settings['transport'][]).find(
+      (key) => transportLabels[key] === label,
+    ) || 'unknown'
+  );
+}
 type Accessibility = {
   mode: string;
   total?: number;
@@ -191,9 +210,41 @@ function Source({ p }: { p: Place }) {
     </a>
   );
 }
+function PlacePhoto({
+  src,
+  title,
+  eager = false,
+}: {
+  src: string;
+  title: string;
+  eager?: boolean;
+}) {
+  const [failed, setFailed] = useState(false);
+  return failed ? (
+    <span
+      className="photo-placeholder"
+      role="img"
+      aria-label={title + ' 사진을 불러오지 못했습니다'}
+    >
+      <MapPin aria-hidden="true" />
+      <span>사진을 불러올 수 없어요</span>
+    </span>
+  ) : (
+    <img
+      src={src}
+      alt={title}
+      loading={eager ? 'eager' : 'lazy'}
+      onError={() => setFailed(true)}
+    />
+  );
+}
 export default function PassportApp() {
   const [basePlaces, setBasePlaces] = useState<Place[]>([]);
   const [view, setView] = useState('home');
+  const [editing, setEditing] = useState(false);
+  const [editStep, setEditStep] = useState(0);
+  const [draft, setDraft] = useState<Settings | null>(null);
+  const [placeOpen, setPlaceOpen] = useState<Place | null>(null);
   const [settings, setSettings] = useState<Settings>(() => defaultSettings());
   const [now, setNow] = useState(() => new Date());
   const [live, setLive] = useState<Live>({ mode: 'loading', places: [] });
@@ -206,7 +257,12 @@ export default function PassportApp() {
   const [invite, setInvite] = useState('');
   const [joined, setJoined] = useState('');
   const [loaded, setLoaded] = useState(false);
-  const [proposal, setProposal] = useState('');
+  const [proposal, setProposal] = useState<{
+    mission: Mission;
+    walkLimit: number;
+    transport: Settings['transport'];
+  } | null>(null);
+  const [recordTab, setRecordTab] = useState('plans');
   const [shared, setShared] = useState<Entry | null>(null);
   const [radarChecks, setRadarChecks] = useState([false, false, false]);
   const [detail, setDetail] = useState<{
@@ -339,10 +395,19 @@ export default function PassportApp() {
     () => chooseOrigin(places, settings),
     [places, settings],
   );
-  const missions = useMemo(
+  const missionOptions = useMemo(
     () => makeMissions(places, settings),
     [places, settings],
   );
+  const missions = useMemo(() => {
+    if (!origin) return missionOptions;
+    const rank = { safe: 0, caution: 1, unknown: 2, avoid: 3 };
+    return [...missionOptions].sort(
+      (a, b) =>
+        rank[assess(a, settings, origin, now).band] -
+        rank[assess(b, settings, origin, now).band],
+    );
+  }, [missionOptions, settings, origin, now]);
   const selected = missions.find((m) => m.id === selectedId) || missions[0];
   const score =
     selected && origin ? assess(selected, settings, origin, now) : null;
@@ -361,7 +426,7 @@ export default function PassportApp() {
     walkLimit: parseInt(familyWalk),
     theme: '회복',
     meal: familyMeal,
-    transport: familyTransport === '자차' ? 'car' : 'transit',
+    transport: transportValue(familyTransport),
   } as Settings;
   const familyPlaces = [...familyLive.places, ...places];
   const familyMissions = makeMissions(familyPlaces, familySettings);
@@ -403,6 +468,41 @@ export default function PassportApp() {
       });
     return () => controller.abort();
   }, [brief, familyRegion]);
+  function editTrip() {
+    setDraft({ ...settings });
+    setEditStep(0);
+    setEditing(true);
+  }
+  function draftChange<K extends keyof Settings>(key: K, value: Settings[K]) {
+    setDraft((s) => ({
+      ...(s || settings),
+      [key]: value,
+      ...(key === 'region' ? { originId: '' } : {}),
+    }));
+  }
+  function draftPreset(minutes: number) {
+    const d = new Date();
+    setDraft((s) => ({
+      ...(s || settings),
+      duration: minutes,
+      startedAt: d.toISOString(),
+      returnAt: new Date(d.getTime() + minutes * 60000).toISOString(),
+    }));
+  }
+  function applyTrip() {
+    if (!draft || !Number.isFinite(Date.parse(draft.returnAt))) return;
+    setSettings(draft);
+    setNow(new Date());
+    setSelectedId('');
+    setEditing(false);
+    if (draft.role === '부모님') {
+      setFamilyRegion(draft.region);
+      setFamilyTransport(transportLabels[draft.transport]);
+      setFamilyWalk(draft.walkLimit + '분');
+      setBrief(false);
+      go('family');
+    } else go('planner');
+  }
   function change<K extends keyof Settings>(k: K, v: Settings[K]) {
     setSettings((s) => ({
       ...s,
@@ -412,16 +512,6 @@ export default function PassportApp() {
     if (k === 'region') setSelectedId('');
     if (k === 'weather' && (v === 'rain' || v === 'wind' || v === 'snow'))
       setSelectedId(settings.region + '-실내');
-  }
-  function preset(minutes: number) {
-    const d = new Date();
-    setNow(d);
-    setSettings((s) => ({
-      ...s,
-      duration: minutes,
-      startedAt: d.toISOString(),
-      returnAt: new Date(d.getTime() + minutes * 60000).toISOString(),
-    }));
   }
   function go(v: string) {
     setView(v);
@@ -496,24 +586,30 @@ export default function PassportApp() {
     setJoined(invite.trim().toUpperCase());
     setNotice('허용된 공유범위로 연결했습니다.');
   }
-  async function loadDetail(p: Place) {
-    if (p.source !== 'tourapi') return;
+  useEffect(() => {
+    const p = placeOpen;
+    if (!p || p.source !== 'tourapi') return;
+    const controller = new AbortController();
     setDetail({ id: p.id, data: null, loading: true });
-    try {
-      const r = await fetch(
-        '/api/place-detail?id=' + p.source_id + '&type=' + p.content_type_id,
-        { cache: 'no-store' },
-      );
-      const data = await r.json();
-      setDetail({ id: p.id, data, loading: false });
-    } catch {
-      setDetail({
-        id: p.id,
-        data: { error: '상세 데이터를 연결하지 못했습니다.' },
-        loading: false,
+    fetch(
+      '/api/place-detail?id=' + p.source_id + '&type=' + p.content_type_id,
+      { cache: 'no-store', signal: controller.signal },
+    )
+      .then((r) => r.json())
+      .then((data) => {
+        if (!controller.signal.aborted)
+          setDetail({ id: p.id, data, loading: false });
+      })
+      .catch(() => {
+        if (!controller.signal.aborted)
+          setDetail({
+            id: p.id,
+            data: { error: '상세 데이터를 연결하지 못했습니다.' },
+            loading: false,
+          });
       });
-    }
-  }
+    return () => controller.abort();
+  }, [placeOpen]);
   async function copy(text: string) {
     try {
       await navigator.clipboard.writeText(text);
@@ -538,7 +634,16 @@ export default function PassportApp() {
             "'": '&apos;',
           })[c]!,
       );
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080"><rect width="1080" height="1080" fill="#f4f2eb"/><rect x="70" y="70" width="940" height="940" rx="26" fill="#172f43"/><text x="130" y="190" fill="#b6d3dc" font-family="sans-serif" font-size="28">GANGWON PEACE PASSPORT</text><text x="130" y="310" fill="white" font-family="sans-serif" font-size="58">군번여지도 강원</text><text x="130" y="430" fill="white" font-family="sans-serif" font-size="34">${safe(card.region)} 여행 기록</text><text x="130" y="510" fill="white" font-family="sans-serif" font-size="29">${safe(card.mission)}</text><text x="130" y="650" fill="#b6d3dc" font-family="sans-serif" font-size="30">${safe(card.stamps.join(' · ') || '계획한 미션')}</text><text x="130" y="850" fill="white" font-family="sans-serif" font-size="30">복무 경험을 관광 경험으로.</text></svg>`;
+    const titleLines = card.mission.match(/.{1,19}/gu) || [];
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080"><rect width="1080" height="1080" fill="#ffffff"/><rect x="80" y="80" width="920" height="6" fill="#246fe5"/><text x="80" y="175" fill="#246fe5" font-family="sans-serif" font-size="32" font-weight="bold">군번여지도 강원</text><text x="80" y="340" fill="#8693a4" font-family="sans-serif" font-size="30">${safe(card.region)} 여행 기록</text>${titleLines
+      .slice(0, 4)
+      .map(
+        (line, i) =>
+          `<text x="80" y="${440 + i * 72}" fill="#222b36" font-family="sans-serif" font-size="44" font-weight="bold">${safe(line)}</text>`,
+      )
+      .join(
+        '',
+      )}<text x="80" y="775" fill="#667c99" font-family="sans-serif" font-size="30">${safe(card.stamps.join(' · ') || '계획한 미션')}</text><line x1="80" y1="870" x2="1000" y2="870" stroke="#e0e7f0"/><text x="80" y="940" fill="#94a1b2" font-family="sans-serif" font-size="26">복무 경험을 관광 경험으로.</text></svg>`;
     const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
     const a = document.createElement('a');
     a.href = url;
@@ -556,701 +661,512 @@ export default function PassportApp() {
           : '계산 확인 필요';
   return (
     <div className="app-shell">
-      <header className="topbar">
+      <header className="topbar travel-header">
         <button className="brand" onClick={() => go('home')}>
-          <BookOpen />
+          <Navigation size={23} strokeWidth={2.6} />
           <span>
             군번여지도 <b>강원</b>
           </span>
         </button>
-        <span className="eyebrow">GANGWON PEACE PASSPORT</span>
+        <span className="header-location">강원에서 함께 보내는 하루</span>
         <button className="top-link" onClick={() => go('data')}>
-          <Layers3 size={17} /> 데이터·출처
+          <Layers3 size={17} /> 이용 안내
         </button>
       </header>
       <Tabs value={view} onValueChange={(v) => go(String(v))}>
         <TabsList className="main-nav" variant="line">
-          {Object.entries(LABELS).map(([key, label]) => (
-            <TabsTrigger key={key} value={key} className={'nav-' + key}>
-              {key === 'home' ? (
-                <Compass />
-              ) : key === 'planner' ? (
-                <Navigation />
-              ) : key === 'family' ? (
-                <Users />
-              ) : key === 'passport' ? (
-                <BookOpen />
-              ) : key === 'radar' ? (
-                <Leaf />
-              ) : (
-                <Database />
-              )}
-              <span>{label}</span>
-            </TabsTrigger>
-          ))}
+          {Object.entries(LABELS)
+            .filter(([key]) => !['radar', 'data'].includes(key))
+            .map(([key, label]) => (
+              <TabsTrigger key={key} value={key} className={'nav-' + key}>
+                {key === 'home' ? (
+                  <Compass />
+                ) : key === 'planner' ? (
+                  <Navigation />
+                ) : key === 'family' ? (
+                  <Users />
+                ) : key === 'passport' ? (
+                  <BookOpen />
+                ) : key === 'radar' ? (
+                  <Leaf />
+                ) : (
+                  <Database />
+                )}
+                <span>{label}</span>
+              </TabsTrigger>
+            ))}
         </TabsList>
         <TabsContent value="home">
-          <main className="workspace">
-            <section className="intro">
-              <span className="kicker">나의 하루, 우리의 여행</span>
-              <h1>
-                휴전선 밖<br />첫 하루.
-              </h1>
-              <p>
-                복무 경험을 관광 경험으로.
-                <br />
-                장병과 가족이 함께 만드는 강원 DMZ 관광 여권.
-              </p>
-              <Choices
-                label="누구의 여행을 준비할까요?"
-                value={settings.role}
-                options={['현역 장병', '부모님', '여자친구·친구', '면회객']}
-                onChange={(v) => change('role', v)}
-              />
-              <div className="preview-brief">
-                <span>
-                  <MapPin size={18} /> 강원 접경 5군 · 7개의 챕터
-                </span>
-                <h2>갈 곳보다, 함께할 하루부터.</h2>
-                <p>
-                  공개 만남 거점에서 출발해 돌아올 여유까지. 가족의 속도로
-                  여행을 계획하세요.
-                </p>
-                <Button
-                  className="primary-cta"
-                  onClick={() =>
-                    go(settings.role === '부모님' ? 'family' : 'planner')
-                  }
+          <main className="explore-page">
+            <section className="explore-heading">
+              <div>
+                <h1>오늘, 강원 어디 갈까요?</h1>
+                <p>돌아갈 시간에 맞춰 함께 고르는 여행</p>
+              </div>
+              <button className="saved-shortcut" onClick={() => go('passport')}>
+                <BookOpen size={18} />내 여행 <span>{entries.length}</span>
+              </button>
+            </section>
+            <div className="region-tabs" aria-label="여행 지역">
+              {regions.map((r) => (
+                <button
+                  key={r}
+                  className={settings.region === r ? 'active' : ''}
+                  aria-pressed={settings.region === r}
+                  onClick={() => change('region', r)}
                 >
-                  {settings.role === '부모님'
-                    ? '부모 브리핑 만들기'
-                    : '오늘의 복귀 미션 만들기'}{' '}
-                  <ArrowUpRight />
-                </Button>
-                <button className="text-action" onClick={() => go('passport')}>
-                  나의 비무장 패스포트 <ArrowRight size={15} />
+                  {r.replace(/[군시]$/, '')}
                 </button>
-              </div>
-              <p className="privacy-note">
-                <ShieldCheck size={16} /> 부대명·군번·정확한 복무지는 묻지
-                않습니다.
-              </p>
-            </section>
-            <section className="first-slice">
-              <img
-                className="hero-photo"
-                src={PHOTO}
-                alt="철원 고석정의 강과 기암"
-              />
-              <div className="photo-title">
-                <span className="kicker">CHAPTER 01 · 철원</span>
-                <h2>
-                  경계가
-                  <br />
-                  풍경이 되는 곳.
-                </h2>
-                <span className="photo-caption">
-                  오늘은 가족의 눈으로, 강원을 만나요.
-                </span>
-              </div>
-              <a
-                className="photo-credit"
-                href="https://www.kogl.or.kr/recommend/recommendDivView.do?division=img&oc=&recommendIdx=2453"
-                target="_blank"
-                rel="noreferrer"
-              >
-                고석정 · 한국문화관광연구원(2015), 공공누리 제1유형
-              </a>
-            </section>
-            <section className="home-shortcuts">
-              <button onClick={() => go('family')}>
-                <HeartHandshake />
-                <span>
-                  <b>부모 브리핑룸</b>
-                  <small>우리 가족의 속도로 계획해요</small>
-                </span>
-                <ChevronRight />
-              </button>
-              <button onClick={() => go('radar')}>
-                <Leaf />
-                <span>
-                  <b>휴가회수 레이더</b>
-                  <small>현충시설 방문과 제도 확인 준비</small>
-                </span>
-                <ChevronRight />
-              </button>
-            </section>
-            <section className="chapter-strip">
-              <span className="kicker">YOUR NEXT CHAPTER</span>
-              <div>
-                {regions.map((r, i) => (
-                  <button
-                    key={r}
-                    onClick={() => {
-                      change('region', r);
-                      go('planner');
-                    }}
-                  >
-                    <span>0{i + 1}</span>
-                    <b>{chapters[i]}</b>
-                    <ArrowUpRight size={16} />
-                  </button>
-                ))}
-              </div>
-            </section>
-          </main>
-        </TabsContent>
-        <TabsContent value="planner">
-          <main className="page-container">
-            <div className="page-heading">
-              <div>
-                <span className="kicker">RETURN CLOCK · 오늘의 미션</span>
-                <h1>돌아갈 여유를 남기는 여행</h1>
-                <p>
-                  공개 거점부터 시작하는 계획입니다. 실제 부대 복귀 경로는
-                  수집하지 않습니다.
-                </p>
-              </div>
-              <span className="local-label">
-                <LockKeyhole size={14} /> 기준시각은 현재 화면에서만 사용
-              </span>
+              ))}
             </div>
-            <div className="planner-grid">
-              <aside className="panel settings-panel">
-                <h2>
-                  <Compass size={20} /> 오늘의 조건
-                </h2>
-                <div className="form-grid">
-                  <Field
-                    label="상황"
-                    value={settings.situation}
-                    options={[
-                      '휴가',
-                      '외출',
-                      '면회',
-                      '수료식',
-                      '전역 전',
-                      '입영 전날',
-                    ]}
-                    onChange={(v) => change('situation', v)}
-                  />
-                  <Field
-                    label="강원 권역"
-                    value={settings.region}
-                    options={[...regions]}
-                    onChange={(v) => change('region', v)}
-                  />
-                  <Field
-                    label="동행자"
-                    value={settings.companion}
-                    options={['혼자', '전우', '부모님', '가족', '연인', '친구']}
-                    onChange={(v) => change('companion', v)}
-                  />
-                  <Field
-                    label="이동수단"
-                    value={
+            <section className="trip-search" aria-label="오늘의 여행 조건">
+              <button onClick={editTrip}>
+                <Clock3 />
+                <span>
+                  <small>남은 시간</small>
+                  <b>
+                    {settings.duration === 1440
+                      ? '1박 2일'
+                      : settings.duration / 60 + '시간'}
+                  </b>
+                </span>
+                <ChevronRight size={16} />
+              </button>
+              <button onClick={editTrip}>
+                <Users />
+                <span>
+                  <small>동행</small>
+                  <b>
+                    {settings.companion} ·{' '}
+                    {
                       {
                         car: '자차',
                         transit: '대중교통',
                         taxi: '택시+버스',
-                        unknown: '미정',
+                        unknown: '이동수단 미정',
                       }[settings.transport]
                     }
-                    options={['자차', '대중교통', '택시+버스', '미정']}
-                    onChange={(v) =>
-                      change(
-                        'transport',
-                        (
-                          {
-                            자차: 'car',
-                            대중교통: 'transit',
-                            '택시+버스': 'taxi',
-                            미정: 'unknown',
-                          } as const
-                        )[v as '자차'],
-                      )
-                    }
-                  />
-                </div>
-                <Choices
-                  label="남은 시간"
-                  value={
-                    settings.duration === 120
-                      ? '2시간'
-                      : settings.duration === 240
-                        ? '4시간'
-                        : settings.duration === 480
-                          ? '8시간'
-                          : settings.duration === 1440
-                            ? '1박 2일'
-                            : '직접 설정'
-                  }
-                  options={['2시간', '4시간', '8시간', '1박 2일']}
-                  onChange={(v) =>
-                    preset(
-                      {
-                        '2시간': 120,
-                        '4시간': 240,
-                        '8시간': 480,
-                        '1박 2일': 1440,
-                      }[v] || 240,
-                    )
-                  }
-                />
-                <label className="field">
-                  복귀 기준시각 · 공개 거점 도착 목표
-                  <input
-                    type="datetime-local"
-                    value={localInputDate(settings.returnAt)}
-                    onChange={(e) => {
-                      const iso = parseKoreaInput(e.target.value);
-                      if (iso) {
-                        const d = new Date();
-                        setSettings((s) => ({
-                          ...s,
-                          returnAt: iso,
-                          startedAt: d.toISOString(),
-                          duration: Math.max(
-                            1,
-                            Math.ceil((Date.parse(iso) - d.getTime()) / 60000),
-                          ),
-                        }));
-                      }
-                    }}
-                  />
-                </label>
-                <p className="helper">
-                  한국 시각 기준. 거점 이후 부대 이동·수속 시간을 직접 남겨
-                  주세요. 출발 전 거점까지 이동은 계산에 포함되지 않습니다.
-                </p>
-                {origin && (
-                  <Field
-                    label="공개 만남·복귀 거점"
-                    value={origin.title}
-                    options={local
-                      .filter(
-                        (p) =>
-                          p.category === 'attraction' ||
-                          p.category === 'culture',
-                      )
-                      .slice(0, 80)
-                      .map((p) => p.title)}
-                    onChange={(v) =>
-                      change(
-                        'originId',
-                        local.find((p) => p.title === v)?.id || '',
-                      )
-                    }
-                  />
-                )}
-                <Choices
-                  label="원하는 경험"
-                  value={settings.theme}
-                  options={['회복', '평화', '호국', '가족', '기록', '보상']}
-                  onChange={(v) => change('theme', v)}
-                />
-                <div className="form-grid">
-                  <Field
-                    label="전체 도보 상한"
-                    value={settings.walkLimit + '분'}
-                    options={['15분', '30분', '60분', '90분']}
-                    onChange={(v) => change('walkLimit', parseInt(v))}
-                  />
-                  <Field
-                    label="추가 안전 버퍼"
-                    value={settings.extraBuffer + '분'}
-                    options={['15분', '30분', '60분', '90분']}
-                    onChange={(v) => change('extraBuffer', parseInt(v))}
-                  />
-                </div>
-                <WeatherCard
-                  region={settings.region}
-                  onApply={(v) => change('weather', v)}
-                />
-                <Choices
-                  label="계산에 적용할 날씨 버퍼"
-                  value={
-                    {
-                      unknown: '미확인',
-                      clear: '기본 버퍼',
-                      rain: '비 보정',
-                      wind: '강풍 보정',
-                      snow: '눈·결빙 보정',
-                    }[settings.weather]
-                  }
-                  options={[
-                    '미확인',
-                    '기본 버퍼',
-                    '비 보정',
-                    '강풍 보정',
-                    '눈·결빙 보정',
-                  ]}
-                  onChange={(v) =>
-                    change(
-                      'weather',
-                      (
-                        {
-                          미확인: 'unknown',
-                          '기본 버퍼': 'clear',
-                          '비 보정': 'rain',
-                          '강풍 보정': 'wind',
-                          '눈·결빙 보정': 'snow',
-                        } as const
-                      )[v as '미확인'],
-                    )
-                  }
-                />
-                <button className="text-action" onClick={() => preset(240)}>
-                  <RefreshCw size={14} /> 지금부터 4시간으로 다시 시작
-                </button>
-              </aside>
-              <section className="mission-workspace">
-                <div
-                  className={
-                    'live-strip ' + (live.mode === 'live' ? 'connected' : '')
-                  }
-                >
-                  <Database size={16} />
-                  <span>
-                    {live.mode === 'live'
-                      ? '한국관광공사 API 실시간 연결 · ' +
-                        live.places.length +
-                        '개 수신'
-                      : live.mode === 'loading'
-                        ? '한국관광공사 관광정보 연결 중'
-                        : '통일부·보훈부 원천 자료로 둘러보기 · 관광공사 연결 전'}
-                  </span>
-                  <button
-                    aria-label="관광정보 다시 불러오기"
-                    onClick={() => setRefresh((x) => x + 1)}
-                  >
-                    <RefreshCw size={16} />
+                  </b>
+                </span>
+                <ChevronRight size={16} />
+              </button>
+              <Button className="search-submit" onClick={editTrip}>
+                내 조건으로 미션 찾기 <ArrowRight size={18} />
+              </Button>
+            </section>
+            <div className="section-title">
+              <div>
+                <h2>
+                  {settings.region.replace(/[군시]$/, '')}에서 보내는 하루
+                </h2>
+                <p>풍경도 보고, 쉬어갈 시간도 남겨요.</p>
+              </div>
+              <button onClick={() => go('planner')}>
+                지도 보기 <ArrowUpRight size={17} />
+              </button>
+            </div>
+            <div className="journey-cards">
+              {missions.map((m, i) => {
+                const evaluated = origin
+                  ? assess(m, settings, origin, now)
+                  : null;
+                const cover = m.stops.find((x) => x.place.image_url)?.place;
+                const fallback = m.stops.some((x) => x.place.title === '고석정')
+                  ? PHOTO
+                  : undefined;
+                return (
+                  <article className="journey-card" key={m.id}>
+                    <button
+                      className="journey-image"
+                      onClick={() => {
+                        setSelectedId(m.id);
+                        go('planner');
+                      }}
+                      aria-label={m.title + ' 자세히 보기'}
+                    >
+                      {cover?.image_url || fallback ? (
+                        <PlacePhoto
+                          key={cover?.image_url || fallback}
+                          src={cover?.image_url || fallback!}
+                          title={cover?.title || '철원 고석정 풍경'}
+                          eager={!i}
+                        />
+                      ) : (
+                        <div className="photo-unavailable">
+                          <MapPin />
+                          <span>{settings.region} 여행</span>
+                        </div>
+                      )}
+                      <span className="image-category">
+                        {m.variant === '실내'
+                          ? '실내 후보'
+                          : m.variant + ' 미션'}
+                      </span>
+                      <span className="image-corner">
+                        <ArrowUpRight size={21} />
+                      </span>
+                    </button>
+                    <span className="image-attribution">
+                      {cover
+                        ? '출처: ⓒ한국관광공사'
+                        : fallback
+                          ? '고석정 · 한국문화관광연구원 / 공공누리 1유형'
+                          : '제공된 장소 사진 없음'}
+                    </span>
+                    <button
+                      className="journey-text"
+                      onClick={() => {
+                        setSelectedId(m.id);
+                        go('planner');
+                      }}
+                    >
+                      <h3>
+                        {{
+                          가족: '부모님과 천천히 돌아보기',
+                          회복: '잠깐 둘러보고, 편하게 쉬기',
+                          평화: '강원의 이야기를 따라',
+                          실내: '실내에서 여유롭게',
+                        }[m.variant] || m.title}
+                      </h3>
+                      <p>{m.stops.map((x) => x.place.title).join(' · ')}</p>
+                      <div className="journey-meta">
+                        <span>
+                          <Clock3 size={14} />
+                          {evaluated?.total || '—'}분 예상
+                        </span>
+                        <span>
+                          <Footprints size={14} />
+                          도보 {evaluated?.walk || '—'}분 추정
+                        </span>
+                      </div>
+                      <div
+                        className={
+                          'journey-margin ' + (evaluated?.band || 'unknown')
+                        }
+                      >
+                        <span className="status-dot" />
+                        <b>
+                          {evaluated?.margin == null
+                            ? '복귀 시간 확인 필요'
+                            : evaluated.margin >= 0
+                              ? '복귀 여유 +' + evaluated.margin + '분'
+                              : '복귀 시간 ' +
+                                Math.abs(evaluated.margin) +
+                                '분 부족'}
+                        </b>
+                        <span>
+                          {evaluated?.band === 'avoid'
+                            ? '현재 조건 비추천'
+                            : '방문 조건 확인 필요'}
+                        </span>
+                      </div>
+                    </button>
+                  </article>
+                );
+              })}
+              {!missions.length && (
+                <div className="list-empty">
+                  {live.mode === 'loading'
+                    ? '여행 장소를 불러오고 있어요.'
+                    : '이 지역의 여행 후보를 확인하지 못했습니다.'}
+                  <button onClick={() => setRefresh((x) => x + 1)}>
+                    다시 확인
                   </button>
                 </div>
-                {!selected || !origin ? (
-                  <div className="panel empty">
-                    <MapPin />
-                    <h2>이 권역은 실시간 관광정보 연결이 필요합니다</h2>
-                    <p>
-                      검증되지 않은 장소를 임의로 채우지 않았습니다. 접경 5군을
-                      선택하거나 관광공사 데이터를 연결해 주세요.
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    <div className={'return-banner ' + score?.band}>
-                      <div>
-                        <span>
-                          <Clock3 size={16} /> 복귀시계 · {bandLabel}
-                        </span>
-                        <strong>
-                          {score?.margin === null
-                            ? '계산 보류'
-                            : `${(score?.margin || 0) >= 0 ? '+' : ''}${score?.margin}분`}
-                        </strong>
-                      </div>
-                      <p>
-                        {score?.conditionsConfirmed
-                          ? '방문 조건 데이터 확인됨'
-                          : '방문 조건 확인 필요'}
-                        <br />
-                        <small>공개 거점까지의 추정 안전마진</small>
-                      </p>
-                    </div>
+              )}
+            </div>
+            <section className="family-entry">
+              <div className="family-entry-icon">
+                <HeartHandshake size={28} />
+              </div>
+              <div>
+                <h2>부모님이 편한 여행을 함께 골라요.</h2>
+                <p>걷는 시간, 주차, 좋아하는 식사부터.</p>
+              </div>
+              <Button variant="outline" onClick={() => go('family')}>
+                가족 여행 준비 <ArrowRight size={17} />
+              </Button>
+            </section>
+            <p className="explore-footnote">
+              복귀 여유는 공개 거점까지의 추정값입니다. 실제 교통과 소속 부대
+              복귀 규정을 확인해 주세요.
+            </p>
+          </main>
+        </TabsContent>
+        <TabsContent value="planner">
+          <main className="route-page">
+            <div className="route-toolbar">
+              <button onClick={() => go('home')} className="back-action">
+                ← 둘러보기
+              </button>
+              <button className="edit-summary" onClick={editTrip}>
+                <span>
+                  {settings.region} · {settings.companion}
+                </span>
+                <b>
+                  {new Intl.DateTimeFormat('ko-KR', {
+                    timeZone: 'Asia/Seoul',
+                    month: 'numeric',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                  }).format(new Date(settings.returnAt))}
+                  까지
+                </b>
+                <span>조건 변경</span>
+                <ChevronRight size={16} />
+              </button>
+            </div>
+            {!selected || !origin ? (
+              <div className="list-empty">
+                {live.mode === 'loading'
+                  ? '미션을 준비하고 있어요.'
+                  : '이 조건의 미션을 구성하지 못했습니다.'}
+                <button onClick={editTrip}>조건 바꾸기</button>
+              </div>
+            ) : (
+              <>
+                <div className="route-layout">
+                  <section className="route-map-pane">
                     <MissionMap
                       mission={selected}
                       origin={origin}
                       mapKey={mapKey}
+                      onSelectPlace={(p) => {
+                        setPlaceOpen(p);
+                      }}
                     />
-                    <div className="mission-options">
-                      {missions.map((m) => {
-                        const a = assess(m, settings, origin, now);
-                        return (
-                          <button
-                            key={m.id}
-                            onClick={() => setSelectedId(m.id)}
-                            className={
-                              m.id === selected.id
-                                ? 'option selected'
-                                : 'option'
-                            }
-                          >
-                            <span>
-                              {m.variant === '회복' ? (
-                                <Leaf size={16} />
-                              ) : m.variant === '실내' ? (
-                                <CloudRain size={16} />
-                              ) : (
-                                <Compass size={16} />
-                              )}{' '}
-                              {m.variant}
-                            </span>
-                            <b>
-                              {a.margin === null
-                                ? '확인 필요'
-                                : `${a.margin >= 0 ? '+' : ''}${a.margin}분`}
-                            </b>
-                          </button>
-                        );
-                      })}
+                    <div className={'map-clock ' + score?.band}>
+                      <Clock3 size={21} />
+                      <div>
+                        <span>공개 거점까지 복귀 여유</span>
+                        <strong>
+                          {score?.margin == null
+                            ? '확인 필요'
+                            : (score.margin >= 0 ? '+' : '') +
+                              score.margin +
+                              '분'}
+                        </strong>
+                      </div>
+                      <b>{bandLabel}</b>
                     </div>
-                    <article className="panel mission-detail">
-                      <div className="section-head">
-                        <span className="kicker">
-                          MISSION BRIEF / {selected.stops.length} PLACES
-                        </span>
-                        <span className="tag">{selected.region}</span>
-                      </div>
-                      <h2>{selected.title}</h2>
+                    <p className="map-disclaimer">
+                      참고값입니다. 실제 교통과 소속 부대 복귀 규정을 확인해
+                      주세요.
+                    </p>
+                  </section>
+                  <section className="route-itinerary">
+                    <div className="route-variants" aria-label="미션 선택">
+                      {missions.map((m) => (
+                        <button
+                          key={m.id}
+                          onClick={() => setSelectedId(m.id)}
+                          className={selected.id === m.id ? 'active' : ''}
+                        >
+                          {m.variant === '실내' ? '실내 후보' : m.variant}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="itinerary-title">
+                      <span>
+                        {settings.region} · {selected.stops.length}곳
+                      </span>
+                      <h1>{selected.title.replace(/^[^:]+:\s*/, '')}</h1>
                       <p>{selected.brief}</p>
-                      <div className="badge-row">
-                        <span>
-                          <Clock3 size={15} /> 여유 포함 {score?.total}분 추정
-                        </span>
-                        <span>
-                          <Footprints size={15} /> 도보 약 {score?.walk}분
-                        </span>
-                        <span>
-                          <Users size={15} /> {settings.companion}
-                        </span>
+                    </div>
+                    <div className="route-stats">
+                      <div>
+                        <b>
+                          {score?.total}
+                          <small>분</small>
+                        </b>
+                        <span>이동·여유 포함</span>
                       </div>
-                      {settings.duration > 600 && (
-                        <div className="warning">
-                          1박 일정 초안 · 숙박·휴식 10시간을 확보했지만 숙소와
-                          다음 날 운영은 미확인입니다.
+                      <div>
+                        <b>
+                          {score?.walk}
+                          <small>분</small>
+                        </b>
+                        <span>도보 추정</span>
+                      </div>
+                      <div>
+                        <b>{settings.companion}</b>
+                        <span>오늘의 동행</span>
+                      </div>
+                    </div>
+                    <div className="route-alert">
+                      <AlertTriangle size={17} />
+                      <p>
+                        {score?.band === 'avoid'
+                          ? '현재 시간·도보·기상 조건에서는 추천하지 않습니다. '
+                          : ''}
+                        예약·신분증·당일 운영 확인이 필요합니다.
+                      </p>
+                    </div>
+                    {settings.duration > 600 && (
+                      <p className="helper">
+                        1박 일정 초안입니다. 숙박·휴식 10시간 외 숙소와 다음 날
+                        운영은 별도 확인하세요.
+                      </p>
+                    )}
+                    <div className="journey-timeline">
+                      <div className="timeline-hub">
+                        <span className="hub-dot" />
+                        <div>
+                          <small>만나는 곳 · 돌아올 곳</small>
+                          <b>{origin.title}</b>
                         </div>
-                      )}
-                      <div className="timeline">
-                        <div className="timeline-origin">
-                          <MapPin size={17} />
-                          <span>
-                            출발·돌아올 공개 거점 <b>{origin.title}</b>
-                          </span>
-                        </div>
-                        {selected.stops.map((stop, i) => (
-                          <section className="stop" key={stop.place.id}>
-                            <span className="stop-number">0{i + 1}</span>
-                            <div>
-                              <small>
-                                {
-                                  [
-                                    '풍경과 만남',
-                                    '잠시 쉬어가는 자리',
-                                    '기억을 남기는 곳',
-                                  ][i]
-                                }{' '}
-                                · 체류 {stop.stay}분 추정
-                              </small>
-                              <h3>{stop.place.title}</h3>
-                              <p className="address">{stop.place.address}</p>
-                              <Source p={stop.place} />
-                              <VerifiedFacts place={stop.place} />
-                              <div className="stop-actions">
-                                <a
-                                  href={kakaoLink(stop.place)}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  <Navigation size={13} /> 카카오맵 길찾기
-                                </a>
-                                {stop.place.source === 'tourapi' && (
-                                  <button
-                                    onClick={() => loadDetail(stop.place)}
-                                  >
-                                    <Database size={13} /> 상세·무장애 정보 조회
-                                  </button>
-                                )}
-                              </div>
-                              {detail?.id === stop.place.id && (
-                                <details open className="api-detail">
-                                  <summary>
-                                    {detail.loading
-                                      ? '정보 조회 중'
-                                      : '공사 API 상세 응답 · 빈 값은 미확인'}
-                                  </summary>
-                                  <ApiFacts
-                                    data={detail.data}
-                                    loading={detail.loading}
-                                  />
-                                </details>
-                              )}
+                      </div>
+                      {selected.stops.map((stop, i) => (
+                        <article className="place-row" key={stop.place.id}>
+                          <span className="place-number">{i + 1}</span>
+                          <div className="place-main">
+                            <small>
+                              {stop.place.category === 'cafe' ||
+                              stop.place.category === 'restaurant'
+                                ? '쉬어가기'
+                                : '둘러보기'}{' '}
+                              · 머무는 시간 {stop.stay}분
+                            </small>
+                            <button
+                              className="place-name"
+                              onClick={() => {
+                                setPlaceOpen(stop.place);
+                              }}
+                            >
+                              {stop.place.title}
+                              <ChevronRight size={17} />
+                            </button>
+                            <p>{stop.place.address}</p>
+                            <div className="place-row-actions">
+                              <a
+                                href={kakaoLink(stop.place)}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                <Navigation size={13} />
+                                길찾기
+                              </a>
+                              <button
+                                onClick={() => {
+                                  setPlaceOpen(stop.place);
+                                }}
+                              >
+                                방문·편의 정보
+                              </button>
                             </div>
-                          </section>
-                        ))}
-                        <div className="timeline-origin">
-                          <Check size={17} />
-                          <span>
-                            {origin.title}로 돌아오기 · 이동 추정에 포함
-                          </span>
+                          </div>
+                          {stop.place.image_url && (
+                            <PlacePhoto
+                              key={stop.place.image_url}
+                              src={stop.place.image_url}
+                              title={stop.place.title}
+                            />
+                          )}
+                        </article>
+                      ))}
+                      <div className="timeline-hub">
+                        <span className="hub-dot filled" />
+                        <div>
+                          <small>공개 거점으로 돌아오기</small>
+                          <b>{origin.title}</b>
                         </div>
                       </div>
-                      <div className="decoder">
-                        <h3>
-                          <ShieldCheck size={19} /> 방문 조건 · 민통선 디코더
-                        </h3>
-                        {selected.stops.map((s) => (
-                          <div className="condition-row" key={s.place.id}>
-                            <b>{s.place.title}</b>
+                    </div>
+                    <details className="route-calculation">
+                      <summary>
+                        복귀 여유는 어떻게 계산하나요?
+                        <ChevronRight size={17} />
+                      </summary>
+                      <dl>
+                        <div>
+                          <dt>남은 시간</dt>
+                          <dd>{score?.available}분</dd>
+                        </div>
+                        {Object.entries(score?.costs || {}).map(([k, v]) => (
+                          <div key={k}>
+                            <dt>{k}</dt>
+                            <dd>−{v}분</dd>
+                          </div>
+                        ))}
+                      </dl>
+                      <p>
+                        직선거리 × 우회계수 1.6과 수단별 가정 속도·대기시간을
+                        사용합니다. 실제 길찾기 소요시간이 아닙니다.
+                      </p>
+                    </details>
+                    <details className="route-calculation">
+                      <summary>
+                        출발 전 확인할 조건
+                        <ChevronRight size={17} />
+                      </summary>
+                      <ul>
+                        {score?.issues.map((x) => (
+                          <li key={x}>{x}</li>
+                        ))}
+                      </ul>
+                      <div className="visit-conditions">
+                        {selected.stops.map(({ place: p }) => (
+                          <div key={p.id}>
+                            <b>{p.title}</b>
                             <span>
                               예약{' '}
-                              {s.place.reservation_required === null
-                                ? '확인 필요'
-                                : s.place.reservation_required
+                              {p.reservation_required == null
+                                ? '미확인'
+                                : p.reservation_required
                                   ? '필요'
                                   : '불필요'}{' '}
                               · 신분증{' '}
-                              {s.place.id_check_required === null
-                                ? '확인 필요'
-                                : s.place.id_check_required
+                              {p.id_check_required == null
+                                ? '미확인'
+                                : p.id_check_required
                                   ? '필요'
                                   : '불필요'}
                             </span>
-                            <small>
-                              운영{' '}
-                              {s.place.opening_status === 'unknown'
-                                ? '확인 필요'
-                                : s.place.opening_status}{' '}
-                              · 주차·경사·실내 여부 별도 확인
-                            </small>
+                            <VerifiedFacts place={p} />
                           </div>
                         ))}
-                        <p>
-                          QR·입장 마감·민통선 출입 조건은 시설별로 다릅니다.
-                          원문과 운영기관에 확인한 후 출발하세요.
-                        </p>
                       </div>
-                      <details className="calculation">
-                        <summary>
-                          왜 이 안전마진인가요? <span>계산 근거 보기</span>
-                        </summary>
-                        <dl>
-                          <div>
-                            <dt>지금부터 남은 시간</dt>
-                            <dd>{score?.available}분</dd>
-                          </div>
-                          {Object.entries(score?.costs || {}).map(([k, v]) => (
-                            <div key={k}>
-                              <dt>{k}</dt>
-                              <dd>−{v}분</dd>
-                            </div>
-                          ))}
-                        </dl>
-                        <p>
-                          직선거리 × 우회계수 1.6, 수단별 가정 속도와 버퍼를
-                          적용했습니다. 실제 도로·통행 가능성·교통량을 측정한
-                          값이 아닙니다.
-                        </p>
-                      </details>
-                      <div className="risk-list">
-                        {score?.issues.map((x) => (
-                          <span key={x}>
-                            <AlertTriangle size={13} />
-                            {x}
-                          </span>
-                        ))}
-                      </div>
-                      {score?.band === 'avoid' && (
-                        <div className="warning">
-                          현재 조건에서는 추천하지 않습니다. 회복 미션을
-                          선택하거나 장소 수·도보 부담을 줄이고 다시 계산해
-                          주세요.
-                        </div>
-                      )}
-                      <Button className="primary-cta" onClick={saveMission}>
-                        <BookOpen size={18} /> 패스포트에 계획 담기{' '}
-                        <ArrowRight size={18} />
-                      </Button>
-                      <p className="helper">
-                        안전마진은 참고값이며 실제 교통과 소속 부대 복귀 규정은
-                        직접 확인 필요합니다.
-                      </p>
-                    </article>
-                  </>
-                )}
-              </section>
-            </div>
+                    </details>
+                    <WeatherCard
+                      region={settings.region}
+                      onApply={(v) => change('weather', v)}
+                    />
+                    <div className="route-credit">
+                      출처: ⓒ한국관광공사 · 통일부 공개데이터{' '}
+                      <button onClick={() => go('data')}>자세히</button>
+                    </div>
+                  </section>
+                </div>
+                <div className="route-savebar">
+                  <div>
+                    <b>{selected.stops.length}곳을 함께 둘러보는 미션</b>
+                    <span>{score?.total}분 추정 · 방문 조건 확인 필요</span>
+                  </div>
+                  <Button onClick={saveMission}>
+                    <BookOpen size={17} />
+                    {entries.some((e) => e.missionId === selected.id)
+                      ? '내 여행에 담은 미션'
+                      : '이 미션 내 여행에 담기'}
+                  </Button>
+                </div>
+              </>
+            )}
           </main>
         </TabsContent>
         <TabsContent value="family">
-          <main className="page-container">
-            <div className="page-heading">
-              <div>
-                <span className="kicker">FAMILY BRIEFING ROOM</span>
-                <h1>같이 가는 하루, 같이 정해요.</h1>
-                <p>
-                  부모님도 여행의 기획자입니다. 걷는 시간과 좋아하는 식사부터
-                  맞춰보세요.
-                </p>
-              </div>
-              <HeartHandshake size={44} />
+          <main className="family-page content-page">
+            <div className="content-heading">
+              <h1>우리 가족에게 편한 하루</h1>
+              <p>걷는 시간과 식사 취향부터 맞춰보세요.</p>
             </div>
-            <div className="two-columns">
-              <section className="panel">
-                <h2>가족 여권 연결</h2>
-                <div className="demo-note">
-                  로컬 체험 · 같은 브라우저에서 역할을 바꿔 시연합니다. 다른
-                  기기 연결은 아직 지원하지 않습니다.
-                </div>
-                <label className="field">
-                  자녀 초대코드
-                  <input
-                    value={invite}
-                    onChange={(e) =>
-                      setInvite(
-                        e.target.value
-                          .toUpperCase()
-                          .replace(/[^A-Z0-9]/g, '')
-                          .slice(0, 8),
-                      )
-                    }
-                    placeholder="8자리 체험 코드"
-                    autoComplete="off"
-                  />
-                </label>
-                <Button onClick={join} className="primary-cta">
-                  허용된 정보로 연결하기 <ArrowRight size={17} />
-                </Button>
-                {projected ? (
-                  <div className="connection">
-                    <Check size={19} />
-                    <b>가족 연결됨</b>
-                    <div>
-                      {Object.entries(projected.scopes)
-                        .filter(([, v]) => v)
-                        .map(([k]) => (
-                          <span className="tag" key={k}>
-                            {scopeLabels[k as keyof Scopes]}
-                          </span>
-                        ))}
-                    </div>
-                    <p>
-                      {projected.mission
-                        ? '공유된 미션: ' + projected.mission.title
-                        : '미션 범위는 공유되지 않았습니다.'}
-                    </p>
-                    <p>
-                      {projected.meal
-                        ? '공유된 식사 선호: ' + projected.meal
-                        : '식사 선호는 공유되지 않았습니다.'}
-                    </p>
-                    {projected.scopes.passport && (
-                      <p>공유된 여권 기록 {projected.passport.length}개</p>
-                    )}
-                  </div>
-                ) : (
-                  <p className="helper">
-                    초대 전에도 부모님의 조건으로 여행안을 만들 수 있습니다.
-                  </p>
-                )}
-                <button className="text-action" onClick={() => go('passport')}>
-                  자녀 역할로 초대코드 만들기 <ChevronRight size={14} />
-                </button>
-              </section>
-              <section className="panel">
-                <h2>부모님의 여행 조건</h2>
+            <div className="family-planning-layout">
+              <section className="family-form">
+                <h2>어떤 여행을 준비할까요?</h2>
                 <div className="form-grid">
                   <Field
-                    label="방문 권역"
+                    label="만나는 지역"
                     value={familyRegion}
                     options={[...regions]}
                     onChange={(v) => {
@@ -1269,434 +1185,562 @@ export default function PassportApp() {
                   <Field
                     label="이동수단"
                     value={familyTransport}
-                    options={['자차', '대중교통']}
+                    options={Object.values(transportLabels)}
                     onChange={setFamilyTransport}
                   />
                   <Field
                     label="편안한 전체 도보 시간"
                     value={familyWalk}
-                    options={['15분', '20분', '30분', '60분']}
+                    options={['15분', '20분', '30분', '60분', '90분']}
                     onChange={setFamilyWalk}
                   />
-                  <Field
-                    label="식사 선호"
-                    value={familyMeal}
-                    options={[
-                      '한식',
-                      '국물요리',
-                      '가벼운 식사',
-                      '카페에서 쉬기',
-                    ]}
-                    onChange={setFamilyMeal}
-                  />
                 </div>
+                <Choices
+                  label="좋아하는 식사"
+                  value={familyMeal}
+                  options={['한식', '국물요리', '가벼운 식사', '카페에서 쉬기']}
+                  onChange={setFamilyMeal}
+                />
                 <Button className="primary-cta" onClick={() => setBrief(true)}>
-                  <HeartHandshake size={18} /> 우리 가족 브리핑 만들기{' '}
-                  <ArrowRight size={18} />
+                  우리 가족 여행안 보기
+                  <ArrowRight size={17} />
                 </Button>
               </section>
+              <aside className="family-connection">
+                <div className="connection-title">
+                  <Users size={23} />
+                  <h2>가족과 함께 정하기</h2>
+                </div>
+                {projected ? (
+                  <>
+                    <span className="connection-state">
+                      <Check size={15} />
+                      가족 여권 연결됨
+                    </span>
+                    <p>
+                      {projected.mission
+                        ? projected.mission.title
+                        : '미션 공유는 허용되지 않았어요.'}
+                    </p>
+                    <p>
+                      {projected.meal
+                        ? '식사 선호: ' + projected.meal
+                        : '식사 선호는 공유되지 않았어요.'}
+                    </p>
+                    <div className="scope-chips">
+                      {Object.entries(projected.scopes)
+                        .filter(([, v]) => v)
+                        .map(([k]) => (
+                          <span key={k}>{scopeLabels[k as keyof Scopes]}</span>
+                        ))}
+                    </div>
+                    {projected.scopes.passport && (
+                      <small>
+                        공유된 여행 기록 {projected.passport.length}개
+                      </small>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <p>
+                      초대코드가 있으면 허용된 여행 계획을 함께 볼 수 있어요.
+                    </p>
+                    <label className="field">
+                      초대코드
+                      <input
+                        value={invite}
+                        onChange={(e) =>
+                          setInvite(
+                            e.target.value
+                              .toUpperCase()
+                              .replace(/[^A-Z0-9]/g, '')
+                              .slice(0, 8),
+                          )
+                        }
+                        placeholder="8자리 초대코드"
+                        autoComplete="off"
+                      />
+                    </label>
+                    <Button variant="outline" onClick={join}>
+                      가족 여권 연결
+                    </Button>
+                  </>
+                )}
+                <p className="helper">
+                  현재는 같은 브라우저에서 역할을 바꾸는 체험입니다. 다른
+                  기기와는 연결되지 않습니다.
+                </p>
+                <button className="text-action" onClick={() => go('passport')}>
+                  초대코드 만들기
+                  <ChevronRight size={14} />
+                </button>
+              </aside>
             </div>
             {brief && (
-              <section className="panel family-result">
-                <span className="kicker">우리 가족에게 맞춘 제안</span>
-                {familyLive.mode === 'loading' && (
-                  <p role="status">
-                    방문 권역의 관광·식사 후보를 확인하고 있어요.
-                  </p>
-                )}
-                {familyLive.mode === 'unavailable' && (
-                  <p className="helper">
-                    관광공사 연결을 확인하지 못해 공개 원천 자료로 여행안을
-                    만들었습니다.
-                  </p>
-                )}
-                <h2>
-                  {familyMission?.title ||
-                    familyRegion + ' 여행 정보 연결이 필요합니다'}
-                </h2>
-                <p>
-                  {familyDate || '날짜 미정'} · {familyTransport} · 도보 상한{' '}
-                  {familyWalk} · {familyMeal}
-                </p>
-                <div className="brief-grid">
-                  <div>
-                    <Footprints />
-                    <h3>많이 걷지 않도록</h3>
-                    <p>
-                      장소 유형 기준 약{' '}
-                      {familyMission?.stops.reduce((a, b) => a + b.walk, 0) ||
-                        0}
-                      분 추정. 계단·경사는 운영기관 확인이 필요합니다.
-                    </p>
-                  </div>
-                  <div>
-                    <CarFront />
-                    <h3>만남과 주차</h3>
-                    <p>
-                      {familyMission?.stops[0]?.place.title ||
-                        '공개 거점 선택 필요'}
-                      . 주차 가능 여부와 혼잡은 미확인입니다.
-                    </p>
-                  </div>
-                  <div>
-                    <CloudRain />
-                    <h3>비가 오면</h3>
-                    <p>
-                      {familyIndoor.map((p) => p.title).join(' 또는 ') ||
-                        '실내 대체지를 추가 확인해야 합니다.'}
-                    </p>
-                    <small>실내 후보 · 운영시간 별도 확인</small>
-                  </div>
-                  <div>
-                    <HeartHandshake />
-                    <h3>따뜻한 한 끼</h3>
-                    <p>
-                      {meals.length
-                        ? meals.map((p) => p.title).join(', ')
-                        : '음식점 API 연결 후 실제 식사 후보를 표시합니다.'}
-                    </p>
-                    <small>
-                      선호 {familyMeal} · 메뉴·알레르기 적합성 미검증
-                    </small>
-                  </div>
-                </div>
-                {familyMission && (
-                  <>
-                    <div className="brief-stops">
-                      {familyMission.stops.map((x) => (
-                        <span key={x.place.id}>
-                          {x.place.title} <Source p={x.place} />
-                        </span>
-                      ))}
+              <>
+                <section className="family-briefing">
+                  <div className="section-title">
+                    <div>
+                      <span className="section-overline">부모 브리핑</span>
+                      <h2>{familyRegion}에서 함께하는 여행</h2>
+                      <p>
+                        {familyDate || '날짜 미정'} · {familyTransport} · 전체
+                        도보 {familyWalk} 이내 희망
+                      </p>
                     </div>
-                    {familyMission.stops.reduce((a, b) => a + b.walk, 0) >
+                  </div>
+                  {familyLive.mode === 'loading' && (
+                    <p role="status">관광·식사 후보를 확인하고 있어요.</p>
+                  )}
+                  {familyLive.mode === 'unavailable' && (
+                    <p className="warning">
+                      실시간 관광정보를 연결하지 못해 별도 공개 자료로 여행안을
+                      구성했습니다.
+                    </p>
+                  )}
+                  <div className="family-route-preview">
+                    {familyMission?.stops.map((x, i) => (
+                      <div key={x.place.id}>
+                        <span>{i + 1}</span>
+                        <b>{x.place.title}</b>
+                        <small>체류 {x.stay}분 추정</small>
+                      </div>
+                    )) || <p>여행 후보를 추가 확인해야 합니다.</p>}
+                  </div>
+                  <div className="family-checks">
+                    <div>
+                      <Footprints size={22} />
+                      <h3>걸음은 이 정도</h3>
+                      <p>
+                        전체 약{' '}
+                        {familyMission?.stops.reduce((a, b) => a + b.walk, 0) ||
+                          '—'}
+                        분 추정
+                      </p>
+                      <small>계단·경사는 시설에 확인해 주세요.</small>
+                    </div>
+                    <div>
+                      <CarFront size={22} />
+                      <h3>차를 가져온다면</h3>
+                      <p>아래 주차·접근 정보를 확인하세요.</p>
+                      <small>실시간 주차 잔여면은 제공하지 않습니다.</small>
+                    </div>
+                    <div>
+                      <CloudRain size={22} />
+                      <h3>실내로 바꾸고 싶다면</h3>
+                      <p>
+                        {familyIndoor.map((p) => p.title).join(' · ') ||
+                          '실내 후보를 더 확인해야 합니다.'}
+                      </p>
+                      <small>
+                        선택 날짜의 운영·예약은 별도 확인이 필요합니다.
+                      </small>
+                    </div>
+                  </div>
+                  {familyMission &&
+                    familyMission.stops.reduce((a, b) => a + b.walk, 0) >
                       parseInt(familyWalk) && (
                       <p className="warning">
-                        선택한 도보 상한을 초과합니다. 이 여행안은 조건에 맞지
-                        않아 추가 조정이 필요합니다.
+                        도보 상한을 넘는 여행안입니다. 장소 수나 동선을 조정해야
+                        합니다.
                       </p>
                     )}
+                  {familyMission && (
                     <Button
                       disabled={!projected?.scopes.propose}
                       onClick={() => {
                         if (projected?.scopes.propose) {
-                          setProposal(familyMission.title);
-                          setNotice(
-                            '가족의 미션 제안을 자녀 역할 화면에 남겼습니다.',
-                          );
+                          setProposal({
+                            mission: familyMission,
+                            walkLimit: familySettings.walkLimit,
+                            transport: familySettings.transport,
+                          });
+                          setNotice('내 여행에 가족의 제안을 남겼습니다.');
                         }
                       }}
                     >
-                      자녀에게 이 미션 제안 <ArrowUpRight size={16} />
+                      이 미션을 가족에게 제안
+                      <ArrowUpRight size={16} />
                     </Button>
-                    {!projected?.scopes.propose && (
+                  )}
+                  {!projected?.scopes.propose && (
+                    <p className="helper">
+                      가족 연결 후 미션 제안 권한이 있으면 제안을 남길 수
+                      있어요.
+                    </p>
+                  )}
+                </section>
+                <section className="family-meals">
+                  <div className="section-title">
+                    <div>
+                      <h2>함께 먹을 한 끼</h2>
+                      <p>
+                        선호: {familyMeal} · 메뉴와 알레르기 적합성은 식당에
+                        확인하세요.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="meal-list">
+                    {meals.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => {
+                          setPlaceOpen(p);
+                        }}
+                      >
+                        {p.image_url && (
+                          <PlacePhoto
+                            key={p.image_url}
+                            src={p.image_url}
+                            title={p.title}
+                          />
+                        )}
+                        <span>
+                          <b>{p.title}</b>
+                          <small>{p.address}</small>
+                          <span>
+                            메뉴·방문 정보
+                            <ChevronRight size={13} />
+                          </span>
+                        </span>
+                      </button>
+                    ))}
+                    {!meals.length && (
                       <p className="helper">
-                        미션 제안 권한으로 초대 연결하면 제안을 남길 수
-                        있습니다.
+                        현재 조회된 음식점 후보가 없습니다.
                       </p>
                     )}
-                  </>
-                )}
-              </section>
-            )}
-            {brief && <WeatherCard region={familyRegion} />}
-            {brief && (
-              <section className="panel accessibility-panel">
-                <span className="kicker">부모님과 출발하기 전</span>
-                <h2>계단과 주차부터 확인해요.</h2>
-                <p>
-                  여행안과 비교할 수 있는 {familyRegion} 편의시설 정보입니다.
-                  시설 안내가 있어도 전체 동선이 무장애라는 뜻은 아닙니다.
-                </p>
-                {access.mode === 'loading' && (
-                  <p role="status">
-                    한국관광공사 무장애 여행 정보를 확인하고 있어요.
-                  </p>
-                )}
-                {access.mode === 'unavailable' && (
-                  <p className="warning">
-                    편의시설 정보를 연결하지 못했습니다. 시설에 직접 확인해
-                    주세요.
-                  </p>
-                )}
-                {access.mode === 'live' && (
+                  </div>
+                </section>
+                <section className="accessibility-panel">
+                  <div className="section-title">
+                    <div>
+                      <h2>계단과 주차부터 확인해요.</h2>
+                      <p>
+                        여행안과 비교할 수 있는 {familyRegion} 편의시설 정보
+                      </p>
+                    </div>
+                  </div>
+                  {access.mode === 'loading' && (
+                    <p role="status">편의시설 정보를 확인하고 있어요.</p>
+                  )}
+                  {access.mode === 'unavailable' && (
+                    <p className="warning">
+                      정보를 연결하지 못했습니다. 시설에 직접 확인해 주세요.
+                    </p>
+                  )}
+                  {access.items.map((item) => (
+                    <details className="accessibility-item" key={item.place.id}>
+                      <summary>
+                        <span>
+                          <b>{item.place.title}</b>
+                          <small>주차·접근 동선·휠체어 안내</small>
+                        </span>
+                        <ChevronRight size={19} />
+                      </summary>
+                      <ApiFacts data={item} loading={false} />
+                      <VerifiedFacts place={item.place} />
+                    </details>
+                  ))}
                   <p className="helper">
-                    무장애 목록 {access.total}곳 중 관광·문화시설{' '}
-                    {access.items.length}곳 상세 확인 · 출처: ⓒ한국관광공사
+                    출처: ⓒ한국관광공사 · 편의 안내가 있어도 전체 동선이
+                    무장애라는 뜻은 아닙니다.
                   </p>
-                )}
-                {access.items.map((item) => (
-                  <details className="accessibility-item" key={item.place.id}>
-                    <summary>
-                      {item.place.title}
-                      <span>주차·접근 동선 보기</span>
-                    </summary>
-                    <ApiFacts data={item} loading={false} />
-                    <VerifiedFacts place={item.place} />
-                    <a
-                      className="source-link"
-                      href={kakaoLink(item.place)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      장소 위치 확인 <ExternalLink size={13} />
-                    </a>
-                  </details>
-                ))}
-                {access.mode === 'live' && !access.items.length && (
-                  <p>
-                    조회된 관광·문화시설 상세 후보가 없습니다. 편의시설의 부재를
-                    뜻하지 않습니다.
-                  </p>
-                )}
-              </section>
+                </section>
+                <WeatherCard region={familyRegion} />
+              </>
             )}
-            <div className="privacy-panel">
-              <ShieldCheck />
-              <p>
-                부모 브리핑에는 정확한 복귀시각·좌표·군번·실명·부대 정보가
-                공유되지 않습니다. 식단 온기카드는 현재 가족이 직접 선택한 식사
-                선호만 사용합니다.
-              </p>
-            </div>
+            <p className="quiet-privacy">
+              <LockKeyhole size={15} />
+              정확한 복귀시각·군번·실명·부대 정보는 공유하지 않습니다.
+            </p>
           </main>
         </TabsContent>
         <TabsContent value="passport">
-          <main className="page-container">
-            <div className="page-heading">
+          <main className="saved-page content-page">
+            <div className="content-heading">
               <div>
-                <span className="kicker">DEMILITARIZED PASSPORT</span>
-                <h1>나의 비무장 패스포트</h1>
-                <p>함께 다녀온 강원, 한 장씩 남겨요.</p>
+                <h1>내 여행</h1>
+                <p>계획한 하루와 함께 다녀온 곳을 모아둬요.</p>
               </div>
-              <span className="passport-count">
-                {entries.length.toString().padStart(2, '0')}{' '}
-                <small>MISSIONS</small>
-              </span>
+              <button className="text-action" onClick={() => go('family')}>
+                가족 브리핑
+                <ArrowUpRight size={16} />
+              </button>
             </div>
-            <div className="two-columns">
-              <section className="passport-cover">
-                <BookOpen size={42} />
-                <span>REPUBLIC OF OUR DAYS</span>
-                <h2>
-                  비무장
-                  <br />
-                  패스포트
-                </h2>
-                <div className="seal">
-                  <Compass />
-                  <b>GANGWON</b>
-                  <small>평화 · 회복 · 동행</small>
+            {proposal && (
+              <section className="received-proposal">
+                <Users size={23} />
+                <div>
+                  <small>가족이 제안한 미션</small>
+                  <b>{proposal.mission.title}</b>
                 </div>
-                <p>군번 대신, 우리의 여행을 기록합니다.</p>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSettings((s) => ({
+                      ...s,
+                      region: proposal.mission.region,
+                      companion: '부모님',
+                      walkLimit: proposal.walkLimit,
+                      transport: proposal.transport,
+                      originId: '',
+                    }));
+                    setSelectedId(proposal.mission.id);
+                    go('planner');
+                  }}
+                >
+                  살펴보기
+                </Button>
               </section>
-              <section className="panel">
-                <h2>가족에게 여권 초대하기</h2>
-                <p>허용한 정보만 부모님과 동행자에게 열어주세요.</p>
-                <div className="demo-note">
-                  같은 브라우저 전용 체험. 실제 가족 인증·다른 기기 공유는
-                  연결되지 않았습니다.
+            )}
+            <div className="saved-layout">
+              <section className="saved-records">
+                <div className="record-tabs">
+                  <button
+                    className={recordTab === 'plans' ? 'active' : ''}
+                    onClick={() => setRecordTab('plans')}
+                  >
+                    계획한 미션{' '}
+                    <span>
+                      {entries.filter((e) => !e.stamps.length).length}
+                    </span>
+                  </button>
+                  <button
+                    className={recordTab === 'memories' ? 'active' : ''}
+                    onClick={() => setRecordTab('memories')}
+                  >
+                    여행 기록{' '}
+                    <span>{entries.filter((e) => e.stamps.length).length}</span>
+                  </button>
                 </div>
-                {family ? (
-                  <>
-                    <div className="invite-code">
-                      {family.code}
-                      <button
-                        onClick={() => copy(family.code)}
-                        aria-label="초대코드 복사"
-                      >
-                        <Copy size={19} />
-                      </button>
-                    </div>
-                    <p className="helper">
-                      생성 후 24시간 유효 · 코드 재생성 시 이전 연결 해제
+                {entries
+                  .filter((e) =>
+                    recordTab === 'plans'
+                      ? !e.stamps.length
+                      : Boolean(e.stamps.length),
+                  )
+                  .map((e) => (
+                    <article className="saved-mission" key={e.missionId}>
+                      <div className="saved-mission-heading">
+                        <span>{e.region}</span>
+                        <h2>{e.title}</h2>
+                        <small>
+                          {e.stamps.length
+                            ? '내가 직접 남긴 여행 기록'
+                            : '아직 다녀오지 않은 여행 계획'}
+                        </small>
+                      </div>
+                      <div className="stamp-actions">
+                        {['입경', '전환', '복귀', '동행'].map((stamp) => (
+                          <button
+                            key={stamp}
+                            className={
+                              e.stamps.includes(stamp) ? 'recorded' : ''
+                            }
+                            onClick={() => addStamp(e.missionId, stamp)}
+                          >
+                            {e.stamps.includes(stamp) ? (
+                              <Check size={14} />
+                            ) : (
+                              <Stamp size={14} />
+                            )}{' '}
+                            {stamp}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="saved-mission-actions">
+                        <button
+                          onClick={() => {
+                            change('region', e.region);
+                            setSelectedId(e.missionId);
+                            go('planner');
+                          }}
+                        >
+                          현재 조건으로 다시 보기
+                          <ChevronRight size={14} />
+                        </button>
+                        <button onClick={() => setShared(e)}>
+                          <ArrowUpRight size={14} />
+                          공유 카드
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                {!entries.filter((e) =>
+                  recordTab === 'plans'
+                    ? !e.stamps.length
+                    : Boolean(e.stamps.length),
+                ).length && (
+                  <div className="saved-empty">
+                    <BookOpen size={32} />
+                    <h2>
+                      {recordTab === 'plans'
+                        ? '다음 여행을 골라볼까요?'
+                        : '다녀온 뒤 기록을 남겨요.'}
+                    </h2>
+                    <p>
+                      {recordTab === 'plans'
+                        ? '마음에 드는 미션을 여기에 담아둘 수 있어요.'
+                        : '계획한 미션에 방문 단계를 직접 기록하면 여기에 모입니다.'}
                     </p>
-                    {(Object.keys(scopeLabels) as (keyof Scopes)[]).map((k) => (
-                      <Toggle
-                        key={k}
-                        label={scopeLabels[k]}
-                        checked={family.scopes[k]}
-                        onChange={(v) =>
-                          setFamily((f) =>
-                            f
-                              ? { ...f, scopes: { ...f.scopes, [k]: v } }
-                              : null,
-                          )
-                        }
-                      />
-                    ))}
-                    <div className="button-row">
-                      <Button variant="outline" onClick={createInvite}>
-                        코드 재생성
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setFamily(null);
-                          setJoined('');
-                          setNotice('초대와 가족 연결을 해제했습니다.');
-                        }}
-                      >
-                        공유 해제
-                      </Button>
-                    </div>
-                    <Button
-                      className="primary-cta"
-                      onClick={() => {
-                        setInvite(family.code);
-                        go('family');
-                      }}
-                    >
-                      부모 역할로 연결 체험 <ArrowRight size={16} />
-                    </Button>
-                  </>
-                ) : (
-                  <Button className="primary-cta" onClick={createInvite}>
-                    가족 초대코드 만들기 <ArrowUpRight size={16} />
-                  </Button>
-                )}
-                {proposal && (
-                  <div className="connection">
-                    <b>가족이 제안한 미션</b>
-                    <p>{proposal}</p>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        const found = missions.find(
-                          (m) => m.title === proposal,
-                        );
-                        if (found) {
-                          setSelectedId(found.id);
-                          go('planner');
-                        } else {
-                          setNotice(
-                            '가족이 선택한 권역으로 변경해 미션을 검토해 주세요.',
-                          );
-                          go('planner');
-                        }
-                      }}
-                    >
-                      제안 검토하기
+                    <Button variant="outline" onClick={() => go('home')}>
+                      미션 둘러보기
+                      <ArrowRight size={16} />
                     </Button>
                   </div>
                 )}
+                <p className="helper">
+                  스탬프는 개인 기록이며 공적 방문 인증이 아닙니다. 복귀시각은
+                  저장하지 않습니다.
+                </p>
               </section>
-            </div>
-            <div className="passport-chapters">
-              {chapters.slice(0, 5).map((chapter, i) => (
-                <section key={chapter} className="chapter-page">
-                  <header>
-                    <span>0{i + 1}</span>
-                    <div>
-                      <h2>{chapter}</h2>
-                      <p>{chapterStories[i]}</p>
+              <aside className="passport-summary">
+                <span className="section-overline">비무장 패스포트</span>
+                <h2>강원에 남긴 발걸음</h2>
+                <p>다섯 지역의 기록을 한 권에.</p>
+                <div className="chapter-records">
+                  {regions.slice(0, 5).map((r, i) => (
+                    <div key={r}>
+                      <span>0{i + 1}</span>
+                      <b>{chapters[i]}</b>
+                      <small>
+                        {
+                          entries.filter(
+                            (e) => e.region === r && e.stamps.length,
+                          ).length
+                        }
+                        개 기록
+                      </small>
                     </div>
-                    <Stamp size={26} />
-                  </header>
-                  {entries.filter((e) => e.region === regions[i]).length ? (
-                    entries
-                      .filter((e) => e.region === regions[i])
-                      .map((e) => (
-                        <div className="entry" key={e.missionId}>
-                          <h3>{e.title}</h3>
-                          <div className="stamp-row">
-                            {['입경', '전환', '복귀', '동행'].map((s) => (
-                              <button
-                                key={s}
-                                className={
-                                  e.stamps.includes(s)
-                                    ? 'stamp marked'
-                                    : 'stamp'
-                                }
-                                onClick={() => addStamp(e.missionId, s)}
-                              >
-                                <Check size={15} />
-                                {s}
-                              </button>
-                            ))}
-                            {e.stamps.includes('휴가 씨앗') && (
-                              <span className="stamp marked">휴가 씨앗</span>
-                            )}
-                          </div>
-                          <p className="helper">
-                            여행 후 직접 기록 · 공적 방문 인증이나 복귀 확인이
-                            아닙니다.
-                          </p>
-                          <button
-                            className="text-action"
-                            onClick={() => setShared(e)}
-                          >
-                            개인정보 없는 공유 카드 만들기{' '}
-                            <ArrowUpRight size={14} />
-                          </button>
-                        </div>
-                      ))
-                  ) : (
-                    <div className="empty-chapter">
-                      <span>아직 쓰지 않은 우리의 하루</span>
-                      <Button
-                        variant="ghost"
+                  ))}
+                </div>
+                <details className="invite-settings">
+                  <summary>
+                    가족에게 여권 초대하기
+                    <ChevronRight size={17} />
+                  </summary>
+                  <p className="helper">
+                    같은 브라우저에서만 사용할 수 있는 24시간 체험 코드입니다.
+                  </p>
+                  {family ? (
+                    <>
+                      <div className="invite-code">
+                        {family.code}
+                        <button
+                          onClick={() => copy(family.code)}
+                          aria-label="초대코드 복사"
+                        >
+                          <Copy size={18} />
+                        </button>
+                      </div>
+                      {(Object.keys(scopeLabels) as (keyof Scopes)[]).map(
+                        (k) => (
+                          <Toggle
+                            key={k}
+                            label={scopeLabels[k]}
+                            checked={family.scopes[k]}
+                            onChange={(v) =>
+                              setFamily((x) =>
+                                x
+                                  ? { ...x, scopes: { ...x.scopes, [k]: v } }
+                                  : x,
+                              )
+                            }
+                          />
+                        ),
+                      )}
+                      <button
+                        className="text-action"
                         onClick={() => {
-                          change('region', regions[i]);
-                          go('planner');
+                          setFamily(null);
+                          setJoined('');
+                          setNotice('초대를 해제했습니다.');
                         }}
                       >
-                        이 장의 미션 찾기 <ArrowRight size={15} />
-                      </Button>
-                    </div>
+                        초대 해제
+                      </button>
+                    </>
+                  ) : (
+                    <Button variant="outline" onClick={createInvite}>
+                      초대코드 만들기
+                    </Button>
                   )}
-                </section>
-              ))}
-            </div>
-            {shared && (
-              <section className="panel share-panel">
-                <span className="kicker">공개해도 좋은 여행 이야기</span>
-                <h2>{shared.title}</h2>
-                <p>
-                  {shared.region}에서 남긴{' '}
-                  {shared.stamps.join(' · ') || '여행 계획'}
-                </p>
-                <p>복무 경험을 관광 경험으로. 군번여지도 강원</p>
-                <div className="button-row">
-                  <Button onClick={() => downloadCard(shared)}>
-                    <Download size={16} /> 공유 이미지 저장
-                  </Button>
+                </details>
+                <button className="radar-shortcut" onClick={() => go('radar')}>
+                  <Leaf size={18} />
+                  <span>
+                    휴가회수 레이더<small>현충시설 방문과 제도 확인 준비</small>
+                  </span>
+                  <ChevronRight size={16} />
+                </button>
+                {installPrompt && (
                   <Button
                     variant="outline"
-                    onClick={() =>
-                      copy(JSON.stringify(publicCard(shared), null, 2))
-                    }
+                    onClick={() => installPrompt.prompt()}
                   >
-                    <Copy size={16} /> 공유 문구 복사
+                    홈 화면에 추가
                   </Button>
-                </div>
-                <p className="helper">
-                  정확한 시간·좌표·실명·군번·복귀시각·상세 경로를 포함하지
-                  않습니다.
-                </p>
-              </section>
-            )}
-            <div className="privacy-panel">
-              <LockKeyhole />
-              <p>
-                여권 기록은 이 기기의 브라우저에 저장됩니다. 브라우저 데이터를
-                지우면 기록도 사라집니다.
-              </p>
-              {installPrompt && (
-                <Button onClick={() => installPrompt.prompt()}>
-                  홈 화면에 추가
-                </Button>
-              )}
+                )}
+              </aside>
             </div>
+            <Sheet
+              open={Boolean(shared)}
+              onOpenChange={(v) => !v && setShared(null)}
+            >
+              <SheetContent side="bottom" className="share-sheet">
+                <SheetHeader>
+                  <SheetTitle>우리의 여행 기록</SheetTitle>
+                  <SheetDescription>
+                    정확한 시간·좌표·부대 정보가 없는 카드입니다.
+                  </SheetDescription>
+                </SheetHeader>
+                {shared && (
+                  <div className="editor-body">
+                    <div className="share-preview">
+                      <span>군번여지도 강원</span>
+                      <h2>{shared.title}</h2>
+                      <p>
+                        {shared.region} ·{' '}
+                        {shared.stamps.join(' · ') || '계획한 여행'}
+                      </p>
+                      <small>복무 경험을 관광 경험으로.</small>
+                    </div>
+                    <Button
+                      className="primary-cta"
+                      onClick={() => downloadCard(shared)}
+                    >
+                      <Download size={17} />
+                      카드 이미지 저장
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        copy(
+                          publicCard(shared).message +
+                            ' ' +
+                            publicCard(shared).mission,
+                        )
+                      }
+                    >
+                      공유 문구 복사
+                      <Copy size={16} />
+                    </Button>
+                  </div>
+                )}
+              </SheetContent>
+            </Sheet>
           </main>
         </TabsContent>
         <TabsContent value="radar">
           <main className="page-container">
             <div className="page-heading">
               <div>
-                <span className="kicker">A SEED OF LEAVE</span>
+                <span className="section-overline">현충시설 방문 준비</span>
                 <h1>휴가회수 레이더</h1>
-                <p>호국의 기억을 돌아보는 여행, 제도 확인을 위한 첫 준비.</p>
+                <p>
+                  호국의 기억을 돌아보는 여행, 방문 전 인정 조건을 확인하세요.
+                </p>
               </div>
               <Leaf size={45} />
             </div>
@@ -1780,8 +1824,8 @@ export default function PassportApp() {
           <main className="page-container">
             <div className="page-heading">
               <div>
-                <span className="kicker">DATA, WITH CONTEXT</span>
-                <h1>여행 판단의 근거를 공개합니다.</h1>
+                <span className="section-overline">이용 안내</span>
+                <h1>여행 정보와 출처</h1>
                 <p>실시간 응답, 공개 원천 자료, 계산 가정을 구분합니다.</p>
               </div>
               <Database size={40} />
@@ -1898,8 +1942,8 @@ export default function PassportApp() {
                   공개 식단
                 </p>
                 <p>
-                  날씨·혼잡·교통·도보 시간은 가정값입니다. 보훈시설은 보상
-                  가능성이 검증된 목록이 아닙니다.
+                  날씨는 기상청 예보를 조회하며, 혼잡·교통·도보 시간은
+                  추정값입니다. 보훈시설은 보상 가능성이 검증된 목록이 아닙니다.
                 </p>
                 <h3>이미지 출처</h3>
                 <a
@@ -1985,6 +2029,282 @@ export default function PassportApp() {
           출처·데이터 상태 확인 <ArrowUpRight size={14} />
         </button>
       </footer>
+      <Sheet open={editing} onOpenChange={setEditing}>
+        <SheetContent side="bottom" className="trip-editor">
+          <SheetHeader>
+            <SheetTitle>
+              {
+                [
+                  '누구와 어디에서 만날까요?',
+                  '언제까지 돌아오면 되나요?',
+                  '어떤 하루가 편할까요?',
+                ][editStep]
+              }
+            </SheetTitle>
+            <SheetDescription>{editStep + 1} / 3 · 여행 조건</SheetDescription>
+          </SheetHeader>
+          {draft && (
+            <div className="editor-body">
+              {editStep === 0 && (
+                <>
+                  <Choices
+                    label="나는"
+                    value={draft.role}
+                    options={['현역 장병', '부모님', '여자친구·친구', '면회객']}
+                    onChange={(v) => draftChange('role', v)}
+                  />
+                  <Field
+                    label="만나는 지역"
+                    value={draft.region}
+                    options={[...regions]}
+                    onChange={(v) => draftChange('region', v)}
+                  />
+                  <Choices
+                    label="오늘의 상황"
+                    value={draft.situation}
+                    options={[
+                      '휴가',
+                      '외출',
+                      '면회',
+                      '수료식',
+                      '전역 전',
+                      '입영 전날',
+                    ]}
+                    onChange={(v) => draftChange('situation', v)}
+                  />
+                  <Choices
+                    label="함께하는 사람"
+                    value={draft.companion}
+                    options={['혼자', '전우', '부모님', '가족', '연인', '친구']}
+                    onChange={(v) => draftChange('companion', v)}
+                  />
+                  <Field
+                    label="이동수단"
+                    value={
+                      {
+                        car: '자차',
+                        transit: '대중교통',
+                        taxi: '택시+버스',
+                        unknown: '미정',
+                      }[draft.transport]
+                    }
+                    options={['자차', '대중교통', '택시+버스', '미정']}
+                    onChange={(v) =>
+                      draftChange(
+                        'transport',
+                        (
+                          {
+                            자차: 'car',
+                            대중교통: 'transit',
+                            '택시+버스': 'taxi',
+                            미정: 'unknown',
+                          } as const
+                        )[v as '자차'],
+                      )
+                    }
+                  />
+                </>
+              )}
+              {editStep === 1 && (
+                <>
+                  <Choices
+                    label="지금부터 쓸 수 있는 시간"
+                    value={
+                      draft.duration === 1440
+                        ? '1박 2일'
+                        : draft.duration / 60 + '시간'
+                    }
+                    options={['2시간', '4시간', '8시간', '1박 2일']}
+                    onChange={(v) =>
+                      draftPreset(
+                        (
+                          {
+                            '2시간': 120,
+                            '4시간': 240,
+                            '8시간': 480,
+                            '1박 2일': 1440,
+                          } as Record<string, number>
+                        )[v],
+                      )
+                    }
+                  />
+                  <label className="field">
+                    공개 거점 도착 목표
+                    <input
+                      type="datetime-local"
+                      value={localInputDate(draft.returnAt)}
+                      onChange={(e) => {
+                        const iso = parseKoreaInput(e.target.value);
+                        if (iso)
+                          setDraft((s) => ({
+                            ...s!,
+                            returnAt: iso,
+                            startedAt: new Date().toISOString(),
+                            duration: Math.max(
+                              1,
+                              Math.ceil((Date.parse(iso) - Date.now()) / 60000),
+                            ),
+                          }));
+                      }}
+                    />
+                  </label>
+                  <p className="helper">
+                    한국 시각 기준입니다. 거점 이후 부대까지 이동·수속할 시간은
+                    따로 남겨주세요.
+                  </p>
+                  {draft.region === settings.region && origin && (
+                    <Field
+                      label="만나는 곳 · 돌아올 공개 거점"
+                      value={
+                        local.find((p) => p.id === draft.originId)?.title ||
+                        origin.title
+                      }
+                      options={local
+                        .filter(
+                          (p) =>
+                            p.category === 'attraction' ||
+                            p.category === 'culture',
+                        )
+                        .slice(0, 80)
+                        .map((p) => p.title)}
+                      onChange={(v) =>
+                        draftChange(
+                          'originId',
+                          local.find((p) => p.title === v)?.id || '',
+                        )
+                      }
+                    />
+                  )}
+                  {draft.region !== settings.region && (
+                    <p className="helper">
+                      선택 지역의 공개 관광 거점으로 미션을 만든 뒤 만남 장소를
+                      조정할 수 있습니다.
+                    </p>
+                  )}
+                  <div className="editor-privacy">
+                    <LockKeyhole size={17} />
+                    부대명·군번·정확한 복무지는 입력하지 않습니다.
+                  </div>
+                </>
+              )}
+              {editStep === 2 && (
+                <>
+                  <Choices
+                    label="원하는 경험"
+                    value={draft.theme}
+                    options={['회복', '평화', '호국', '가족', '기록', '보상']}
+                    onChange={(v) => draftChange('theme', v)}
+                  />
+                  <Field
+                    label="편안한 전체 도보 시간"
+                    value={draft.walkLimit + '분'}
+                    options={['15분', '30분', '60분', '90분']}
+                    onChange={(v) => draftChange('walkLimit', parseInt(v))}
+                  />
+                  <Field
+                    label="추가로 남겨둘 여유"
+                    value={draft.extraBuffer + '분'}
+                    options={['15분', '30분', '60분', '90분']}
+                    onChange={(v) => draftChange('extraBuffer', parseInt(v))}
+                  />
+                  <WeatherCard
+                    region={draft.region}
+                    onApply={(v) => draftChange('weather', v)}
+                  />
+                  <Field
+                    label="계산에 적용할 날씨"
+                    value={
+                      {
+                        unknown: '미확인',
+                        clear: '기본 버퍼',
+                        rain: '비 보정',
+                        wind: '강풍 보정',
+                        snow: '눈·결빙 보정',
+                      }[draft.weather]
+                    }
+                    options={[
+                      '미확인',
+                      '기본 버퍼',
+                      '비 보정',
+                      '강풍 보정',
+                      '눈·결빙 보정',
+                    ]}
+                    onChange={(v) =>
+                      draftChange(
+                        'weather',
+                        (
+                          {
+                            미확인: 'unknown',
+                            '기본 버퍼': 'clear',
+                            '비 보정': 'rain',
+                            '강풍 보정': 'wind',
+                            '눈·결빙 보정': 'snow',
+                          } as const
+                        )[v as '미확인'],
+                      )
+                    }
+                  />
+                </>
+              )}
+            </div>
+          )}
+          <SheetFooter>
+            {editStep > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => setEditStep((x) => x - 1)}
+              >
+                이전
+              </Button>
+            )}
+            <Button
+              onClick={() =>
+                editStep < 2 ? setEditStep((x) => x + 1) : applyTrip()
+              }
+            >
+              {editStep < 2 ? '다음' : '이 조건으로 미션 보기'}
+              <ArrowRight size={17} />
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+      <Sheet
+        open={Boolean(placeOpen)}
+        onOpenChange={(v) => !v && setPlaceOpen(null)}
+      >
+        <SheetContent side="bottom" className="place-sheet">
+          <SheetHeader>
+            <SheetTitle>{placeOpen?.title}</SheetTitle>
+            <SheetDescription>{placeOpen?.address}</SheetDescription>
+          </SheetHeader>
+          {placeOpen && (
+            <div className="editor-body">
+              <VerifiedFacts place={placeOpen} />
+              {placeOpen.source === 'tourapi' ? (
+                <ApiFacts
+                  data={detail?.data}
+                  loading={detail?.loading || detail?.id !== placeOpen.id}
+                />
+              ) : (
+                <p>
+                  이 장소의 실시간 운영·편의 정보는 제공되지 않았습니다.
+                  운영기관에 확인해 주세요.
+                </p>
+              )}
+              <Source p={placeOpen} />
+              <a
+                className="external-button"
+                href={kakaoLink(placeOpen)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                카카오맵에서 길찾기
+                <ArrowUpRight size={17} />
+              </a>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
       {notice && (
         <div className="notice" role="status">
           <Check size={18} />
