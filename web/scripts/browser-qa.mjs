@@ -189,11 +189,8 @@ for (const channel of channels) {
         .click();
       await p.getByRole('dialog').waitFor();
       await p.keyboard.press('Escape');
-      assert.equal(
-        await p.getByRole('dialog').count(),
-        0,
-        'Escape closes editor',
-      );
+      // The production sheet keeps its DOM until its exit transition finishes.
+      await p.getByRole('dialog').waitFor({ state: 'hidden' });
       await p
         .getByRole('button', { name: '내 조건으로 미션 찾기', exact: true })
         .click();
