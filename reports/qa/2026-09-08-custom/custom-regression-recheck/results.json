@@ -1,0 +1,171 @@
+{
+  "startedAt": "2026-09-07T23:48:51.954Z",
+  "base": "http://localhost:3000",
+  "liveApis": true,
+  "deviceMode": "Desktop browsers with viewport/touch emulation; not physical phones or mobile OS browsers",
+  "cases": [
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "width": 360,
+        "height": 740
+      },
+      "touchEmulated": true,
+      "name": "small",
+      "checks": [
+        "Live TourAPI response received",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Kakao tiles/pins loaded; pin opens detail and closes",
+        "Three-step edit, save, reload and exact place order restore",
+        "Family has no horizontal page overflow",
+        "Invite scopes, independent family briefing and exact proposal review",
+        "Explicit preparation target; preparation/visit split; SVG share download",
+        "Revoked invitation removes connected view",
+        "API failure preserves saved refs and shows explicit unavailable state"
+      ],
+      "screenshots": [
+        "chrome-small-home.png",
+        "chrome-small-editor.png",
+        "chrome-small-mission.png",
+        "chrome-small-family.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/catalog": 3,
+        "/api/status": 3,
+        "/api/places": 4,
+        "/api/weather": 6,
+        "/api/place-detail": 1,
+        "/api/accessibility": 1,
+        "/api/places/resolve": 2
+      },
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "touchEmulated": false,
+      "name": "desktop",
+      "checks": [
+        "Live TourAPI response received",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Kakao tiles/pins loaded; pin opens detail and closes",
+        "Three-step edit, save, reload and exact place order restore",
+        "Family has no horizontal page overflow",
+        "Invite scopes, independent family briefing and exact proposal review",
+        "Explicit preparation target; preparation/visit split; SVG share download",
+        "Revoked invitation removes connected view"
+      ],
+      "screenshots": [
+        "chrome-desktop-home.png",
+        "chrome-desktop-editor.png",
+        "chrome-desktop-mission.png",
+        "chrome-desktop-family.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/catalog": 2,
+        "/api/status": 2,
+        "/api/places": 3,
+        "/api/weather": 6,
+        "/api/place-detail": 1,
+        "/api/accessibility": 1
+      },
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "width": 360,
+        "height": 740
+      },
+      "touchEmulated": true,
+      "name": "small",
+      "checks": [
+        "Live TourAPI response received",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Kakao tiles/pins loaded; pin opens detail and closes",
+        "Three-step edit, save, reload and exact place order restore",
+        "Family has no horizontal page overflow",
+        "Invite scopes, independent family briefing and exact proposal review",
+        "Explicit preparation target; preparation/visit split; SVG share download",
+        "Revoked invitation removes connected view",
+        "API failure preserves saved refs and shows explicit unavailable state"
+      ],
+      "screenshots": [
+        "msedge-small-home.png",
+        "msedge-small-editor.png",
+        "msedge-small-mission.png",
+        "msedge-small-family.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/catalog": 3,
+        "/api/status": 3,
+        "/api/places": 4,
+        "/api/weather": 6,
+        "/api/place-detail": 1,
+        "/api/accessibility": 1,
+        "/api/places/resolve": 2
+      },
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "touchEmulated": false,
+      "name": "desktop",
+      "checks": [
+        "Live TourAPI response received",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Kakao tiles/pins loaded; pin opens detail and closes",
+        "Three-step edit, save, reload and exact place order restore",
+        "Family has no horizontal page overflow",
+        "Invite scopes, independent family briefing and exact proposal review",
+        "Explicit preparation target; preparation/visit split; SVG share download",
+        "Revoked invitation removes connected view"
+      ],
+      "screenshots": [
+        "msedge-desktop-home.png",
+        "msedge-desktop-editor.png",
+        "msedge-desktop-mission.png",
+        "msedge-desktop-family.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/catalog": 2,
+        "/api/status": 2,
+        "/api/places": 3,
+        "/api/weather": 6,
+        "/api/place-detail": 1,
+        "/api/accessibility": 1
+      },
+      "pageErrors": [],
+      "status": "passed"
+    }
+  ],
+  "completedAt": "2026-09-07T23:49:54.386Z",
+  "passed": 4,
+  "failed": 0
+}

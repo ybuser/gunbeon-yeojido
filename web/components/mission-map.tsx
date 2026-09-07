@@ -2,13 +2,34 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Mission, Place } from '@/lib/domain';
 import { validCoord } from '@/lib/domain';
-type KMap = { setBounds: (b: unknown) => void; relayout: () => void };
+type Point = { getLat: () => number; getLng: () => number };
+type KMap = {
+  setBounds: (b: unknown) => void;
+  relayout: () => void;
+  getCenter: () => Point;
+  setCenter: (point: Point) => void;
+};
 type KakaoAPI = {
   load: (f: () => void) => void;
   Map: new (el: HTMLElement, opts: unknown) => KMap;
-  LatLng: new (lat: number, lon: number) => unknown;
+  LatLng: new (lat: number, lon: number) => Point;
   LatLngBounds: new () => { extend: (p: unknown) => void };
-  Marker: new (opts: unknown) => unknown;
+  Marker: new (opts: unknown) => {
+    setMap: (map: KMap | null) => void;
+    setPosition: (point: Point) => void;
+  };
+  event: {
+    addListener: (
+      target: unknown,
+      event: string,
+      handler: (e: { latLng: Point }) => void,
+    ) => void;
+    removeListener: (
+      target: unknown,
+      event: string,
+      handler: (e: { latLng: Point }) => void,
+    ) => void;
+  };
   Polyline: new (opts: unknown) => unknown;
   CustomOverlay: new (opts: unknown) => { setMap: (map: KMap | null) => void };
 };
@@ -141,7 +162,7 @@ export default function MissionMap({
     x: 65 + ((p.lon! - minLon) / rangeLon) * 440,
     y: 275 - ((p.lat! - minLat) / rangeLat) * 205,
   });
-  const path = [...places, origin]
+  const path = [...places, ...(validCoord(origin) ? [origin] : [])]
     .map((p) => `${pt(p).x},${pt(p).y}`)
     .join(' ');
   return (

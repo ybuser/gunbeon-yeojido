@@ -151,11 +151,15 @@ for (const channel of channels) {
     try {
       await p.goto(new URL('/login', base).href);
       await p.locator('.test-entry[data-ready="true"]').waitFor();
-      await p.getByLabel('테스트 비밀번호', { exact: true }).fill(process.env.QA_TEST_PASSWORD || '1234');
+      await p
+        .getByLabel('테스트 비밀번호', { exact: true })
+        .fill(process.env.QA_TEST_PASSWORD || '1234');
       const placeResponse = p.waitForResponse(
         (r) => new URL(r.url()).pathname === '/api/places',
       );
-      await p.getByRole('button', { name: '여행 시작하기', exact: true }).click();
+      await p
+        .getByRole('button', { name: '여행 시작하기', exact: true })
+        .click();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
       const response = await placeResponse;
       const responseData = await response.json();
@@ -379,8 +383,11 @@ for (const channel of channels) {
         );
         result.checks.push('Revoked invitation removes connected view');
       }
-      // Preserve a live saved reference, then fail the catalogue query. Never silently replace its route.
+      // Fail both list and saved-place lookup; never replace the preserved itinerary.
       if (live && size.name === 'small') {
+        await p.route('**/api/places/resolve', (r) =>
+          r.fulfill({ status: 503, json: { places: [], error: 'QA_FAILURE' } }),
+        );
         await p.route('**/api/places?*', (r) =>
           r.fulfill({
             status: 503,

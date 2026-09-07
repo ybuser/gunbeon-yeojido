@@ -49,6 +49,8 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import MissionMap from './mission-map';
+import CourseCover from './course-cover';
+import TripBuilder, { scheduleTime } from './trip-builder';
 import WeatherCard from './weather-card';
 import { VerifiedFacts, ApiFacts } from './place-facts';
 import {
@@ -73,6 +75,7 @@ import {
   planSignature,
   resolveEntry,
   effectiveWeather,
+  routeSchedule,
 } from '@/lib/domain';
 import type {
   Place,
@@ -82,8 +85,6 @@ import type {
   Family,
   Scopes,
 } from '@/lib/domain';
-const PHOTO =
-  'https://www.kogl.or.kr/upload_recommend/thumb_V/%EC%A7%80%EC%97%AD%EB%B3%84%EA%B4%80%EA%B4%91%EC%A7%80/%EA%B0%95%EC%9B%90%EB%8F%84/%EC%B2%A0%EC%9B%90/thumb_%EA%B3%A0%EC%84%9D%EC%A0%95_05.jpg';
 const LABELS = {
   home: '둘러보기',
   planner: '지도·미션',
@@ -215,6 +216,12 @@ function Toggle({
   );
 }
 function Source({ p }: { p: Place }) {
+  if (p.source === 'manual')
+    return (
+      <span className="source-link">
+        직접 입력한 장소 · 위치·운영·공개 출입 미검증
+      </span>
+    );
   return (
     <a
       className="source-link"
@@ -261,6 +268,12 @@ function PlacePhoto({
 }
 export default function PassportApp() {
   const [basePlaces, setBasePlaces] = useState<Place[]>([]);
+  const [extraPlaces, setExtraPlaces] = useState<Place[]>([]);
+  const [composer, setComposer] = useState<{
+    key: string;
+    entry: Entry | null;
+    mode: 'new' | 'edit' | 'copy';
+  } | null>(null);
   const [view, setView] = useState('home');
   const [editing, setEditing] = useState(false);
   const [editStep, setEditStep] = useState(0);
@@ -273,6 +286,7 @@ export default function PassportApp() {
   const [mapKey, setMapKey] = useState('');
   const [selectedId, setSelectedId] = useState('');
   const [reviewEntry, setReviewEntry] = useState<Entry | null>(null);
+  const [savedReferencesLoading, setSavedReferencesLoading] = useState(false);
   const [radarRecordId, setRadarRecordId] = useState('');
   const [notice, setNotice] = useState('');
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -419,13 +433,68 @@ export default function PassportApp() {
     return () => clearTimeout(t);
   }, [notice]);
   const places = useMemo(
-    () => [...live.places, ...basePlaces],
-    [live.places, basePlaces],
+    () => [
+      ...new Map(
+        [...extraPlaces, ...basePlaces, ...live.places].map((p) => [p.id, p]),
+      ).values(),
+    ],
+    [live.places, basePlaces, extraPlaces],
   );
   const local = useMemo(
     () => regionPlaces(places, settings.region),
     [places, settings.region],
   );
+  useEffect(() => {
+    if (live.mode === 'loading') return;
+    const candidates = reviewEntry
+      ? [reviewEntry]
+      : view === 'passport'
+        ? entries.slice(0, 4)
+        : [];
+    const plans = candidates.filter((e) => e.plan).map((e) => e.plan!);
+    const ids = [
+      ...new Set([
+        ...plans.flatMap((plan) => [
+          plan.originId,
+          ...plan.stops.map((s) => s.placeId),
+        ]),
+      ]),
+    ].filter(
+      (id) => id.startsWith('tourapi:') && !places.some((p) => p.id === id),
+    );
+    setSavedReferencesLoading(ids.length > 0);
+    if (!ids.length) return;
+    let canceled = false;
+    const batches = Array.from({ length: Math.ceil(ids.length / 13) }, (_, i) =>
+      ids.slice(i * 13, i * 13 + 13),
+    );
+    void Promise.all(
+      batches.map((batch) =>
+        fetch('/api/places/resolve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: batch }),
+        })
+          .then((r) => r.json())
+          .catch(() => ({ places: [] })),
+      ),
+    ).then((responses) => {
+      const values = responses as { places?: Place[] }[];
+      if (!canceled)
+        setExtraPlaces((v) => [
+          ...new Map(
+            [...v, ...values.flatMap((x) => x.places || [])].map((p) => [
+              p.id,
+              p,
+            ]),
+          ).values(),
+        ]);
+      if (!canceled) setSavedReferencesLoading(false);
+    });
+    return () => {
+      canceled = true;
+    };
+  }, [reviewEntry, view, entries, live.mode, refresh]);
   const resolvedEntry = useMemo(
     () => (reviewEntry ? resolveEntry(reviewEntry, places) : null),
     [reviewEntry, places],
@@ -453,6 +522,8 @@ export default function PassportApp() {
     : missions.find((m) => m.id === selectedId) || missions[0];
   const score =
     selected && origin ? assess(selected, settings, origin, now) : null;
+  const itinerary =
+    selected && origin ? routeSchedule(selected, settings, origin, now) : null;
   const projected = familyProjection(
     family,
     joined,
@@ -584,6 +655,9 @@ export default function PassportApp() {
       );
     setView(v);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function openBuilder(entry: Entry | null, mode: 'new' | 'edit' | 'copy') {
+    setComposer({ key: crypto.randomUUID(), entry, mode });
   }
   function saveMission() {
     if (!selected || !origin) return;
@@ -849,10 +923,6 @@ export default function PassportApp() {
                 const evaluated = origin
                   ? assess(m, settings, origin, now)
                   : null;
-                const cover = m.stops.find((x) => x.place.image_url)?.place;
-                const fallback = m.stops.some((x) => x.place.title === '고석정')
-                  ? PHOTO
-                  : undefined;
                 return (
                   <article className="journey-card" key={m.id}>
                     <button
@@ -864,19 +934,10 @@ export default function PassportApp() {
                       }}
                       aria-label={m.title + ' 자세히 보기'}
                     >
-                      {cover?.image_url || fallback ? (
-                        <PlacePhoto
-                          key={cover?.image_url || fallback}
-                          src={cover?.image_url || fallback!}
-                          title={cover?.title || '철원 고석정 풍경'}
-                          eager={!i}
-                        />
-                      ) : (
-                        <div className="photo-unavailable">
-                          <MapPin />
-                          <span>{settings.region} 여행</span>
-                        </div>
-                      )}
+                      <CourseCover
+                        places={m.stops.map((s) => s.place)}
+                        eager={!i}
+                      />
                       <span className="image-category">
                         {m.variant === '실내'
                           ? '실내 후보'
@@ -887,11 +948,9 @@ export default function PassportApp() {
                       </span>
                     </button>
                     <span className="image-attribution">
-                      {cover
-                        ? '출처: ⓒ한국관광공사'
-                        : fallback
-                          ? '고석정 · 한국문화관광연구원 / 공공누리 1유형'
-                          : '제공된 장소 사진 없음'}
+                      {m.stops.some((s) => s.place.image_url)
+                        ? '출처: ⓒ한국관광공사 · 코스 장소 사진'
+                        : '사진이 없는 곳은 장소 이름으로 표시합니다'}
                     </span>
                     <button
                       className="journey-text"
@@ -981,7 +1040,17 @@ export default function PassportApp() {
               <button onClick={() => go('home')} className="back-action">
                 ← 둘러보기
               </button>
-              <button className="edit-summary" onClick={editTrip}>
+              <button
+                className="edit-summary"
+                onClick={() =>
+                  selected?.custom && origin
+                    ? openBuilder(
+                        reviewEntry || createEntry(selected, origin),
+                        'edit',
+                      )
+                    : editTrip()
+                }
+              >
                 <span>
                   {settings.region} · {settings.companion}
                 </span>
@@ -1002,7 +1071,7 @@ export default function PassportApp() {
             </div>
             {!selected || !origin ? (
               <div className="list-empty">
-                {live.mode === 'loading'
+                {live.mode === 'loading' || savedReferencesLoading
                   ? '장소 정보를 다시 확인하고 있어요.'
                   : reviewEntry
                     ? '저장한 장소 정보를 연결하지 못했습니다. 다른 장소로 바꾸지 않았어요.'
@@ -1080,7 +1149,9 @@ export default function PassportApp() {
                     <div className="route-stats">
                       <div>
                         <b>
-                          {score?.total}
+                          {score && Number.isFinite(score.total)
+                            ? score.total
+                            : '—'}
                           <small>분</small>
                         </b>
                         <span>이동·여유 포함</span>
@@ -1133,6 +1204,15 @@ export default function PassportApp() {
                         <article className="place-row" key={stop.place.id}>
                           <span className="place-number">{i + 1}</span>
                           <div className="place-main">
+                            {itinerary && (
+                              <p className="place-schedule-time">
+                                {scheduleTime(itinerary.legs[i].arrival)}
+                                {Number.isFinite(itinerary.legs[i].departure)
+                                  ? ' – ' +
+                                    scheduleTime(itinerary.legs[i].departure)
+                                  : ''}
+                              </p>
+                            )}
                             <small>
                               {stop.place.category === 'cafe' ||
                               stop.place.category === 'restaurant'
@@ -1151,14 +1231,16 @@ export default function PassportApp() {
                             </button>
                             <p>{stop.place.address}</p>
                             <div className="place-row-actions">
-                              <a
-                                href={kakaoLink(stop.place)}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                <Navigation size={13} />
-                                길찾기
-                              </a>
+                              {validCoord(stop.place) && (
+                                <a
+                                  href={kakaoLink(stop.place)}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  <Navigation size={13} />
+                                  길찾기
+                                </a>
+                              )}
                               <button
                                 onClick={() => {
                                   setPlaceOpen(stop.place);
@@ -1259,8 +1341,21 @@ export default function PassportApp() {
                 <div className="route-savebar">
                   <div>
                     <b>{selected.stops.length}곳을 함께 둘러보는 미션</b>
-                    <span>{score?.total}분 추정 · 방문 조건 확인 필요</span>
+                    <span>
+                      {score && Number.isFinite(score.total)
+                        ? score.total
+                        : '—'}
+                      분 추정 · 방문 조건 확인 필요
+                    </span>
                   </div>
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      openBuilder(createEntry(selected, origin), 'copy')
+                    }
+                  >
+                    가져와서 수정
+                  </Button>
                   <Button onClick={saveMission}>
                     <BookOpen size={17} />
                     {entries.some(
@@ -1594,6 +1689,15 @@ export default function PassportApp() {
                 <ArrowUpRight size={16} />
               </button>
             </div>
+            <div className="saved-create-actions">
+              <Button onClick={() => openBuilder(null, 'new')}>
+                <Navigation size={18} />새 코스 만들기
+              </Button>
+              <Button variant="outline" onClick={() => go('home')}>
+                추천 코스 가져오기
+                <ArrowRight size={17} />
+              </Button>
+            </div>
             {proposal && projected?.scopes.propose && (
               <section className="received-proposal">
                 <Users size={23} />
@@ -1640,7 +1744,7 @@ export default function PassportApp() {
                     onClick={() => setRecordTab('memories')}
                   >
                     여행 기록{' '}
-                    <span>{entries.filter((e) => e.stamps.length).length}</span>
+                    <span>{entries.filter(hasVisitRecord).length}</span>
                   </button>
                 </div>
                 {entries
@@ -1651,9 +1755,36 @@ export default function PassportApp() {
                   )
                   .map((e) => (
                     <article className="saved-mission" key={entryKey(e)}>
+                      <div className="saved-mission-cover">
+                        <CourseCover
+                          places={
+                            resolveEntry(e, places)?.mission.stops.map(
+                              (s) => s.place,
+                            ) ||
+                            e.plan?.stops.map(
+                              (stop) =>
+                                places.find((p) => p.id === stop.placeId) || {
+                                  id: stop.placeId,
+                                  title:
+                                    e.plan?.manualPlaces?.find(
+                                      (p) => p.id === stop.placeId,
+                                    )?.title || '장소 정보 확인 중',
+                                  image_url: '',
+                                },
+                            ) ||
+                            []
+                          }
+                        />
+                      </div>
                       <div className="saved-mission-heading">
                         <span>{e.region}</span>
                         <h2>{e.title}</h2>
+                        {e.plan?.departureAt && (
+                          <p className="saved-departure">
+                            출발 계획{' '}
+                            {scheduleTime(Date.parse(e.plan.departureAt))}
+                          </p>
+                        )}
                         <small>
                           {hasVisitRecord(e)
                             ? '내가 직접 남긴 여행 기록'
@@ -1690,6 +1821,16 @@ export default function PassportApp() {
                         ))}
                       </div>
                       <div className="saved-mission-actions">
+                        <button
+                          disabled={!e.plan}
+                          onClick={() =>
+                            openBuilder(e, hasVisitRecord(e) ? 'copy' : 'edit')
+                          }
+                        >
+                          {hasVisitRecord(e)
+                            ? '복사해서 새 코스 만들기'
+                            : '코스 수정'}
+                        </button>
                         <button
                           disabled={!e.plan}
                           onClick={() => {
@@ -1839,7 +1980,7 @@ export default function PassportApp() {
                   <div className="editor-body">
                     <div className="share-preview">
                       <span>군번여지도 강원</span>
-                      <h2>{shared.title}</h2>
+                      <h2>{publicCard(shared).mission}</h2>
                       <p>
                         {shared.region} ·{' '}
                         {shared.stamps.join(' · ') || '계획한 여행'}
@@ -2193,12 +2334,64 @@ export default function PassportApp() {
         <button onClick={() => go('data')}>
           출처·데이터 상태 확인 <ArrowUpRight size={14} />
         </button>
-        <button onClick={async () => {
-          const response = await fetch('/api/test-access', { method: 'DELETE' });
-          if (response.ok) window.location.assign('/login');
-          else setNotice('테스트를 종료하지 못했습니다. 다시 시도해 주세요.');
-        }}>테스트 입장 종료</button>
+        <button
+          onClick={async () => {
+            const response = await fetch('/api/test-access', {
+              method: 'DELETE',
+            });
+            if (response.ok) window.location.assign('/login');
+            else setNotice('테스트를 종료하지 못했습니다. 다시 시도해 주세요.');
+          }}
+        >
+          테스트 입장 종료
+        </button>
       </footer>
+      {composer && (
+        <TripBuilder
+          key={composer.key}
+          initial={composer.entry}
+          mode={composer.mode}
+          places={places}
+          initialOrigin={origin}
+          settings={settings}
+          mapKey={mapKey}
+          onClose={() => setComposer(null)}
+          onSave={(entry, memoryPlaces, returnAt) => {
+            const old =
+              composer.mode === 'edit' &&
+              composer.entry &&
+              !hasVisitRecord(composer.entry)
+                ? entryKey(composer.entry)
+                : null;
+            setEntries((v) =>
+              old
+                ? v.map((e) => (entryKey(e) === old ? entry : e))
+                : [entry, ...v],
+            );
+            setExtraPlaces((v) => [
+              ...new Map(
+                [...v, ...memoryPlaces].map((p) => [p.id, p]),
+              ).values(),
+            ]);
+            setReviewEntry(entry);
+            setSelectedId(entry.missionId);
+            setSettings((v) => ({
+              ...v,
+              region: entry.region,
+              originId: entry.plan!.originId,
+              returnAt,
+              weather: 'unknown',
+              weatherForecast: undefined,
+            }));
+            setComposer(null);
+            setRecordTab('plans');
+            go('passport');
+            setNotice(
+              '장소·순서·출발 계획·체류시간을 이 브라우저에 저장했습니다. 복귀시각은 저장하지 않습니다.',
+            );
+          }}
+        />
+      )}
       <Sheet open={editing} onOpenChange={setEditing}>
         <SheetContent side="bottom" className="trip-editor">
           <SheetHeader>
@@ -2474,15 +2667,17 @@ export default function PassportApp() {
                 </p>
               )}
               <Source p={placeOpen} />
-              <a
-                className="external-button"
-                href={kakaoLink(placeOpen)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                카카오맵에서 길찾기
-                <ArrowUpRight size={17} />
-              </a>
+              {validCoord(placeOpen) && (
+                <a
+                  className="external-button"
+                  href={kakaoLink(placeOpen)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  카카오맵에서 길찾기
+                  <ArrowUpRight size={17} />
+                </a>
+              )}
             </div>
           )}
         </SheetContent>

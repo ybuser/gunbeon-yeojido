@@ -1,0 +1,52 @@
+{
+  "startedAt": "2026-09-07T23:51:28.135Z",
+  "base": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
+  "liveApis": true,
+  "deviceMode": "Desktop browsers with viewport/touch emulation; not physical phones or mobile OS browsers",
+  "cases": [
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "width": 360,
+        "height": 740
+      },
+      "touchEmulated": true,
+      "name": "small",
+      "checks": [
+        "Live TourAPI response received",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Kakao tiles/pins loaded; pin opens detail and closes",
+        "Three-step edit, save, reload and exact place order restore",
+        "Family has no horizontal page overflow",
+        "Invite scopes, independent family briefing and exact proposal review",
+        "Explicit preparation target; preparation/visit split; SVG share download",
+        "Revoked invitation removes connected view",
+        "API failure preserves saved refs and shows explicit unavailable state"
+      ],
+      "screenshots": [
+        "chrome-small-home.png",
+        "chrome-small-editor.png",
+        "chrome-small-mission.png",
+        "chrome-small-family.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/catalog": 3,
+        "/api/status": 3,
+        "/api/places": 4,
+        "/api/weather": 6,
+        "/api/place-detail": 1,
+        "/api/accessibility": 1,
+        "/api/places/resolve": 2
+      },
+      "pageErrors": [],
+      "status": "passed"
+    }
+  ],
+  "completedAt": "2026-09-07T23:51:51.915Z",
+  "passed": 1,
+  "failed": 0
+}
