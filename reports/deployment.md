@@ -4,11 +4,11 @@
 
 ## 현재 버전
 
-- 디자인 개편 버전2 배포 상태: succeeded.
+- 디자인 개편 및 개발 환경 보완 버전3 배포 상태: succeeded.
 - Sites 프로젝트: appgprj_6a9e5a33eaa08191a72a52abf77522cc
-- 버전: appgprj_6a9e5a33eaa08191a72a52abf77522cc~appgver_d2f0cdb7cf5c8191a17a8b05e2a072c6
-- 배포: appgdep_6a9e70aa3eb88191bab28f9de91dfd9c
-- 배포 소스 SHA: 24127c7e5155be01bc23796731fb35e7676b6d58
+- 버전: appgprj_6a9e5a33eaa08191a72a52abf77522cc~appgver_81d9ab477a7481918fb85aa4df00d96a
+- 배포: appgdep_6a9e71b58f148191881fcac7e085cf68
+- 배포 소스 SHA: 00a4c8a3337045c4c5046038cadf2395b23a18a6
 - 런타임 환경변수 revision1: DATA_GO_KR_SERVICE_KEY 및 KAKAO_MAP_JAVASCRIPT_KEY를 secret으로 등록·적용. 값은 Git에 포함하지 않음.
 - 접근 범위: 소유자 전용 비공개 유지. 심사위원 공개 접근과 구분.
 
@@ -22,7 +22,8 @@
 
 - b04b020: 접경5군 관광정보 및 추가3 API 실 호출 검증.
 - 8acbf7a: 모바일 여행 UI 전면 개편, 지도·상세·가족 조건 상태 처리 수정.
-- 위 개편 커밋의 GitHub Actions npm ci·타입 검사·16개 테스트·프로덕션 빌드 성공.
+- cc8405d: 개발 시 편집창 의존성의 뒤늦은 최적화를 막는 사전 번들 설정. 새 개발 서버에서 홈200 및 dialog 사전 번들 생성 확인.
+- 위 개편·환경 보완 커밋의 GitHub Actions npm ci·타입 검사·16개 테스트·프로덕션 빌드 성공.
 
 GitHub는 전체 프로젝트를, Sites 소스 저장소는 web 배포 소스를 관리한다. 검증 보고서와 공개 원천은 GitHub에 있고, 비밀값·검토용 원본 스크린샷·API 원문 응답은 올리지 않는다.
 

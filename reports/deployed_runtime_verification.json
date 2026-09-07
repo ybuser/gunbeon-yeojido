@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-09-07T08:08:19.855Z",
+  "checked_at": "2026-09-07T08:12:50.688Z",
   "origin": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
-  "version": 2,
+  "version": 3,
   "environment_revision": 1,
   "scope": "Authenticated HTTP check; browser interactions not verified",
   "results": [
