@@ -1,0 +1,115 @@
+{
+  "startedAt": "2026-09-07T10:37:02.594Z",
+  "base": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
+  "liveApis": true,
+  "deviceMode": "Desktop browsers with viewport/touch emulation; not physical phones or mobile OS browsers",
+  "cases": [
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "width": 360,
+        "height": 740
+      },
+      "touchEmulated": true,
+      "name": "small",
+      "checks": [
+        "Live TourAPI response received",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen"
+      ],
+      "screenshots": [
+        "chrome-small-home.png"
+      ],
+      "apiRequests": {
+        "/api/catalog": 1,
+        "/api/status": 1,
+        "/api/places": 1
+      },
+      "pageErrors": [],
+      "status": "failed",
+      "error": "Escape closes editor\n\n1 !== 0\n"
+    },
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "touchEmulated": false,
+      "name": "desktop",
+      "checks": [
+        "Live TourAPI response received",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen"
+      ],
+      "screenshots": [
+        "chrome-desktop-home.png"
+      ],
+      "apiRequests": {
+        "/api/catalog": 1,
+        "/api/status": 1,
+        "/api/places": 1
+      },
+      "pageErrors": [],
+      "status": "failed",
+      "error": "Escape closes editor\n\n1 !== 0\n"
+    },
+    {
+      "browser": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "width": 360,
+        "height": 740
+      },
+      "touchEmulated": true,
+      "name": "small",
+      "checks": [
+        "Live TourAPI response received",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen"
+      ],
+      "screenshots": [
+        "msedge-small-home.png"
+      ],
+      "apiRequests": {
+        "/api/catalog": 1,
+        "/api/status": 1,
+        "/api/places": 1
+      },
+      "pageErrors": [],
+      "status": "failed",
+      "error": "Escape closes editor\n\n1 !== 0\n"
+    },
+    {
+      "browser": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "touchEmulated": false,
+      "name": "desktop",
+      "checks": [
+        "Live TourAPI response received",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen"
+      ],
+      "screenshots": [
+        "msedge-desktop-home.png"
+      ],
+      "apiRequests": {
+        "/api/catalog": 1,
+        "/api/status": 1,
+        "/api/places": 1
+      },
+      "pageErrors": [],
+      "status": "failed",
+      "error": "Escape closes editor\n\n1 !== 0\n"
+    }
+  ],
+  "completedAt": "2026-09-07T10:37:37.862Z",
+  "passed": 0,
+  "failed": 4
+}

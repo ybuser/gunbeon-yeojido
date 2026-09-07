@@ -61,6 +61,13 @@ export default function MissionMap({
             label.className =
               'map-place-pin' + (place.id === origin.id ? ' hub-pin' : '');
             label.textContent = number ? String(number) : '만남';
+            const samePoint = nodes.filter(
+              (n) =>
+                Math.abs(n.lat! - place.lat!) < 0.00001 &&
+                Math.abs(n.lon! - place.lon!) < 0.00001,
+            );
+            if (samePoint.length > 1)
+              label.style.transform = `translateX(${(samePoint.findIndex((n) => n.id === place.id) - (samePoint.length - 1) / 2) * 50}px)`;
             label.setAttribute(
               'aria-label',
               (number ? number + '번 ' : '') + place.title + ' 방문 정보',

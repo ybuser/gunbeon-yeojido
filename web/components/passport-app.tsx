@@ -1,6 +1,7 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ComponentProps } from 'react';
 import {
+  X,
   ArrowUpRight,
   ArrowRight,
   BookOpen,
@@ -30,7 +31,8 @@ import {
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
-  SheetContent,
+  SheetContent as BaseSheetContent,
+  SheetClose,
   SheetHeader,
   SheetTitle,
   SheetDescription,
@@ -65,6 +67,12 @@ import {
   publicCard,
   kakaoLink,
   validCoord,
+  createEntry,
+  entryKey,
+  hasVisitRecord,
+  planSignature,
+  resolveEntry,
+  effectiveWeather,
 } from '@/lib/domain';
 import type {
   Place,
@@ -118,6 +126,19 @@ type Live = {
   lDongRegnCd?: string;
   lDongSignguCd?: string;
 };
+function SheetContent({
+  children,
+  ...props
+}: ComponentProps<typeof BaseSheetContent>) {
+  return (
+    <BaseSheetContent {...props} showCloseButton={false}>
+      {children}
+      <SheetClose aria-label="닫기" className="travel-sheet-close">
+        <X size={20} />
+      </SheetClose>
+    </BaseSheetContent>
+  );
+}
 function Field({
   label,
   value,
@@ -251,6 +272,8 @@ export default function PassportApp() {
   const [refresh, setRefresh] = useState(0);
   const [mapKey, setMapKey] = useState('');
   const [selectedId, setSelectedId] = useState('');
+  const [reviewEntry, setReviewEntry] = useState<Entry | null>(null);
+  const [radarRecordId, setRadarRecordId] = useState('');
   const [notice, setNotice] = useState('');
   const [entries, setEntries] = useState<Entry[]>([]);
   const [family, setFamily] = useState<Family | null>(null);
@@ -258,7 +281,7 @@ export default function PassportApp() {
   const [joined, setJoined] = useState('');
   const [loaded, setLoaded] = useState(false);
   const [proposal, setProposal] = useState<{
-    mission: Mission;
+    entry: Entry;
     walkLimit: number;
     transport: Settings['transport'];
   } | null>(null);
@@ -289,6 +312,18 @@ export default function PassportApp() {
     prompt: () => Promise<void>;
   } | null>(null);
   useEffect(() => {
+    const readView = () => {
+      const key = window.location.hash.slice(1);
+      setView(Object.hasOwn(LABELS, key) ? key : 'home');
+      setEditing(false);
+      setPlaceOpen(null);
+      setShared(null);
+    };
+    readView();
+    window.addEventListener('popstate', readView);
+    return () => window.removeEventListener('popstate', readView);
+  }, []);
+  useEffect(() => {
     setNow(new Date());
     fetch('/api/catalog')
       .then((r) => r.json())
@@ -303,7 +338,7 @@ export default function PassportApp() {
       );
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE) || 'null');
-      if (saved?.version === 1) {
+      if (saved?.version === 1 || saved?.version === 2) {
         if (Array.isArray(saved.entries))
           setEntries(
             saved.entries.filter(
@@ -349,7 +384,7 @@ export default function PassportApp() {
     try {
       localStorage.setItem(
         STORAGE,
-        JSON.stringify({ version: 1, entries, family }),
+        JSON.stringify({ version: 2, entries, family }),
       );
     } catch {
       setNotice(
@@ -391,9 +426,14 @@ export default function PassportApp() {
     () => regionPlaces(places, settings.region),
     [places, settings.region],
   );
+  const resolvedEntry = useMemo(
+    () => (reviewEntry ? resolveEntry(reviewEntry, places) : null),
+    [reviewEntry, places],
+  );
   const origin = useMemo(
-    () => chooseOrigin(places, settings),
-    [places, settings],
+    () =>
+      reviewEntry ? resolvedEntry?.origin : chooseOrigin(places, settings),
+    [reviewEntry, resolvedEntry, places, settings],
   );
   const missionOptions = useMemo(
     () => makeMissions(places, settings),
@@ -408,7 +448,9 @@ export default function PassportApp() {
         rank[assess(b, settings, origin, now).band],
     );
   }, [missionOptions, settings, origin, now]);
-  const selected = missions.find((m) => m.id === selectedId) || missions[0];
+  const selected = reviewEntry
+    ? resolvedEntry?.mission
+    : missions.find((m) => m.id === selectedId) || missions[0];
   const score =
     selected && origin ? assess(selected, settings, origin, now) : null;
   const projected = familyProjection(
@@ -422,6 +464,7 @@ export default function PassportApp() {
   const familySettings = {
     ...settings,
     region: familyRegion,
+    originId: '',
     companion: '부모님',
     walkLimit: parseInt(familyWalk),
     theme: '회복',
@@ -429,6 +472,7 @@ export default function PassportApp() {
     transport: transportValue(familyTransport),
   } as Settings;
   const familyPlaces = [...familyLive.places, ...places];
+  const familyOrigin = chooseOrigin(familyPlaces, familySettings);
   const familyMissions = makeMissions(familyPlaces, familySettings);
   const familyMission =
     familyMissions.find((m) => m.variant === '회복') || familyMissions[0];
@@ -477,7 +521,10 @@ export default function PassportApp() {
     setDraft((s) => ({
       ...(s || settings),
       [key]: value,
-      ...(key === 'region' ? { originId: '' } : {}),
+      ...(key === 'region'
+        ? { originId: '', weather: 'unknown', weatherForecast: undefined }
+        : {}),
+      ...(key === 'weather' ? { weatherForecast: undefined } : {}),
     }));
   }
   function draftPreset(minutes: number) {
@@ -494,6 +541,12 @@ export default function PassportApp() {
     setSettings(draft);
     setNow(new Date());
     setSelectedId('');
+    if (
+      draft.region !== settings.region ||
+      draft.originId !== settings.originId ||
+      draft.duration !== settings.duration
+    )
+      setReviewEntry(null);
     setEditing(false);
     if (draft.role === '부모님') {
       setFamilyRegion(draft.region);
@@ -507,34 +560,55 @@ export default function PassportApp() {
     setSettings((s) => ({
       ...s,
       [k]: v,
-      ...(k === 'region' ? { originId: '' } : {}),
+      ...(k === 'region'
+        ? { originId: '', weather: 'unknown', weatherForecast: undefined }
+        : {}),
+      ...(k === 'weather' ? { weatherForecast: undefined } : {}),
     }));
-    if (k === 'region') setSelectedId('');
+    if (k === 'region') {
+      setSelectedId('');
+      setReviewEntry(null);
+    }
     if (k === 'weather' && (v === 'rain' || v === 'wind' || v === 'snow'))
       setSelectedId(settings.region + '-실내');
   }
   function go(v: string) {
+    if (!Object.hasOwn(LABELS, v)) return;
+    if (v !== view)
+      window.history.pushState(
+        null,
+        '',
+        v === 'home'
+          ? window.location.pathname + window.location.search
+          : '#' + v,
+      );
     setView(v);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function saveMission() {
-    if (!selected) return;
-    setEntries((e) =>
-      e.some((x) => x.missionId === selected.id)
-        ? e
-        : [
-            ...e,
-            {
-              missionId: selected.id,
-              title: selected.title,
-              region: selected.region,
-              stamps: [],
-            },
-          ],
-    );
+    if (!selected || !origin) return;
+    const entry = createEntry(selected, origin);
+    if (entries.some((e) => planSignature(e) === planSignature(entry))) {
+      setNotice('같은 장소와 순서의 미션이 이미 내 여행에 있습니다.');
+      return;
+    }
+    setEntries((e) => [...e, entry]);
     setNotice(
-      '미션을 패스포트에 담았습니다. 방문 스탬프는 여행 후 직접 기록해 주세요.',
+      '장소와 순서를 내 여행에 담았습니다. 복귀시각은 저장하지 않습니다.',
     );
+  }
+  function openEntry(entry: Entry) {
+    setReviewEntry(entry);
+    setSettings((s) => ({
+      ...s,
+      region: entry.region,
+      originId: entry.plan?.originId || '',
+      ...(s.region !== entry.region
+        ? { weather: 'unknown', weatherForecast: undefined }
+        : {}),
+    }));
+    setSelectedId(entry.missionId);
+    go('planner');
   }
   function addStamp(id: string, stamp: string) {
     if (stamp === '동행' && !projected?.scopes.stamp) {
@@ -543,7 +617,7 @@ export default function PassportApp() {
     }
     setEntries((e) =>
       e.map((x) =>
-        x.missionId === id
+        entryKey(x) === id
           ? { ...x, stamps: Array.from(new Set([...x.stamps, stamp])) }
           : x,
       ),
@@ -660,7 +734,12 @@ export default function PassportApp() {
           ? '오늘 비추천'
           : '계산 확인 필요';
   return (
-    <div className="app-shell">
+    <div
+      className="app-shell"
+      data-ready={loaded}
+      inert={!loaded}
+      aria-busy={!loaded}
+    >
       <header className="topbar travel-header">
         <button className="brand" onClick={() => go('home')}>
           <Navigation size={23} strokeWidth={2.6} />
@@ -779,6 +858,7 @@ export default function PassportApp() {
                     <button
                       className="journey-image"
                       onClick={() => {
+                        setReviewEntry(null);
                         setSelectedId(m.id);
                         go('planner');
                       }}
@@ -816,6 +896,7 @@ export default function PassportApp() {
                     <button
                       className="journey-text"
                       onClick={() => {
+                        setReviewEntry(null);
                         setSelectedId(m.id);
                         go('planner');
                       }}
@@ -824,7 +905,8 @@ export default function PassportApp() {
                         {{
                           가족: '부모님과 천천히 돌아보기',
                           회복: '잠깐 둘러보고, 편하게 쉬기',
-                          평화: '강원의 이야기를 따라',
+                          평화: '평화의 흔적을 따라',
+                          탐방: '지역의 이야기를 따라',
                           실내: '실내에서 여유롭게',
                         }[m.variant] || m.title}
                       </h3>
@@ -921,9 +1003,21 @@ export default function PassportApp() {
             {!selected || !origin ? (
               <div className="list-empty">
                 {live.mode === 'loading'
-                  ? '미션을 준비하고 있어요.'
-                  : '이 조건의 미션을 구성하지 못했습니다.'}
-                <button onClick={editTrip}>조건 바꾸기</button>
+                  ? '장소 정보를 다시 확인하고 있어요.'
+                  : reviewEntry
+                    ? '저장한 장소 정보를 연결하지 못했습니다. 다른 장소로 바꾸지 않았어요.'
+                    : '이 조건의 미션을 구성하지 못했습니다.'}
+                <button onClick={() => setRefresh((x) => x + 1)}>
+                  장소 다시 조회
+                </button>
+                <button
+                  onClick={() => {
+                    setReviewEntry(null);
+                    editTrip();
+                  }}
+                >
+                  새 미션 찾기
+                </button>
               </div>
             ) : (
               <>
@@ -957,11 +1051,19 @@ export default function PassportApp() {
                     </p>
                   </section>
                   <section className="route-itinerary">
+                    {reviewEntry && (
+                      <p className="saved-context">
+                        저장·제안한 장소 순서 · 시간은 현재 조건으로 재계산
+                      </p>
+                    )}
                     <div className="route-variants" aria-label="미션 선택">
                       {missions.map((m) => (
                         <button
                           key={m.id}
-                          onClick={() => setSelectedId(m.id)}
+                          onClick={() => {
+                            setReviewEntry(null);
+                            setSelectedId(m.id);
+                          }}
                           className={selected.id === m.id ? 'active' : ''}
                         >
                           {m.variant === '실내' ? '실내 후보' : m.variant}
@@ -999,8 +1101,17 @@ export default function PassportApp() {
                       <AlertTriangle size={17} />
                       <p>
                         {score?.band === 'avoid'
-                          ? '현재 시간·도보·기상 조건에서는 추천하지 않습니다. '
+                          ? '현재 시간·도보·운영·기상 조건에서는 추천하지 않습니다. '
                           : ''}
+                        {score?.issues
+                          .filter((x) =>
+                            /공식|예보.*(범위|만료)|다른 지역/.test(x),
+                          )
+                          .map((x) => (
+                            <span className="critical-condition" key={x}>
+                              {x}
+                            </span>
+                          ))}
                         예약·신분증·당일 운영 확인이 필요합니다.
                       </p>
                     </div>
@@ -1131,7 +1242,13 @@ export default function PassportApp() {
                     </details>
                     <WeatherCard
                       region={settings.region}
-                      onApply={(v) => change('weather', v)}
+                      onApply={(v, provenance) =>
+                        setSettings((s) => ({
+                          ...s,
+                          weather: v,
+                          weatherForecast: provenance,
+                        }))
+                      }
                     />
                     <div className="route-credit">
                       출처: ⓒ한국관광공사 · 통일부 공개데이터{' '}
@@ -1146,7 +1263,11 @@ export default function PassportApp() {
                   </div>
                   <Button onClick={saveMission}>
                     <BookOpen size={17} />
-                    {entries.some((e) => e.missionId === selected.id)
+                    {entries.some(
+                      (e) =>
+                        planSignature(e) ===
+                        planSignature(createEntry(selected, origin, 'preview')),
+                    )
                       ? '내 여행에 담은 미션'
                       : '이 미션 내 여행에 담기'}
                   </Button>
@@ -1175,7 +1296,7 @@ export default function PassportApp() {
                     }}
                   />
                   <label className="field">
-                    방문 날짜
+                    방문 희망일 · 메모
                     <input
                       type="date"
                       value={familyDate}
@@ -1196,7 +1317,7 @@ export default function PassportApp() {
                   />
                 </div>
                 <Choices
-                  label="좋아하는 식사"
+                  label="가족과 공유할 식사 선호"
                   value={familyMeal}
                   options={['한식', '국물요리', '가벼운 식사', '카페에서 쉬기']}
                   onChange={setFamilyMeal}
@@ -1222,6 +1343,11 @@ export default function PassportApp() {
                         ? projected.mission.title
                         : '미션 공유는 허용되지 않았어요.'}
                     </p>
+                    {projected.mission && (
+                      <p className="shared-place-names">
+                        {projected.mission.placeNames.join(' → ')}
+                      </p>
+                    )}
                     <p>
                       {projected.meal
                         ? '식사 선호: ' + projected.meal
@@ -1284,8 +1410,8 @@ export default function PassportApp() {
                       <span className="section-overline">부모 브리핑</span>
                       <h2>{familyRegion}에서 함께하는 여행</h2>
                       <p>
-                        {familyDate || '날짜 미정'} · {familyTransport} · 전체
-                        도보 {familyWalk} 이내 희망
+                        {familyDate ? familyDate + ' 희망' : '날짜 미정'} ·{' '}
+                        {familyTransport} · 전체 도보 {familyWalk} 이내 희망
                       </p>
                     </div>
                   </div>
@@ -1345,13 +1471,13 @@ export default function PassportApp() {
                         합니다.
                       </p>
                     )}
-                  {familyMission && (
+                  {familyMission && familyOrigin && (
                     <Button
                       disabled={!projected?.scopes.propose}
                       onClick={() => {
                         if (projected?.scopes.propose) {
                           setProposal({
-                            mission: familyMission,
+                            entry: createEntry(familyMission, familyOrigin!),
                             walkLimit: familySettings.walkLimit,
                             transport: familySettings.transport,
                           });
@@ -1375,8 +1501,8 @@ export default function PassportApp() {
                     <div>
                       <h2>함께 먹을 한 끼</h2>
                       <p>
-                        선호: {familyMeal} · 메뉴와 알레르기 적합성은 식당에
-                        확인하세요.
+                        선호 메모: {familyMeal}. 아래는 인근 식당 후보이며
+                        메뉴·알레르기 적합성은 직접 확인하세요.
                       </p>
                     </div>
                   </div>
@@ -1468,25 +1594,28 @@ export default function PassportApp() {
                 <ArrowUpRight size={16} />
               </button>
             </div>
-            {proposal && (
+            {proposal && projected?.scopes.propose && (
               <section className="received-proposal">
                 <Users size={23} />
                 <div>
                   <small>가족이 제안한 미션</small>
-                  <b>{proposal.mission.title}</b>
+                  <b>{proposal.entry.title}</b>
                 </div>
                 <Button
                   variant="outline"
                   onClick={() => {
                     setSettings((s) => ({
                       ...s,
-                      region: proposal.mission.region,
+                      region: proposal.entry.region,
                       companion: '부모님',
                       walkLimit: proposal.walkLimit,
                       transport: proposal.transport,
-                      originId: '',
+                      originId: proposal.entry.plan?.originId || '',
+                      weather: 'unknown',
+                      weatherForecast: undefined,
                     }));
-                    setSelectedId(proposal.mission.id);
+                    setReviewEntry(proposal.entry);
+                    setSelectedId(proposal.entry.missionId);
                     go('planner');
                   }}
                 >
@@ -1503,7 +1632,7 @@ export default function PassportApp() {
                   >
                     계획한 미션{' '}
                     <span>
-                      {entries.filter((e) => !e.stamps.length).length}
+                      {entries.filter((e) => !hasVisitRecord(e)).length}
                     </span>
                   </button>
                   <button
@@ -1517,20 +1646,31 @@ export default function PassportApp() {
                 {entries
                   .filter((e) =>
                     recordTab === 'plans'
-                      ? !e.stamps.length
-                      : Boolean(e.stamps.length),
+                      ? !hasVisitRecord(e)
+                      : hasVisitRecord(e),
                   )
                   .map((e) => (
-                    <article className="saved-mission" key={e.missionId}>
+                    <article className="saved-mission" key={entryKey(e)}>
                       <div className="saved-mission-heading">
                         <span>{e.region}</span>
                         <h2>{e.title}</h2>
                         <small>
-                          {e.stamps.length
+                          {hasVisitRecord(e)
                             ? '내가 직접 남긴 여행 기록'
                             : '아직 다녀오지 않은 여행 계획'}
                         </small>
                       </div>
+                      {e.stamps.includes('휴가 씨앗') && (
+                        <p className="preparation-record">
+                          <Leaf size={15} /> 방문 준비 기록 · 방문 인증 아님
+                        </p>
+                      )}
+                      {!e.plan && (
+                        <p className="helper">
+                          이전 버전 기록입니다. 당시 장소 순서는 보관되지
+                          않았습니다.
+                        </p>
+                      )}
                       <div className="stamp-actions">
                         {['입경', '전환', '복귀', '동행'].map((stamp) => (
                           <button
@@ -1538,7 +1678,7 @@ export default function PassportApp() {
                             className={
                               e.stamps.includes(stamp) ? 'recorded' : ''
                             }
-                            onClick={() => addStamp(e.missionId, stamp)}
+                            onClick={() => addStamp(entryKey(e), stamp)}
                           >
                             {e.stamps.includes(stamp) ? (
                               <Check size={14} />
@@ -1551,13 +1691,12 @@ export default function PassportApp() {
                       </div>
                       <div className="saved-mission-actions">
                         <button
+                          disabled={!e.plan}
                           onClick={() => {
-                            change('region', e.region);
-                            setSelectedId(e.missionId);
-                            go('planner');
+                            openEntry(e);
                           }}
                         >
-                          현재 조건으로 다시 보기
+                          저장한 장소 다시 보기
                           <ChevronRight size={14} />
                         </button>
                         <button onClick={() => setShared(e)}>
@@ -1569,8 +1708,8 @@ export default function PassportApp() {
                   ))}
                 {!entries.filter((e) =>
                   recordTab === 'plans'
-                    ? !e.stamps.length
-                    : Boolean(e.stamps.length),
+                    ? !hasVisitRecord(e)
+                    : hasVisitRecord(e),
                 ).length && (
                   <div className="saved-empty">
                     <BookOpen size={32} />
@@ -1607,7 +1746,7 @@ export default function PassportApp() {
                       <small>
                         {
                           entries.filter(
-                            (e) => e.region === r && e.stamps.length,
+                            (e) => e.region === r && hasVisitRecord(e),
                           ).length
                         }
                         개 기록
@@ -1655,6 +1794,7 @@ export default function PassportApp() {
                         onClick={() => {
                           setFamily(null);
                           setJoined('');
+                          setProposal(null);
                           setNotice('초대를 해제했습니다.');
                         }}
                       >
@@ -1776,12 +1916,37 @@ export default function PassportApp() {
                 >
                   국가보훈부 공식 안내 확인 <ExternalLink size={16} />
                 </a>
+                <Field
+                  label="준비 기록을 남길 여행"
+                  value={
+                    entries.findIndex((e) => entryKey(e) === radarRecordId) >= 0
+                      ? entries.findIndex(
+                          (e) => entryKey(e) === radarRecordId,
+                        ) +
+                        1 +
+                        '. ' +
+                        entries.find((e) => entryKey(e) === radarRecordId)!
+                          .title
+                      : '여행 선택'
+                  }
+                  options={entries.map((e, i) => i + 1 + '. ' + e.title)}
+                  onChange={(v) => {
+                    const entry = entries[parseInt(v) - 1];
+                    if (entry) setRadarRecordId(entryKey(entry));
+                  }}
+                />
                 <Button
                   className="primary-cta"
-                  disabled={!radarChecks.every(Boolean) || !entries.length}
+                  disabled={
+                    !radarChecks.every(Boolean) ||
+                    !entries.some((e) => entryKey(e) === radarRecordId)
+                  }
                   onClick={() => {
-                    if (radarChecks.every(Boolean) && entries[0])
-                      addStamp(entries[0].missionId, '휴가 씨앗');
+                    if (
+                      radarChecks.every(Boolean) &&
+                      entries.some((e) => entryKey(e) === radarRecordId)
+                    )
+                      addStamp(radarRecordId, '휴가 씨앗');
                   }}
                 >
                   확인 준비를 휴가 씨앗으로 기록 <Leaf size={17} />
@@ -2207,9 +2372,21 @@ export default function PassportApp() {
                     options={['15분', '30분', '60분', '90분']}
                     onChange={(v) => draftChange('extraBuffer', parseInt(v))}
                   />
+                  <p className="helper">
+                    {draft.weatherForecast
+                      ? `적용 출처: ${draft.weatherForecast.region} ${draft.weatherForecast.baseTime.slice(0, 2)}시 기상청 예보`
+                      : '날씨는 직접 선택한 가정입니다.'}{' '}
+                    {effectiveWeather(draft, now).reason}
+                  </p>
                   <WeatherCard
                     region={draft.region}
-                    onApply={(v) => draftChange('weather', v)}
+                    onApply={(v, provenance) =>
+                      setDraft((s) => ({
+                        ...s!,
+                        weather: v,
+                        weatherForecast: provenance,
+                      }))
+                    }
                   />
                   <Field
                     label="계산에 적용할 날씨"
@@ -2220,7 +2397,7 @@ export default function PassportApp() {
                         rain: '비 보정',
                         wind: '강풍 보정',
                         snow: '눈·결빙 보정',
-                      }[draft.weather]
+                      }[effectiveWeather(draft, now).condition]
                     }
                     options={[
                       '미확인',
