@@ -27,6 +27,11 @@ jobs:
           QA_LIVE: '0'
           QA_OUT_DIR: test-results/browser
         run: |
+          node --input-type=module <<'JS'
+          import { writeFileSync } from 'node:fs';
+          import { randomBytes } from 'node:crypto';
+          writeFileSync('.env.local', 'TEST_ACCESS_PASSWORD=1234\nTEST_SESSION_SECRET=' + randomBytes(32).toString('hex') + '\n');
+          JS
           npm run dev > "$RUNNER_TEMP/gangwon-qa-server.log" 2>&1 &
           QA_SERVER_PID=$!
           trap 'kill "$QA_SERVER_PID" 2>/dev/null || true' EXIT
