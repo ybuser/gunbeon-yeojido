@@ -1,0 +1,627 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "티맵 모빌리티(주)의 내비게이션 데이터를 기반으로 산출된 지역별 중심 관광지 정보입니다. 해당 지역의 관광지 중 타 관광지와 연계 방문하는 빈도가 높은 관광지가 중심 관광지가 됩니다. Tmap 어플리케이션 사용자가 목적지를 조회하고 거리 기준으로 100m, 시간 기준으로 1분 이상 이동한 조건을 모두 충족한 경우에 한해 집계되며, 차량이동을 기준으로 하므로 실제 연계 방문 정도나 연계 방문하는 사람의 수와는 차이가 있을 수 있습니다. 지자체별 타 관광지와 가장 많이 연결되는 중심 관광지 100위 정보를 제공합니다.",
+    "version": "1.0.0",
+    "title": "한국관광공사_기초지자체 중심 관광지 정보"
+  },
+  "host": "apis.data.go.kr/B551011/LocgoHubTarService1",
+  "basePath": "",
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+    "/areaBasedList1": {
+      "get": {
+        "responses": {
+          "10": {
+            "description": "INVALID_REQUEST_PARAMETER_ERROR(잘못된요청파라메터에러)"
+          },
+          "11": {
+            "description": "NO_MANDATORY_REQUEST_PARAMETERS_ERROR(필수요청파라메터가없음)"
+          },
+          "21": {
+            "description": "TEMPORARILY_DISABLE_THE_SERVICEKEY_ERROR(일시적으로사용할수없는서비스키)"
+          },
+          "33": {
+            "description": "UNSIGNED_CALL_ERROR(서명되지않은호출)"
+          },
+          "200": {
+            "description": "성공",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "object",
+                  "description": "header",
+                  "properties": {
+                    "resultCode": {
+                      "type": "string",
+                      "description": "API 호출 결과의 상태 코드",
+                      "properties": {}
+                    },
+                    "resultMsg": {
+                      "type": "string",
+                      "description": "API 호출 결과의 상태",
+                      "properties": {}
+                    }
+                  }
+                },
+                "body": {
+                  "type": "object",
+                  "description": "body",
+                  "properties": {
+                    "pageNo": {
+                      "type": "number",
+                      "description": "현재 조회된 데이터의 페이지 번호",
+                      "properties": {}
+                    },
+                    "totalCount": {
+                      "type": "number",
+                      "description": "전체 데이터의 총 수",
+                      "properties": {}
+                    },
+                    "items": {
+                      "type": "object",
+                      "description": "items",
+                      "properties": {
+                        "item": {
+                          "type": "object",
+                          "description": "item",
+                          "properties": {
+                            "hubCtgryMclsNm": {
+                              "type": "string",
+                              "description": "중심지 카테고리 중분류명",
+                              "properties": {}
+                            },
+                            "hubRank": {
+                              "type": "string",
+                              "description": "중심지 순위",
+                              "properties": {}
+                            },
+                            "baseYm": {
+                              "type": "string",
+                              "description": "기준연월",
+                              "properties": {}
+                            },
+                            "mapX": {
+                              "type": "string",
+                              "description": "X좌표값",
+                              "properties": {}
+                            },
+                            "mapY": {
+                              "type": "string",
+                              "description": "Y좌표값",
+                              "properties": {}
+                            },
+                            "areaCd": {
+                              "type": "string",
+                              "description": "지역코드",
+                              "properties": {}
+                            },
+                            "areaNm": {
+                              "type": "string",
+                              "description": "지역명",
+                              "properties": {}
+                            },
+                            "signguCd": {
+                              "type": "string",
+                              "description": "시군구코드",
+                              "properties": {}
+                            },
+                            "signguNm": {
+                              "type": "string",
+                              "description": "시군구명",
+                              "properties": {}
+                            },
+                            "hubTatsCd": {
+                              "type": "string",
+                              "description": "중심지 관광지코드",
+                              "properties": {}
+                            },
+                            "hubTatsNm": {
+                              "type": "string",
+                              "description": "중심지 관광지명",
+                              "properties": {}
+                            },
+                            "hubCtgryLclsNm": {
+                              "type": "string",
+                              "description": "중심지 카테고리 대분류명",
+                              "properties": {}
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "numOfRows": {
+                      "type": "number",
+                      "description": "한 페이지의 결과 수",
+                      "properties": {}
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "response"
+              }
+            }
+          },
+          "02": {
+            "description": "DB_ERROR(데이터베이스에러)"
+          },
+          "03": {
+            "description": "NODATA_ERROR(데이터없음에러)"
+          },
+          "05": {
+            "description": "SERVICETIMEOUT_ERROR(서비스연결실패에러)"
+          }
+        },
+        "tags": [
+          "API 목록"
+        ],
+        "summary": "지역기반 중심 관광지 정보 목록 조회",
+        "description": "시군구 기반으로 중심 관광지 정보 목록을 조회하는 기능입니다.",
+        "operationId": "areaBasedList1",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "serviceKey",
+          "description": "공공데이터포털에서 받은 인증키",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "pageNo",
+          "description": "페이지번호",
+          "type": "number",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "numOfRows",
+          "description": "한 페이지 결과 수",
+          "type": "number",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "MobileOS",
+          "description": "OS 구분 : IOS (아이폰), AND (안드로이드), WEB(웹), ETC(기타)",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "MobileApp",
+          "description": "서비스명(어플명)",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "baseYm",
+          "description": "기준 날짜 조회(형식:YYYYMM)",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "areaCd",
+          "description": "중심지 지역 코드 ( 매뉴얼 문서 시군구 코드정보 참고 )",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "signguCd",
+          "description": "중심지 시군구 코드 ( 매뉴얼 문서 시군구 코드정보 참고 )",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "_type",
+          "description": "응답메세지 형식 : REST방식의 URL호출 시 json값 추가(디폴트 응답메세지 형식은XML)",
+          "type": "string",
+          "required": false,
+          "in": "query"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "areaBasedList1_response": {
+      "type": "object",
+      "properties": {
+        "header": {
+          "type": "object",
+          "description": "header",
+          "properties": {
+            "resultCode": {
+              "type": "string",
+              "description": "API 호출 결과의 상태 코드"
+            },
+            "resultMsg": {
+              "type": "string",
+              "description": "API 호출 결과의 상태"
+            }
+          }
+        },
+        "body": {
+          "type": "object",
+          "description": "body",
+          "properties": {
+            "pageNo": {
+              "type": "number",
+              "description": "현재 조회된 데이터의 페이지 번호"
+            },
+            "totalCount": {
+              "type": "number",
+              "description": "전체 데이터의 총 수"
+            },
+            "items": {
+              "type": "object",
+              "description": "items",
+              "properties": {
+                "item": {
+                  "type": "object",
+                  "description": "item",
+                  "properties": {
+                    "hubCtgryMclsNm": {
+                      "type": "string",
+                      "description": "중심지 카테고리 중분류명"
+                    },
+                    "hubRank": {
+                      "type": "string",
+                      "description": "중심지 순위"
+                    },
+                    "baseYm": {
+                      "type": "string",
+                      "description": "기준연월"
+                    },
+                    "mapX": {
+                      "type": "string",
+                      "description": "X좌표값"
+                    },
+                    "mapY": {
+                      "type": "string",
+                      "description": "Y좌표값"
+                    },
+                    "areaCd": {
+                      "type": "string",
+                      "description": "지역코드"
+                    },
+                    "areaNm": {
+                      "type": "string",
+                      "description": "지역명"
+                    },
+                    "signguCd": {
+                      "type": "string",
+                      "description": "시군구코드"
+                    },
+                    "signguNm": {
+                      "type": "string",
+                      "description": "시군구명"
+                    },
+                    "hubTatsCd": {
+                      "type": "string",
+                      "description": "중심지 관광지코드"
+                    },
+                    "hubTatsNm": {
+                      "type": "string",
+                      "description": "중심지 관광지명"
+                    },
+                    "hubCtgryLclsNm": {
+                      "type": "string",
+                      "description": "중심지 카테고리 대분류명"
+                    }
+                  }
+                }
+              }
+            },
+            "numOfRows": {
+              "type": "number",
+              "description": "한 페이지의 결과 수"
+            }
+          }
+        }
+      }
+    }
+  },
+  "swaggerOprtinVOs": [
+    {
+      "oprtinUrl": "https://gwapi.visitkorea.or.kr/openapi/service/gwrest/LocgoHubTarService1/areaBasedList1",
+      "oprtinNm": "지역기반 중심 관광지 정보 목록 조회",
+      "oprtinDc": "시군구 기반으로 중심 관광지 정보 목록을 조회하는 기능입니다.",
+      "gwSvcNm": "areaBasedList1",
+      "operationId": "areaBasedList1",
+      "publicDataTyDetailCode": "PRDE02",
+      "reqList": [
+        {
+          "paramtrNm": "serviceKey",
+          "paramtrDc": "공공데이터포털에서 받은 인증키",
+          "paramtrBassValue": "-",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "pageNo",
+          "paramtrDc": "페이지번호",
+          "paramtrBassValue": "1",
+          "paramtrTy": "number",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "numOfRows",
+          "paramtrDc": "한 페이지 결과 수",
+          "paramtrBassValue": "10",
+          "paramtrTy": "number",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "MobileOS",
+          "paramtrDc": "OS 구분 : IOS (아이폰), AND (안드로이드), WEB(웹), ETC(기타)",
+          "paramtrBassValue": "ETC",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "MobileApp",
+          "paramtrDc": "서비스명(어플명)",
+          "paramtrBassValue": "AppTest",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "baseYm",
+          "paramtrDc": "기준 날짜 조회(형식:YYYYMM)",
+          "paramtrBassValue": "202503",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "areaCd",
+          "paramtrDc": "중심지 지역 코드 ( 매뉴얼 문서 시군구 코드정보 참고 )",
+          "paramtrBassValue": "11",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "signguCd",
+          "paramtrDc": "중심지 시군구 코드 ( 매뉴얼 문서 시군구 코드정보 참고 )",
+          "paramtrBassValue": "11530",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "_type",
+          "paramtrDc": "응답메세지 형식 : REST방식의 URL호출 시 json값 추가(디폴트 응답메세지 형식은XML)",
+          "paramtrBassValue": "json",
+          "paramtrTy": "string",
+          "paramtrDivision": "옵션",
+          "ck": true
+        }
+      ],
+      "resList": [
+        {
+          "paramtrNm": "header",
+          "paramtrDc": "header",
+          "arrayYn": "N",
+          "paramtrDefNm": "#/definitions/areaBasedList_header",
+          "subDefNm": "areaBasedList_header",
+          "paramtrTy": "object",
+          "paramtrDivision": "필수",
+          "ck": true,
+          "subParam": [
+            {
+              "paramtrNm": "resultCode",
+              "paramtrDc": "API 호출 결과의 상태 코드",
+              "arrayYn": "N",
+              "paramtrDefNm": "",
+              "paramtrTy": "string",
+              "paramtrDivision": "필수",
+              "ck": true
+            },
+            {
+              "paramtrNm": "resultMsg",
+              "paramtrDc": "API 호출 결과의 상태",
+              "arrayYn": "N",
+              "paramtrDefNm": "",
+              "paramtrTy": "string",
+              "paramtrDivision": "필수",
+              "ck": true
+            }
+          ]
+        },
+        {
+          "paramtrNm": "body",
+          "paramtrDc": "body",
+          "arrayYn": "N",
+          "paramtrDefNm": "#/definitions/areaBasedList_body",
+          "subDefNm": "areaBasedList_body",
+          "paramtrTy": "object",
+          "paramtrDivision": "필수",
+          "ck": true,
+          "subParam": [
+            {
+              "paramtrNm": "pageNo",
+              "paramtrDc": "현재 조회된 데이터의 페이지 번호",
+              "arrayYn": "N",
+              "paramtrDefNm": "",
+              "paramtrTy": "number",
+              "paramtrDivision": "필수",
+              "ck": true
+            },
+            {
+              "paramtrNm": "totalCount",
+              "paramtrDc": "전체 데이터의 총 수",
+              "arrayYn": "N",
+              "paramtrDefNm": "",
+              "paramtrTy": "number",
+              "paramtrDivision": "필수",
+              "ck": true
+            },
+            {
+              "paramtrNm": "items",
+              "paramtrDc": "items",
+              "arrayYn": "N",
+              "paramtrDefNm": "#/definitions/areaBasedList_items",
+              "subDefNm": "areaBasedList_items",
+              "paramtrTy": "object",
+              "paramtrDivision": "필수",
+              "ck": true,
+              "subParam": [
+                {
+                  "paramtrNm": "item",
+                  "paramtrDc": "item",
+                  "arrayYn": "N",
+                  "paramtrDefNm": "#/definitions/areaBasedList_item",
+                  "subDefNm": "areaBasedList_item",
+                  "paramtrTy": "object",
+                  "paramtrDivision": "필수",
+                  "ck": true,
+                  "subParam": [
+                    {
+                      "paramtrNm": "hubCtgryMclsNm",
+                      "paramtrDc": "중심지 카테고리 중분류명",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "옵션",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "hubRank",
+                      "paramtrDc": "중심지 순위",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "필수",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "baseYm",
+                      "paramtrDc": "기준연월",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "필수",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "mapX",
+                      "paramtrDc": "X좌표값",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "옵션",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "mapY",
+                      "paramtrDc": "Y좌표값",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "옵션",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "areaCd",
+                      "paramtrDc": "지역코드",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "필수",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "areaNm",
+                      "paramtrDc": "지역명",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "옵션",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "signguCd",
+                      "paramtrDc": "시군구코드",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "필수",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "signguNm",
+                      "paramtrDc": "시군구명",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "옵션",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "hubTatsCd",
+                      "paramtrDc": "중심지 관광지코드",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "필수",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "hubTatsNm",
+                      "paramtrDc": "중심지 관광지명",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "옵션",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "hubCtgryLclsNm",
+                      "paramtrDc": "중심지 카테고리 대분류명",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "옵션",
+                      "ck": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "paramtrNm": "numOfRows",
+              "paramtrDc": "한 페이지의 결과 수",
+              "arrayYn": "N",
+              "paramtrDefNm": "",
+              "paramtrTy": "number",
+              "paramtrDivision": "필수",
+              "ck": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

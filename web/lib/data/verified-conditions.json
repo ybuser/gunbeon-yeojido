@@ -1,0 +1,575 @@
+{
+  "schema_version": "1.0",
+  "verified_at": "2026-09-07",
+  "verification_method": "공식 웹 운영정보 직접 읽기 및 최신 요금 PDF 추출·1페이지 렌더 확인. API 응답 대체 자료가 아닌 수동 검증 필드.",
+  "merge_policy": "fields 안의 confirmed 값만 적용. unknown은 null을 유지. 운영 상태를 open_now로 승격하지 말 것. field별 출처와 확인일을 유지.",
+  "places": [
+    {
+      "place_id": "dmz_tourism:b03b6bbf587765cc",
+      "title": "고석정국민관광지",
+      "also_applies_to_ids": [
+        "dmz_tourism:494cd281ebd7561e"
+      ],
+      "verification_scope": "공개 관광지 기본정보 및 일부 편의시설; 실시간 현장 개방 여부는 미확인",
+      "fields": {
+        "public_access": {
+          "value": "public_tourism_facility",
+          "status": "confirmed",
+          "source_url": "https://access.visitkorea.or.kr/ms/detail.do?cotId=d9d03196-76a5-4db8-be94-08effdaf6d4c",
+          "verified_at": "2026-09-07",
+          "source_section": "기본정보",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "국민관광지로 소개하고 이용시간을 상시 개방으로 안내한다."
+        },
+        "opening_hours": {
+          "value": {
+            "mode": "always_open"
+          },
+          "status": "confirmed",
+          "source_url": "https://access.visitkorea.or.kr/ms/detail.do?cotId=d9d03196-76a5-4db8-be94-08effdaf6d4c",
+          "verified_at": "2026-09-07",
+          "source_section": "기본정보 > 이용시간",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "시간대 제한 없이 개방한다고 표시한다.",
+          "source_updated_at": "2026-07-23"
+        },
+        "closed_weekdays": {
+          "value": [],
+          "status": "confirmed",
+          "source_url": "https://access.visitkorea.or.kr/ms/detail.do?cotId=d9d03196-76a5-4db8-be94-08effdaf6d4c",
+          "verified_at": "2026-09-07",
+          "source_section": "기본정보 > 휴무일",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "연중 휴무일이 없다고 명시한다.",
+          "source_updated_at": "2026-07-23"
+        },
+        "entry_fee_krw": {
+          "value": 0,
+          "status": "confirmed",
+          "source_url": "https://www.kh.or.kr/visit/kor/road/6/view.do?key=2408220006",
+          "verified_at": "2026-09-07",
+          "source_section": "철원 고석정 > 관람료",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "고석정 관람료가 무료로 표기되어 있다. 인근 꽃밭·주차·배 이용료와 다르다."
+        },
+        "reservation_required": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://access.visitkorea.or.kr/ms/detail.do?cotId=d9d03196-76a5-4db8-be94-08effdaf6d4c",
+          "verified_at": "2026-09-07",
+          "source_section": "기본정보",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "일반관람의 예약 의무에 관한 명시적 안내를 찾지 못했다. 상시 개방만으로 false로 확정하지 않는다."
+        },
+        "id_check_required": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://access.visitkorea.or.kr/ms/detail.do?cotId=d9d03196-76a5-4db8-be94-08effdaf6d4c",
+          "verified_at": "2026-09-07",
+          "source_section": "기본정보",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "일반관람 신분확인 의무를 명시하지 않아 true/false 모두 확정하지 않는다."
+        },
+        "parking_available": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://access.visitkorea.or.kr/ms/detail.do?cotId=d9d03196-76a5-4db8-be94-08effdaf6d4c",
+          "verified_at": "2026-09-07",
+          "source_section": "기본정보 및 무장애 편의정보",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "이번에 직접 읽은 최신 상세화면에는 주차 여부가 표시되지 않았다. 별도 LOD 원문은 HTTP 503으로 확인 실패."
+        },
+        "parking_fee_krw": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://access.visitkorea.or.kr/ms/detail.do?cotId=d9d03196-76a5-4db8-be94-08effdaf6d4c",
+          "verified_at": "2026-09-07",
+          "source_section": "기본정보",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "현행 주차요금의 명시적 근거를 확보하지 못했다."
+        },
+        "walking_conditions": {
+          "value": {
+            "stairs_on_gorge_descent": true,
+            "whole_site_step_free": null,
+            "walking_minutes": null
+          },
+          "status": "confirmed",
+          "source_url": "https://access.visitkorea.or.kr/ms/detail.do?cotId=d9d03196-76a5-4db8-be94-08effdaf6d4c",
+          "verified_at": "2026-09-07",
+          "source_section": "기본정보 > 관광지 설명",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "협곡을 가까이 보는 하강 동선에 계단이 있다고 설명한다. 모든 동선을 저부담 또는 무장애로 분류할 수 없다."
+        },
+        "accessible_restroom_count": {
+          "value": 2,
+          "status": "confirmed",
+          "source_url": "https://access.visitkorea.or.kr/ms/detail.do?cotId=d9d03196-76a5-4db8-be94-08effdaf6d4c",
+          "verified_at": "2026-09-07",
+          "source_section": "무장애 편의정보 > 지체장애 > 화장실",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "장애인 화장실 두 곳이 표기되어 있다. 이것은 전체 관람로 무장애 인증이 아니다.",
+          "source_updated_at": "2026-07-23"
+        },
+        "contact_phone": {
+          "value": "033-450-5558",
+          "status": "confirmed",
+          "source_url": "https://access.visitkorea.or.kr/ms/detail.do?cotId=d9d03196-76a5-4db8-be94-08effdaf6d4c",
+          "verified_at": "2026-09-07",
+          "source_section": "기본정보 > 문의",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "시설 문의번호로 제공한다."
+        }
+      },
+      "ui_brief": "상시 개방 · 관람 무료. 협곡 하강 동선은 계단 주의. 장애인 화장실 2곳. 예약·일반 신분확인·주차요금은 문의 확인.",
+      "data_quality_flags": [
+        "reservation_unknown",
+        "id_check_unknown",
+        "parking_unverified",
+        "walking_duration_unverified",
+        "no_live_open_status"
+      ]
+    },
+    {
+      "place_id": "dmz_tourism:0fac7154493ecf4e",
+      "title": "고석정 꽃밭",
+      "verification_scope": "2026 하반기 공식 운영계획; 개화 및 당일 예외 운영은 별도",
+      "fields": {
+        "public_access": {
+          "value": "public_ticketed_tourism_facility",
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1823",
+          "verified_at": "2026-09-07",
+          "source_section": "상세정보",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "일반 관광객을 대상으로 운영기간과 개인 입장료를 안내한다."
+        },
+        "operating_season": {
+          "value": {
+            "start": "2026-08-28",
+            "end": "2026-10-31",
+            "end_may_change": true
+          },
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1823",
+          "verified_at": "2026-09-07",
+          "source_section": "상세정보 > 하반기 운영기간",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "2026 하반기 운영일을 제시하며 낙화 상황에 따라 폐장일이 달라질 수 있다고 안내한다."
+        },
+        "opening_hours": {
+          "value": {
+            "open": "09:00",
+            "close": "19:00",
+            "last_ticket": "18:00",
+            "timezone": "Asia/Seoul"
+          },
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1823",
+          "verified_at": "2026-09-07",
+          "source_section": "상세정보 > 개장시간",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "운영과 매표 종료를 구분하고 일몰에 따라 시간이 바뀔 수 있다고 안내한다."
+        },
+        "closed_weekdays": {
+          "value": [
+            "TUE"
+          ],
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1823",
+          "verified_at": "2026-09-07",
+          "source_section": "상세정보 > 휴무",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "화요일을 휴무일로 표시한다."
+        },
+        "entry_fee_krw": {
+          "value": {
+            "adult_individual": 10000,
+            "child_individual": 4000
+          },
+          "status": "confirmed_with_source_label_inconsistency",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1823",
+          "verified_at": "2026-09-07",
+          "source_section": "2026년 입장료 기준 > 입장료 및 상품권 교환",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "일반 개인 대인 1만원·소인 4천원 표를 확인했다.",
+          "source_label_note": "제목은 2026년이나 HTML 표 접근성 캡션은 2025년이 남아 있다. 2026 운영구역의 현행 표를 사용한다."
+        },
+        "local_voucher_krw": {
+          "value": {
+            "adult_individual": 5000,
+            "child_individual": 2000
+          },
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1823",
+          "verified_at": "2026-09-07",
+          "source_section": "입장료 및 상품권 교환",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "일반 개인 대인 5천원·소인 2천원의 철원상품권 교환액을 표시한다."
+        },
+        "reservation_required": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1823",
+          "verified_at": "2026-09-07",
+          "source_section": "상세정보",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "일반 입장 사전예약이 의무인지 안내되지 않았다."
+        },
+        "id_check_required": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1823",
+          "verified_at": "2026-09-07",
+          "source_section": "무료 및 이용료 감면 대상자",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "일반 유료입장자의 신분확인 의무는 명시되지 않았다."
+        },
+        "id_check_conditions": {
+          "value": [
+            "철원군민 무료입장 신분증",
+            "감면을 받으려는 사람의 관련 증빙서류"
+          ],
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1823",
+          "verified_at": "2026-09-07",
+          "source_section": "무료 및 이용료 감면 대상자",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "무료·감면 자격 확인에 한정된 증빙 안내를 일반 민통선 출입 신분검사와 구분한다."
+        },
+        "parking_available": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1823",
+          "verified_at": "2026-09-07",
+          "source_section": "상세정보 및 오시는길",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "일반 텍스트에 주차운영·면수·요금의 현행 확정값이 없다."
+        },
+        "walking_conditions": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1823",
+          "verified_at": "2026-09-07",
+          "source_section": "상세정보",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "동선별 실제 도보시간, 경사, 휠체어 이동 가능 범위가 명시되어 있지 않다."
+        },
+        "contact_phone": {
+          "value": "033-452-1941",
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1823",
+          "verified_at": "2026-09-07",
+          "source_section": "상세정보 > 연락처",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "고석정꽃밭 문의처로 표시한다."
+        }
+      },
+      "ui_brief": "2026.8.28–10.31 예정 · 화요일 휴무 · 09–19시(매표 18시). 대인 1만원/상품권 5천원. 무료·감면 자격 증빙 별도.",
+      "data_quality_flags": [
+        "seasonal_close_may_change",
+        "source_fee_caption_stale",
+        "reservation_unknown",
+        "general_id_check_unknown",
+        "parking_unverified",
+        "walking_duration_unverified",
+        "no_live_open_status"
+      ]
+    },
+    {
+      "place_id": "cwg:history-culture-park-1714",
+      "title": "철원역사문화공원",
+      "new_public_place": true,
+      "do_not_merge_with": [
+        "dmz_tourism:36d3cde51a3793c1"
+      ],
+      "verification_scope": "공원 요금은 2026-08-12 공지/PDF 우선; 모노레일은 별도 시설",
+      "fields": {
+        "address": {
+          "value": "강원특별자치도 철원군 철원읍 금강산로 262",
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/www/downloadBbsFile.do?atchmnflNo=174458&bbsNo=24&nttNo=288612",
+          "verified_at": "2026-09-07",
+          "source_section": "1페이지 > 시설명",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "시설 명칭과 도로명주소가 함께 명시되어 있다."
+        },
+        "lat": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1714",
+          "verified_at": "2026-09-07",
+          "source_section": "관광안내",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "공원 입구의 공식 좌표를 아직 확보하지 않았다. 외촌리 철원역사(舍)의 좌표를 재사용하지 않는다."
+        },
+        "lon": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1714",
+          "verified_at": "2026-09-07",
+          "source_section": "관광안내",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "공원 입구의 공식 좌표를 아직 확보하지 않았다."
+        },
+        "public_access": {
+          "value": "public_ticketed_tourism_facility",
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/www/selectBbsNttView.do?key=206&bbsNo=24&nttNo=288612",
+          "verified_at": "2026-09-07",
+          "source_section": "공지 본문",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "일반관람 공원의 무료운영 종료와 입장료 징수를 공지한다."
+        },
+        "opening_hours": {
+          "value": {
+            "summer_months": [
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "summer_open": "09:00",
+            "summer_close": "18:00",
+            "winter_months": [
+              12,
+              1,
+              2
+            ],
+            "winter_open": "09:00",
+            "winter_close": "17:00",
+            "timezone": "Asia/Seoul"
+          },
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1714",
+          "verified_at": "2026-09-07",
+          "source_section": "운영안내 > 공원시설",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "공원시설 표에서 하절기와 동절기 입장시간을 따로 제시한다."
+        },
+        "closed_weekdays": {
+          "value": [
+            "TUE"
+          ],
+          "status": "confirmed",
+          "source_url": "https://english.visitkorea.or.kr/svc/whereToGo/locIntrdn/rgnContentsView.do?vcontsId=216236",
+          "verified_at": "2026-09-07",
+          "source_section": "Holiday",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "공원의 휴무요일로 Tuesday를 표시한다."
+        },
+        "holiday_closure_note": {
+          "value": "설날·추석 휴무. 당일 운영은 종합안내소 확인.",
+          "status": "confirmed",
+          "source_url": "https://english.visitkorea.or.kr/svc/whereToGo/locIntrdn/rgnContentsView.do?vcontsId=216236",
+          "verified_at": "2026-09-07",
+          "source_section": "Holiday",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "명절 휴무를 안내하나 음력 날짜별 운영 예외를 실시간 확인한 것은 아니다."
+        },
+        "entry_fee_krw": {
+          "value": {
+            "adult_individual": 3000,
+            "adult_group": 2000,
+            "child_youth_individual": 2000,
+            "child_youth_group": 1000
+          },
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/www/downloadBbsFile.do?atchmnflNo=174458&bbsNo=24&nttNo=288612",
+          "verified_at": "2026-09-07",
+          "source_section": "1페이지 > 시행일자 및 입장료 안내",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "2026-09-02 시행 요금표를 페이지 렌더로 확인했다. 상설 관광페이지 무료 문구보다 최신의 별도 시행 공지를 우선한다.",
+          "effective_from": "2026-09-02",
+          "source_published_at": "2026-08-12"
+        },
+        "local_voucher_krw": {
+          "value": {
+            "adult_individual": 2000,
+            "adult_group": 1000,
+            "child_youth_individual": 1000,
+            "child_youth_group": 1000
+          },
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/www/downloadBbsFile.do?atchmnflNo=174458&bbsNo=24&nttNo=288612",
+          "verified_at": "2026-09-07",
+          "source_section": "1페이지 > 철원사랑상품권 환급",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "입장요금과 별도 열에 제공된 환급액을 확인했다.",
+          "effective_from": "2026-09-02"
+        },
+        "reservation_required": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1714",
+          "verified_at": "2026-09-07",
+          "source_section": "운영안내 > 공원시설",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "공원 입장 사전예약 의무가 명시되어 있지 않다. 모노레일 예매와 분리한다."
+        },
+        "id_check_required": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://www.cwg.go.kr/www/downloadBbsFile.do?atchmnflNo=174458&bbsNo=24&nttNo=288612",
+          "verified_at": "2026-09-07",
+          "source_section": "1페이지 > 감면/면제 대상",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "일반 유료입장의 신분확인 의무는 명시되지 않았다."
+        },
+        "id_check_conditions": {
+          "value": [
+            "철원군민·국가유공자·장애인 등 감면/면제 자격 신분증·증빙서류"
+          ],
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/www/downloadBbsFile.do?atchmnflNo=174458&bbsNo=24&nttNo=288612",
+          "verified_at": "2026-09-07",
+          "source_section": "1페이지 > 감면/면제 대상",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "요금 감면/면제를 받는 경우 필요한 증빙으로 안내되어 있다."
+        },
+        "parking_available": {
+          "value": true,
+          "status": "confirmed",
+          "source_url": "https://english.visitkorea.or.kr/svc/whereToGo/locIntrdn/rgnContentsView.do?vcontsId=216236",
+          "verified_at": "2026-09-07",
+          "source_section": "Parking",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "주차 가능으로 표시한다. 실시간 빈자리와 무료 주차는 확인되지 않았다."
+        },
+        "parking_fee_krw": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://english.visitkorea.or.kr/svc/whereToGo/locIntrdn/rgnContentsView.do?vcontsId=216236",
+          "verified_at": "2026-09-07",
+          "source_section": "Parking",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "주차 가능 여부만 있고 요금은 명시되지 않았다."
+        },
+        "walking_conditions": {
+          "value": null,
+          "status": "unverified",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1714",
+          "verified_at": "2026-09-07",
+          "source_section": "운영안내 > 공원시설",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "공원 산책 경사·계단 없는 동선·총 도보시간은 확인되지 않았다."
+        },
+        "contact_phone": {
+          "value": "070-7374-6401",
+          "status": "confirmed",
+          "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1714",
+          "verified_at": "2026-09-07",
+          "source_section": "관광안내 > 문의처",
+          "evidence_kind": "official_field_paraphrase",
+          "evidence": "공원 종합안내소 전화번호로 제시한다."
+        }
+      },
+      "optional_facilities": [
+        {
+          "name": "소이산 모노레일",
+          "fields": {
+            "entry_fee_krw": {
+              "value": {
+                "adult_individual": 7000,
+                "youth_child_individual": 4000
+              },
+              "status": "confirmed",
+              "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1714",
+              "verified_at": "2026-09-07",
+              "source_section": "소이산 모노레일 > 이용요금",
+              "evidence_kind": "official_field_paraphrase",
+              "evidence": "공원 입장료와 별도로 모노레일 일반 개인 탑승료를 제시한다."
+            },
+            "reservation_required": {
+              "value": null,
+              "status": "unverified",
+              "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1714",
+              "verified_at": "2026-09-07",
+              "source_section": "인터넷 예매",
+              "evidence_kind": "official_field_paraphrase",
+              "evidence": "네이버에서 소이산 모노레일 검색 후 예매 가능하다고 안내하지만 사전예약 필수라고 명시하지 않는다."
+            },
+            "booking_channel": {
+              "value": "네이버 소이산 모노레일 검색",
+              "status": "confirmed",
+              "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1714",
+              "verified_at": "2026-09-07",
+              "source_section": "인터넷 예매",
+              "evidence_kind": "official_field_paraphrase",
+              "evidence": "운영기관이 인터넷 예매 채널을 안내한다."
+            },
+            "operating_hours": {
+              "value": {
+                "summer_boarding_end": "17:00",
+                "winter_boarding_end": "16:00"
+              },
+              "status": "confirmed",
+              "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1714",
+              "verified_at": "2026-09-07",
+              "source_section": "소이산 모노레일 > 이용시간",
+              "evidence_kind": "official_field_paraphrase",
+              "evidence": "탑승 종료는 공원 이용 종료보다 1시간 이르다."
+            },
+            "weather_restriction": {
+              "value": "기상특보 발효 시 운행 중지; 당일 기상에 따라 제한 가능",
+              "status": "confirmed",
+              "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1714",
+              "verified_at": "2026-09-07",
+              "source_section": "소이산 모노레일 > 이용시간 안내사항",
+              "evidence_kind": "official_field_paraphrase",
+              "evidence": "모노레일 기상 제한을 명시한다."
+            },
+            "eligibility_restrictions": {
+              "value": [
+                "임산부 탑승 불가",
+                "반려동물 탑승 불가",
+                "유아 연령 기준은 운영처 확인"
+              ],
+              "status": "confirmed",
+              "source_url": "https://www.cwg.go.kr/tour/contents.do?key=1714",
+              "verified_at": "2026-09-07",
+              "source_section": "주의사항 > 소이산 모노레일",
+              "evidence_kind": "official_field_paraphrase",
+              "evidence": "임산부·반려동물 제한이 명시된다. 유아 원문은 만 36개월 유아 탑승 불가로 표현되어 이하/미만을 추정하지 않는다."
+            }
+          }
+        }
+      ],
+      "ui_brief": "9월2일부터 성인 3천원/상품권 2천원. 3–11월 09–18시 · 화요일 휴무. 주차 가능(요금 미확인). 모노레일은 별도 예매·탑승료.",
+      "data_quality_flags": [
+        "static_page_free_fee_superseded",
+        "coordinate_unverified",
+        "reservation_unknown",
+        "general_id_check_unknown",
+        "parking_fee_unverified",
+        "walking_duration_unverified",
+        "no_live_open_status"
+      ]
+    }
+  ],
+  "excluded_candidates": [
+    {
+      "title": "철원역사(舍)",
+      "reason": "외촌리 옛 역사 유적이며 금강산로262 역사문화공원과 다른 곳. 공원 이름으로 병합 금지."
+    },
+    {
+      "title": "군 내부 현충시설·작전지역",
+      "reason": "공개 관광시설 검증 범위 밖이며 미션 후보로 추가하지 않음."
+    }
+  ],
+  "evidence_files": [
+    {
+      "path": "data/raw/public/cwg-history-park-fee-20260812.pdf",
+      "source_url": "https://www.cwg.go.kr/www/downloadBbsFile.do?atchmnflNo=174458&bbsNo=24&nttNo=288612",
+      "sha256": "cb6735f6eaabe52c3c96afd374b85ab1d0409bf052ceedaed68fe390be5bcd47",
+      "pages_visually_verified": [
+        1
+      ]
+    }
+  ]
+}

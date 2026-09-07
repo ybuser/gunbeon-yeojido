@@ -1,0 +1,115 @@
+{
+  "retrieved_at": "2026-09-07",
+  "sources": [
+    {
+      "source": "dmz_tourism",
+      "file": "dmz-15119699-0.csv",
+      "url": "https://www.data.go.kr/data/15119699/fileData.do",
+      "version": "20260820",
+      "retrieved_at": "2026-09-07",
+      "sha256": "f35fbf5bfddfcc5791652b245776af533be069176187d48282a1370ec5d5b3b3",
+      "columns": [
+        "이름",
+        "주소",
+        "전화번호",
+        "번호구분",
+        "위도",
+        "경도",
+        "이미지URL",
+        "비고"
+      ],
+      "total_records": 614,
+      "gangwon_records": 309,
+      "border_5_records": 309,
+      "border_5_ratio": 0.503257,
+      "coordinate_missing_or_invalid": 0,
+      "border_5_coordinate_missing_or_invalid": 0,
+      "telephone_missing": 6,
+      "border_5_telephone_missing": 2,
+      "border_5_by_region": {
+        "고성군": 83,
+        "양구군": 46,
+        "철원군": 62,
+        "인제군": 56,
+        "화천군": 62
+      },
+      "exact_title_address_duplicates": 0
+    },
+    {
+      "source": "dmz_cafe",
+      "file": "dmz-15119706-0.csv",
+      "url": "https://www.data.go.kr/data/15119706/fileData.do",
+      "version": "20251031",
+      "retrieved_at": "2026-09-07",
+      "sha256": "8f50e7b60d4b9c8b2b61e627e18f2afa37747741873e078dc144aa5da4b598d3",
+      "columns": [
+        "이름",
+        "주소",
+        "전화번호",
+        "위도",
+        "경도"
+      ],
+      "total_records": 1785,
+      "gangwon_records": 218,
+      "border_5_records": 218,
+      "border_5_ratio": 0.122129,
+      "coordinate_missing_or_invalid": 0,
+      "border_5_coordinate_missing_or_invalid": 0,
+      "telephone_missing": 1276,
+      "border_5_telephone_missing": 133,
+      "border_5_by_region": {
+        "철원군": 77,
+        "인제군": 35,
+        "고성군": 50,
+        "양구군": 28,
+        "화천군": 28
+      },
+      "exact_title_address_duplicates": 0
+    },
+    {
+      "source": "mpva_memorial",
+      "file": "mpva-api-response.json",
+      "url": "https://mfis.mpva.go.kr/api/json/allSearch.do",
+      "version": "live-response-20260907",
+      "retrieved_at": "2026-09-07",
+      "sha256": "5aa232afea85cfe85e525cc6fdca432f3ddf770c324b175591ee42915e6c9f72",
+      "columns": [
+        "facilnm",
+        "mgmtno",
+        "addr",
+        "mpvabranch",
+        "xindex",
+        "yindex",
+        "gubun",
+        "desdate",
+        "facilmgr",
+        "facilgubun",
+        "topic",
+        "indicate",
+        "volume",
+        "estimate",
+        "facilexplain"
+      ],
+      "total_records": 2381,
+      "gangwon_records": 233,
+      "border_5_records": 80,
+      "border_5_ratio": 0.033599,
+      "coordinate_missing_or_invalid": 8,
+      "border_5_coordinate_missing_or_invalid": 1,
+      "telephone_missing": null,
+      "border_5_telephone_missing": null,
+      "border_5_by_region": {
+        "양구군": 17,
+        "철원군": 16,
+        "인제군": 20,
+        "화천군": 13,
+        "고성군": 14
+      },
+      "exact_title_address_duplicates": 0
+    }
+  ],
+  "normalized_records": 607,
+  "map_candidate_records": 606,
+  "duplicate_title_county_groups": 8,
+  "mission_generation_verified": false
+}

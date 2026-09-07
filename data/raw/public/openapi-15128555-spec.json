@@ -1,0 +1,516 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "㈜케이티의 이동통신 데이터를 기반으로 제공되는 관광지별 조회일 기준 향후 30일간의 관광지 방문자의 집중률 정보입니다. 2018년부터의 방문자 데이터를 기반으로 패턴을 분석하여 해당 관광지에 방문자가 얼마나 집중되는지를 예측한 값으로, 가장 붐비는 시기를 100으로 보았을 때 향후 30일간의 집중률을 상대 수치로 환산한 값입니다. ㈜케이티에 가입된 휴대전화 단말기를 소지한 사람의 이동 정보를 기반으로 평일/공휴일, 휴가시즌 등의 시기적 특성을 반영하여 머신러닝 기법으로 추정되었기 때문에 각종 환경변화에 따라 실제 방문자 수와 예측값 간에 차이가 있을 수 있습니다.",
+    "version": "1.0.0",
+    "title": "한국관광공사_관광지 집중률 방문자 추이 예측 정보"
+  },
+  "host": "apis.data.go.kr/B551011/TatsCnctrRateService",
+  "basePath": "",
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+    "/tatsCnctrRatedList": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "성공",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "object",
+                  "description": "header",
+                  "properties": {
+                    "resultMsg": {
+                      "type": "string",
+                      "description": "API 호출 결과의 상태",
+                      "properties": {}
+                    },
+                    "resultCode": {
+                      "type": "string",
+                      "description": "API 호출 결과의 상태 코드",
+                      "properties": {}
+                    }
+                  }
+                },
+                "body": {
+                  "type": "object",
+                  "description": "body",
+                  "properties": {
+                    "totalCount": {
+                      "type": "number",
+                      "description": "전체 데이터의 총 수",
+                      "properties": {}
+                    },
+                    "items": {
+                      "type": "object",
+                      "description": "items",
+                      "properties": {
+                        "item": {
+                          "type": "object",
+                          "description": "item",
+                          "properties": {
+                            "cnctrRate": {
+                              "type": "string",
+                              "description": "집중률",
+                              "properties": {}
+                            },
+                            "baseYmd": {
+                              "type": "string",
+                              "description": "기준연월일",
+                              "properties": {}
+                            },
+                            "areaCd": {
+                              "type": "string",
+                              "description": "지역코드",
+                              "properties": {}
+                            },
+                            "areaNm": {
+                              "type": "string",
+                              "description": "지역명",
+                              "properties": {}
+                            },
+                            "signguCd": {
+                              "type": "string",
+                              "description": "시군구코드",
+                              "properties": {}
+                            },
+                            "signguNm": {
+                              "type": "string",
+                              "description": "시군구명",
+                              "properties": {}
+                            },
+                            "tAtsNm": {
+                              "type": "string",
+                              "description": "관광지명",
+                              "properties": {}
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "numOfRows": {
+                      "type": "number",
+                      "description": "한 페이지의 결과 수",
+                      "properties": {}
+                    },
+                    "pageNo": {
+                      "type": "number",
+                      "description": "현재 조회된 데이터의 페이지 번호",
+                      "properties": {}
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "response"
+              }
+            }
+          }
+        },
+        "tags": [
+          "API 목록"
+        ],
+        "summary": "관광지 집중률 정보 목록조회",
+        "description": "관광지별 향후 30일 관광객 집중률 정보를 목록을 조회하는 기능입니다.",
+        "operationId": "tatsCnctrRatedList",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "serviceKey",
+          "description": "공공데이터포털에서 받은 인증키",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "pageNo",
+          "description": "페이지번호",
+          "type": "number",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "numOfRows",
+          "description": "한 페이지 결과 수",
+          "type": "number",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "MobileOS",
+          "description": "OS 구분 : IOS (아이폰), AND (안드로이드), WEB(웹), ETC(기타)",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "MobileApp",
+          "description": "서비스명(어플명)",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "areaCd",
+          "description": "관광지 지역코드 ( 참고문서 매뉴얼 파일중 '관광지_시군구_코드정보' 파일 참고 )",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "signguCd",
+          "description": "관광지 시군구코드  ( 참고문서 매뉴얼 파일중 '관광지_시군구_코드정보' 파일 참고 )",
+          "type": "string",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "name": "tAtsNm",
+          "description": "관광지명",
+          "type": "string",
+          "required": false,
+          "in": "query"
+        },
+        {
+          "name": "_type",
+          "description": "응답메세지 형식 : REST방식의 URL호출 시 json값 추가(디폴트 응답메세지 형식은XML)",
+          "type": "string",
+          "required": false,
+          "in": "query"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "tatsCnctrRatedList_response": {
+      "type": "object",
+      "properties": {
+        "header": {
+          "type": "object",
+          "description": "header",
+          "properties": {
+            "resultMsg": {
+              "type": "string",
+              "description": "API 호출 결과의 상태"
+            },
+            "resultCode": {
+              "type": "string",
+              "description": "API 호출 결과의 상태 코드"
+            }
+          }
+        },
+        "body": {
+          "type": "object",
+          "description": "body",
+          "properties": {
+            "totalCount": {
+              "type": "number",
+              "description": "전체 데이터의 총 수"
+            },
+            "items": {
+              "type": "object",
+              "description": "items",
+              "properties": {
+                "item": {
+                  "type": "object",
+                  "description": "item",
+                  "properties": {
+                    "cnctrRate": {
+                      "type": "string",
+                      "description": "집중률"
+                    },
+                    "baseYmd": {
+                      "type": "string",
+                      "description": "기준연월일"
+                    },
+                    "areaCd": {
+                      "type": "string",
+                      "description": "지역코드"
+                    },
+                    "areaNm": {
+                      "type": "string",
+                      "description": "지역명"
+                    },
+                    "signguCd": {
+                      "type": "string",
+                      "description": "시군구코드"
+                    },
+                    "signguNm": {
+                      "type": "string",
+                      "description": "시군구명"
+                    },
+                    "tAtsNm": {
+                      "type": "string",
+                      "description": "관광지명"
+                    }
+                  }
+                }
+              }
+            },
+            "numOfRows": {
+              "type": "number",
+              "description": "한 페이지의 결과 수"
+            },
+            "pageNo": {
+              "type": "number",
+              "description": "현재 조회된 데이터의 페이지 번호"
+            }
+          }
+        }
+      }
+    }
+  },
+  "swaggerOprtinVOs": [
+    {
+      "oprtinUrl": "https://gwapi.visitkorea.or.kr/openapi/service/gwrest/TatsCnctrRateService/tatsCnctrRatedList",
+      "oprtinNm": "관광지 집중률 정보 목록조회",
+      "oprtinDc": "관광지별 향후 30일 관광객 집중률 정보를 목록을 조회하는 기능입니다.",
+      "gwSvcNm": "tatsCnctrRatedList",
+      "operationId": "tatsCnctrRatedList",
+      "publicDataTyDetailCode": "PRDE02",
+      "reqList": [
+        {
+          "paramtrNm": "serviceKey",
+          "paramtrBassValue": "인증키(URL- Encode)",
+          "paramtrDc": "공공데이터포털에서 받은 인증키",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "pageNo",
+          "paramtrBassValue": "1",
+          "paramtrDc": "페이지번호",
+          "paramtrTy": "number",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "numOfRows",
+          "paramtrBassValue": "10",
+          "paramtrDc": "한 페이지 결과 수",
+          "paramtrTy": "number",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "MobileOS",
+          "paramtrBassValue": "ETC",
+          "paramtrDc": "OS 구분 : IOS (아이폰), AND (안드로이드), WEB(웹), ETC(기타)",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "MobileApp",
+          "paramtrBassValue": "AppTest",
+          "paramtrDc": "서비스명(어플명)",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "areaCd",
+          "paramtrBassValue": "51",
+          "paramtrDc": "관광지 지역코드 ( 참고문서 매뉴얼 파일중 '관광지_시군구_코드정보' 파일 참고 )",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "signguCd",
+          "paramtrBassValue": "51130",
+          "paramtrDc": "관광지 시군구코드  ( 참고문서 매뉴얼 파일중 '관광지_시군구_코드정보' 파일 참고 )",
+          "paramtrTy": "string",
+          "paramtrDivision": "필수",
+          "ck": true
+        },
+        {
+          "paramtrNm": "tAtsNm",
+          "paramtrBassValue": "간현관광지",
+          "paramtrDc": "관광지명",
+          "paramtrTy": "string",
+          "paramtrDivision": "옵션",
+          "ck": true
+        },
+        {
+          "paramtrNm": "_type",
+          "paramtrBassValue": "json",
+          "paramtrDc": "응답메세지 형식 : REST방식의 URL호출 시 json값 추가(디폴트 응답메세지 형식은XML)",
+          "paramtrTy": "string",
+          "paramtrDivision": "옵션",
+          "ck": true
+        }
+      ],
+      "resList": [
+        {
+          "paramtrNm": "header",
+          "paramtrDc": "header",
+          "arrayYn": "N",
+          "paramtrDefNm": "#/definitions/basedList_header",
+          "subDefNm": "basedList_header",
+          "paramtrTy": "object",
+          "paramtrDivision": "필수",
+          "ck": true,
+          "subParam": [
+            {
+              "paramtrNm": "resultMsg",
+              "paramtrDc": "API 호출 결과의 상태",
+              "arrayYn": "N",
+              "paramtrDefNm": "",
+              "paramtrTy": "string",
+              "paramtrDivision": "필수",
+              "ck": true
+            },
+            {
+              "paramtrNm": "resultCode",
+              "paramtrDc": "API 호출 결과의 상태 코드",
+              "arrayYn": "N",
+              "paramtrDefNm": "",
+              "paramtrTy": "string",
+              "paramtrDivision": "필수",
+              "ck": true
+            }
+          ]
+        },
+        {
+          "paramtrNm": "body",
+          "paramtrDc": "body",
+          "arrayYn": "N",
+          "paramtrDefNm": "#/definitions/basedList_body",
+          "subDefNm": "basedList_body",
+          "paramtrTy": "object",
+          "paramtrDivision": "필수",
+          "ck": true,
+          "subParam": [
+            {
+              "paramtrNm": "totalCount",
+              "paramtrDc": "전체 데이터의 총 수",
+              "arrayYn": "N",
+              "paramtrDefNm": "",
+              "paramtrTy": "number",
+              "paramtrDivision": "필수",
+              "ck": true
+            },
+            {
+              "paramtrNm": "items",
+              "paramtrDc": "items",
+              "arrayYn": "N",
+              "paramtrDefNm": "#/definitions/basedList_items",
+              "subDefNm": "basedList_items",
+              "paramtrTy": "object",
+              "paramtrDivision": "필수",
+              "ck": true,
+              "subParam": [
+                {
+                  "paramtrNm": "item",
+                  "paramtrDc": "item",
+                  "arrayYn": "N",
+                  "paramtrDefNm": "#/definitions/basedList_item",
+                  "subDefNm": "basedList_item",
+                  "paramtrTy": "object",
+                  "paramtrDivision": "필수",
+                  "ck": true,
+                  "subParam": [
+                    {
+                      "paramtrNm": "cnctrRate",
+                      "paramtrDc": "집중률",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "필수",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "baseYmd",
+                      "paramtrDc": "기준연월일",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "필수",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "areaCd",
+                      "paramtrDc": "지역코드",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "필수",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "areaNm",
+                      "paramtrDc": "지역명",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "옵션",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "signguCd",
+                      "paramtrDc": "시군구코드",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "필수",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "signguNm",
+                      "paramtrDc": "시군구명",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "옵션",
+                      "ck": true
+                    },
+                    {
+                      "paramtrNm": "tAtsNm",
+                      "paramtrDc": "관광지명",
+                      "arrayYn": "N",
+                      "paramtrDefNm": "",
+                      "paramtrTy": "string",
+                      "paramtrDivision": "필수",
+                      "ck": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "paramtrNm": "numOfRows",
+              "paramtrDc": "한 페이지의 결과 수",
+              "arrayYn": "N",
+              "paramtrDefNm": "",
+              "paramtrTy": "number",
+              "paramtrDivision": "필수",
+              "ck": true
+            },
+            {
+              "paramtrNm": "pageNo",
+              "paramtrDc": "현재 조회된 데이터의 페이지 번호",
+              "arrayYn": "N",
+              "paramtrDefNm": "",
+              "paramtrTy": "number",
+              "paramtrDivision": "필수",
+              "ck": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

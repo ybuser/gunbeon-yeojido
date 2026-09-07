@@ -1,0 +1,1237 @@
+{
+  "verified_at": "2026-09-07T07:03:28.876Z",
+  "mode": "live_check",
+  "service": "KorWithService2",
+  "official_documentation": "https://www.data.go.kr/data/15101897/openapi.do",
+  "key_source": "TOUR_API_WITH_SERVICE_KEY",
+  "max_api_calls": 40,
+  "raw_tourapi_records_persisted": false,
+  "key_logged": false,
+  "full_request_urls_logged": false,
+  "regions": [
+    {
+      "region": "철원군",
+      "code": "12",
+      "total": 4,
+      "fetched": 4,
+      "fully_paged": true,
+      "pages": 1,
+      "category_counts": {
+        "12": 2,
+        "14": 1,
+        "38": 1
+      },
+      "coordinate_missing": 0,
+      "response_fields": [
+        "addr1",
+        "addr2",
+        "areacode",
+        "cat1",
+        "cat2",
+        "cat3",
+        "contentid",
+        "contenttypeid",
+        "cpyrhtDivCd",
+        "createdtime",
+        "firstimage",
+        "firstimage2",
+        "lDongRegnCd",
+        "lDongSignguCd",
+        "lclsSystm1",
+        "lclsSystm2",
+        "lclsSystm3",
+        "mapx",
+        "mapy",
+        "mlevel",
+        "modifiedtime",
+        "sigungucode",
+        "tel",
+        "title",
+        "zipcode"
+      ]
+    },
+    {
+      "region": "화천군",
+      "code": "17",
+      "total": 9,
+      "fetched": 9,
+      "fully_paged": true,
+      "pages": 1,
+      "category_counts": {
+        "12": 4,
+        "14": 3,
+        "38": 2
+      },
+      "coordinate_missing": 0,
+      "response_fields": [
+        "addr1",
+        "addr2",
+        "areacode",
+        "cat1",
+        "cat2",
+        "cat3",
+        "contentid",
+        "contenttypeid",
+        "cpyrhtDivCd",
+        "createdtime",
+        "firstimage",
+        "firstimage2",
+        "lDongRegnCd",
+        "lDongSignguCd",
+        "lclsSystm1",
+        "lclsSystm2",
+        "lclsSystm3",
+        "mapx",
+        "mapy",
+        "mlevel",
+        "modifiedtime",
+        "sigungucode",
+        "tel",
+        "title",
+        "zipcode"
+      ]
+    },
+    {
+      "region": "양구군",
+      "code": "6",
+      "total": 9,
+      "fetched": 9,
+      "fully_paged": true,
+      "pages": 1,
+      "category_counts": {
+        "12": 1,
+        "14": 4,
+        "28": 1,
+        "32": 1,
+        "38": 1,
+        "39": 1
+      },
+      "coordinate_missing": 0,
+      "response_fields": [
+        "addr1",
+        "addr2",
+        "areacode",
+        "cat1",
+        "cat2",
+        "cat3",
+        "contentid",
+        "contenttypeid",
+        "cpyrhtDivCd",
+        "createdtime",
+        "firstimage",
+        "firstimage2",
+        "lDongRegnCd",
+        "lDongSignguCd",
+        "lclsSystm1",
+        "lclsSystm2",
+        "lclsSystm3",
+        "mapx",
+        "mapy",
+        "mlevel",
+        "modifiedtime",
+        "sigungucode",
+        "tel",
+        "title",
+        "zipcode"
+      ]
+    },
+    {
+      "region": "인제군",
+      "code": "10",
+      "total": 11,
+      "fetched": 11,
+      "fully_paged": true,
+      "pages": 1,
+      "category_counts": {
+        "12": 1,
+        "14": 3,
+        "28": 2,
+        "32": 3,
+        "38": 1,
+        "39": 1
+      },
+      "coordinate_missing": 0,
+      "response_fields": [
+        "addr1",
+        "addr2",
+        "areacode",
+        "cat1",
+        "cat2",
+        "cat3",
+        "contentid",
+        "contenttypeid",
+        "cpyrhtDivCd",
+        "createdtime",
+        "firstimage",
+        "firstimage2",
+        "lDongRegnCd",
+        "lDongSignguCd",
+        "lclsSystm1",
+        "lclsSystm2",
+        "lclsSystm3",
+        "mapx",
+        "mapy",
+        "mlevel",
+        "modifiedtime",
+        "sigungucode",
+        "tel",
+        "title",
+        "zipcode"
+      ]
+    },
+    {
+      "region": "고성군",
+      "code": "2",
+      "total": 16,
+      "fetched": 16,
+      "fully_paged": true,
+      "pages": 1,
+      "category_counts": {
+        "12": 7,
+        "14": 4,
+        "32": 1,
+        "38": 3,
+        "39": 1
+      },
+      "coordinate_missing": 0,
+      "response_fields": [
+        "addr1",
+        "addr2",
+        "areacode",
+        "cat1",
+        "cat2",
+        "cat3",
+        "contentid",
+        "contenttypeid",
+        "cpyrhtDivCd",
+        "createdtime",
+        "firstimage",
+        "firstimage2",
+        "lDongRegnCd",
+        "lDongSignguCd",
+        "lclsSystm1",
+        "lclsSystm2",
+        "lclsSystm3",
+        "mapx",
+        "mapy",
+        "mlevel",
+        "modifiedtime",
+        "sigungucode",
+        "tel",
+        "title",
+        "zipcode"
+      ]
+    }
+  ],
+  "place_matches": [
+    {
+      "local_title": "고석정국민관광지",
+      "local_place_id": "dmz_tourism:b03b6bbf587765cc",
+      "matching_rule": "normalized_title_or_declared_alias_within_live_cheorwon_area",
+      "accessibility_list_content_ids": [],
+      "national_search_content_ids": [],
+      "state": "matched_national_detail_only_no_accessibility_record",
+      "legal_dong_accessibility_content_ids": [],
+      "national_direct_content_ids": [
+        "125782"
+      ]
+    },
+    {
+      "local_title": "고석정 꽃밭",
+      "local_place_id": "dmz_tourism:0fac7154493ecf4e",
+      "matching_rule": "normalized_title_or_declared_alias_within_live_cheorwon_legal_dong_area",
+      "accessibility_list_content_ids": [],
+      "national_search_content_ids": [],
+      "state": "matched_accessibility_legal_dong_list",
+      "legal_dong_accessibility_content_ids": [
+        "2749319"
+      ]
+    },
+    {
+      "local_title": "순담계곡",
+      "local_place_id": "dmz_tourism:c5fabb6fcd82fcb7",
+      "matching_rule": "normalized_title_or_declared_alias_within_live_cheorwon_area",
+      "accessibility_list_content_ids": [],
+      "national_search_content_ids": [
+        "125654"
+      ],
+      "state": "matched_national_list_only",
+      "legal_dong_accessibility_content_ids": []
+    },
+    {
+      "local_title": "어울림",
+      "local_place_id": "dmz_cafe:a422796ed9b4ea29",
+      "matching_rule": "normalized_title_or_declared_alias_within_live_cheorwon_area",
+      "accessibility_list_content_ids": [],
+      "national_search_content_ids": [],
+      "state": "not_found_in_accessibility_list",
+      "legal_dong_accessibility_content_ids": []
+    },
+    {
+      "local_title": "철원역사문화공원",
+      "local_place_id": "cwg:history-culture-park-1714",
+      "matching_rule": "normalized_title_or_declared_alias_within_live_cheorwon_legal_dong_area",
+      "accessibility_list_content_ids": [],
+      "national_search_content_ids": [],
+      "state": "matched_accessibility_legal_dong_list",
+      "legal_dong_accessibility_content_ids": [
+        "3072021"
+      ]
+    },
+    {
+      "local_title": "소이산",
+      "local_place_id": null,
+      "matching_rule": "normalized_title_or_declared_alias_within_live_cheorwon_area",
+      "accessibility_list_content_ids": [],
+      "national_search_content_ids": [
+        "2704788",
+        "2048756"
+      ],
+      "state": "matched_national_list_only",
+      "legal_dong_accessibility_content_ids": []
+    }
+  ],
+  "representative_details": [
+    {
+      "content_id": "132270",
+      "context": {
+        "region": "철원군",
+        "purpose": "accessibility_area_list_representative"
+      },
+      "row_count": 1,
+      "response_fields": [
+        "audioguide",
+        "auditorium",
+        "babysparechair",
+        "bigprint",
+        "blindhandicapetc",
+        "braileblock",
+        "brailepromotion",
+        "contentid",
+        "elevator",
+        "exit",
+        "guidehuman",
+        "guidesystem",
+        "handicapetc",
+        "hearinghandicapetc",
+        "hearingroom",
+        "helpdog",
+        "infantsfamilyetc",
+        "lactationroom",
+        "parking",
+        "promotion",
+        "publictransport",
+        "restroom",
+        "room",
+        "route",
+        "signguide",
+        "stroller",
+        "ticketoffice",
+        "videoguide",
+        "wheelchair"
+      ],
+      "nonempty_fields": [
+        "contentid",
+        "exit",
+        "helpdog",
+        "parking",
+        "route"
+      ]
+    },
+    {
+      "content_id": "1626328",
+      "context": {
+        "region": "화천군",
+        "purpose": "accessibility_area_list_representative"
+      },
+      "row_count": 1,
+      "response_fields": [
+        "audioguide",
+        "auditorium",
+        "babysparechair",
+        "bigprint",
+        "blindhandicapetc",
+        "braileblock",
+        "brailepromotion",
+        "contentid",
+        "elevator",
+        "exit",
+        "guidehuman",
+        "guidesystem",
+        "handicapetc",
+        "hearinghandicapetc",
+        "hearingroom",
+        "helpdog",
+        "infantsfamilyetc",
+        "lactationroom",
+        "parking",
+        "promotion",
+        "publictransport",
+        "restroom",
+        "room",
+        "route",
+        "signguide",
+        "stroller",
+        "ticketoffice",
+        "videoguide",
+        "wheelchair"
+      ],
+      "nonempty_fields": [
+        "braileblock",
+        "contentid",
+        "elevator",
+        "exit",
+        "handicapetc",
+        "parking",
+        "route"
+      ]
+    },
+    {
+      "content_id": "132583",
+      "context": {
+        "region": "양구군",
+        "purpose": "accessibility_area_list_representative"
+      },
+      "row_count": 1,
+      "response_fields": [
+        "audioguide",
+        "auditorium",
+        "babysparechair",
+        "bigprint",
+        "blindhandicapetc",
+        "braileblock",
+        "brailepromotion",
+        "contentid",
+        "elevator",
+        "exit",
+        "guidehuman",
+        "guidesystem",
+        "handicapetc",
+        "hearinghandicapetc",
+        "hearingroom",
+        "helpdog",
+        "infantsfamilyetc",
+        "lactationroom",
+        "parking",
+        "promotion",
+        "publictransport",
+        "restroom",
+        "room",
+        "route",
+        "signguide",
+        "stroller",
+        "ticketoffice",
+        "videoguide",
+        "wheelchair"
+      ],
+      "nonempty_fields": [
+        "contentid",
+        "exit",
+        "helpdog",
+        "parking",
+        "route"
+      ]
+    },
+    {
+      "content_id": "2595790",
+      "context": {
+        "region": "인제군",
+        "purpose": "accessibility_area_list_representative"
+      },
+      "row_count": 1,
+      "response_fields": [
+        "audioguide",
+        "auditorium",
+        "babysparechair",
+        "bigprint",
+        "blindhandicapetc",
+        "braileblock",
+        "brailepromotion",
+        "contentid",
+        "elevator",
+        "exit",
+        "guidehuman",
+        "guidesystem",
+        "handicapetc",
+        "hearinghandicapetc",
+        "hearingroom",
+        "helpdog",
+        "infantsfamilyetc",
+        "lactationroom",
+        "parking",
+        "promotion",
+        "publictransport",
+        "restroom",
+        "room",
+        "route",
+        "signguide",
+        "stroller",
+        "ticketoffice",
+        "videoguide",
+        "wheelchair"
+      ],
+      "nonempty_fields": [
+        "contentid",
+        "elevator",
+        "restroom",
+        "room",
+        "route"
+      ]
+    },
+    {
+      "content_id": "137477",
+      "context": {
+        "region": "고성군",
+        "purpose": "accessibility_area_list_representative"
+      },
+      "row_count": 1,
+      "response_fields": [
+        "audioguide",
+        "auditorium",
+        "babysparechair",
+        "bigprint",
+        "blindhandicapetc",
+        "braileblock",
+        "brailepromotion",
+        "contentid",
+        "elevator",
+        "exit",
+        "guidehuman",
+        "guidesystem",
+        "handicapetc",
+        "hearinghandicapetc",
+        "hearingroom",
+        "helpdog",
+        "infantsfamilyetc",
+        "lactationroom",
+        "parking",
+        "promotion",
+        "publictransport",
+        "restroom",
+        "room",
+        "route",
+        "signguide",
+        "stroller",
+        "ticketoffice",
+        "videoguide",
+        "wheelchair"
+      ],
+      "nonempty_fields": [
+        "braileblock",
+        "contentid",
+        "elevator",
+        "exit",
+        "parking",
+        "route"
+      ]
+    },
+    {
+      "content_id": "125654",
+      "context": {
+        "local_title": "순담계곡",
+        "purpose": "national_id_crosscheck"
+      },
+      "row_count": 0,
+      "response_fields": [],
+      "nonempty_fields": []
+    },
+    {
+      "content_id": "2704788",
+      "context": {
+        "local_title": "소이산",
+        "purpose": "national_id_crosscheck"
+      },
+      "row_count": 0,
+      "response_fields": [],
+      "nonempty_fields": [],
+      "present_in_accessibility_area_list": false
+    },
+    {
+      "content_id": "2048756",
+      "context": {
+        "local_title": "소이산",
+        "purpose": "national_id_crosscheck"
+      },
+      "row_count": 0,
+      "response_fields": [],
+      "nonempty_fields": []
+    },
+    {
+      "content_id": "125412",
+      "context": {
+        "region": "인제군",
+        "purpose": "parent_national_sample_crosscheck"
+      },
+      "row_count": 1,
+      "response_fields": [
+        "audioguide",
+        "auditorium",
+        "babysparechair",
+        "bigprint",
+        "blindhandicapetc",
+        "braileblock",
+        "brailepromotion",
+        "contentid",
+        "elevator",
+        "exit",
+        "guidehuman",
+        "guidesystem",
+        "handicapetc",
+        "hearinghandicapetc",
+        "hearingroom",
+        "helpdog",
+        "infantsfamilyetc",
+        "lactationroom",
+        "parking",
+        "promotion",
+        "publictransport",
+        "restroom",
+        "room",
+        "route",
+        "signguide",
+        "stroller",
+        "ticketoffice",
+        "videoguide",
+        "wheelchair"
+      ],
+      "nonempty_fields": [
+        "contentid",
+        "parking",
+        "restroom",
+        "room",
+        "route"
+      ],
+      "present_in_accessibility_area_list": true
+    },
+    {
+      "content_id": "129891",
+      "context": {
+        "region": "철원군",
+        "purpose": "all_cheorwon_accessibility_entries"
+      },
+      "row_count": 1,
+      "response_fields": [
+        "audioguide",
+        "auditorium",
+        "babysparechair",
+        "bigprint",
+        "blindhandicapetc",
+        "braileblock",
+        "brailepromotion",
+        "contentid",
+        "elevator",
+        "exit",
+        "guidehuman",
+        "guidesystem",
+        "handicapetc",
+        "hearinghandicapetc",
+        "hearingroom",
+        "helpdog",
+        "infantsfamilyetc",
+        "lactationroom",
+        "parking",
+        "promotion",
+        "publictransport",
+        "restroom",
+        "room",
+        "route",
+        "signguide",
+        "stroller",
+        "ticketoffice",
+        "videoguide",
+        "wheelchair"
+      ],
+      "nonempty_fields": [
+        "braileblock",
+        "brailepromotion",
+        "contentid",
+        "elevator",
+        "exit",
+        "guidehuman",
+        "guidesystem",
+        "parking",
+        "publictransport",
+        "restroom",
+        "route",
+        "wheelchair"
+      ]
+    },
+    {
+      "content_id": "128174",
+      "context": {
+        "region": "철원군",
+        "purpose": "all_cheorwon_accessibility_entries"
+      },
+      "row_count": 1,
+      "response_fields": [
+        "audioguide",
+        "auditorium",
+        "babysparechair",
+        "bigprint",
+        "blindhandicapetc",
+        "braileblock",
+        "brailepromotion",
+        "contentid",
+        "elevator",
+        "exit",
+        "guidehuman",
+        "guidesystem",
+        "handicapetc",
+        "hearinghandicapetc",
+        "hearingroom",
+        "helpdog",
+        "infantsfamilyetc",
+        "lactationroom",
+        "parking",
+        "promotion",
+        "publictransport",
+        "restroom",
+        "room",
+        "route",
+        "signguide",
+        "stroller",
+        "ticketoffice",
+        "videoguide",
+        "wheelchair"
+      ],
+      "nonempty_fields": [
+        "braileblock",
+        "contentid",
+        "exit",
+        "parking",
+        "restroom",
+        "room",
+        "route"
+      ]
+    },
+    {
+      "content_id": "2353577",
+      "context": {
+        "region": "철원군",
+        "purpose": "all_cheorwon_accessibility_entries"
+      },
+      "row_count": 1,
+      "response_fields": [
+        "audioguide",
+        "auditorium",
+        "babysparechair",
+        "bigprint",
+        "blindhandicapetc",
+        "braileblock",
+        "brailepromotion",
+        "contentid",
+        "elevator",
+        "exit",
+        "guidehuman",
+        "guidesystem",
+        "handicapetc",
+        "hearinghandicapetc",
+        "hearingroom",
+        "helpdog",
+        "infantsfamilyetc",
+        "lactationroom",
+        "parking",
+        "promotion",
+        "publictransport",
+        "restroom",
+        "room",
+        "route",
+        "signguide",
+        "stroller",
+        "ticketoffice",
+        "videoguide",
+        "wheelchair"
+      ],
+      "nonempty_fields": [
+        "braileblock",
+        "contentid",
+        "exit",
+        "parking",
+        "restroom",
+        "route"
+      ]
+    },
+    {
+      "content_id": "125782",
+      "context": {
+        "local_title": "고석정국민관광지",
+        "purpose": "official_linked_data_content_id_crosscheck"
+      },
+      "row_count": 0,
+      "response_fields": [],
+      "nonempty_fields": []
+    },
+    {
+      "content_id": "2749319",
+      "context": {
+        "local_title": "고석정 꽃밭",
+        "purpose": "legal_dong_and_nationwide_keyword_match"
+      },
+      "row_count": 1,
+      "response_fields": [
+        "audioguide",
+        "auditorium",
+        "babysparechair",
+        "bigprint",
+        "blindhandicapetc",
+        "braileblock",
+        "brailepromotion",
+        "contentid",
+        "elevator",
+        "exit",
+        "guidehuman",
+        "guidesystem",
+        "handicapetc",
+        "hearinghandicapetc",
+        "hearingroom",
+        "helpdog",
+        "infantsfamilyetc",
+        "lactationroom",
+        "parking",
+        "promotion",
+        "publictransport",
+        "restroom",
+        "room",
+        "route",
+        "signguide",
+        "stroller",
+        "ticketoffice",
+        "videoguide",
+        "wheelchair"
+      ],
+      "nonempty_fields": [
+        "contentid",
+        "parking",
+        "route",
+        "wheelchair"
+      ]
+    },
+    {
+      "content_id": "3072021",
+      "context": {
+        "local_title": "철원역사문화공원",
+        "purpose": "legal_dong_exact_title_match"
+      },
+      "row_count": 1,
+      "response_fields": [
+        "audioguide",
+        "auditorium",
+        "babysparechair",
+        "bigprint",
+        "blindhandicapetc",
+        "braileblock",
+        "brailepromotion",
+        "contentid",
+        "elevator",
+        "exit",
+        "guidehuman",
+        "guidesystem",
+        "handicapetc",
+        "hearinghandicapetc",
+        "hearingroom",
+        "helpdog",
+        "infantsfamilyetc",
+        "lactationroom",
+        "parking",
+        "promotion",
+        "publictransport",
+        "restroom",
+        "room",
+        "route",
+        "signguide",
+        "stroller",
+        "ticketoffice",
+        "videoguide",
+        "wheelchair"
+      ],
+      "nonempty_fields": [
+        "contentid",
+        "handicapetc",
+        "parking",
+        "restroom",
+        "route",
+        "wheelchair"
+      ]
+    }
+  ],
+  "errors": [],
+  "limitations": [
+    "Counts and matched content IDs describe this validation time only; tourism responses remain in memory.",
+    "A nonempty accessibility field is availability of information, not evidence of step-free access or suitability.",
+    "An empty detailWithTour2 result means no accessibility detail was returned; it does not mean inaccessible.",
+    "Name-based candidate matches require matching the live address/location before user-facing recommendations."
+  ],
+  "area_code_response_fields": [
+    "code",
+    "name",
+    "rnum"
+  ],
+  "gangwon_area_code": "32",
+  "api_calls": 38,
+  "completed_at": "2026-09-07T07:07:31.829Z",
+  "summary": {
+    "regional_filter": "legal_dong_current",
+    "region_count": 5,
+    "fully_paged_regions": 5,
+    "accessibility_area_records": 108,
+    "legacy_area_records": 49,
+    "matched_target_count": 2,
+    "detail_with_rows_count": 11,
+    "error_count": 0
+  },
+  "diagnostics": {
+    "verified_at": "2026-09-07T07:05:02.309Z",
+    "cheorwon_accessibility_local_matches": [
+      {
+        "content_id": "132270",
+        "content_type_id": "38",
+        "exact_local_matches": [],
+        "matching_rule": "normalized_exact_title_within_cheorwon"
+      },
+      {
+        "content_id": "129891",
+        "content_type_id": "14",
+        "exact_local_matches": [],
+        "matching_rule": "normalized_exact_title_within_cheorwon"
+      },
+      {
+        "content_id": "128174",
+        "content_type_id": "12",
+        "exact_local_matches": [
+          {
+            "local_place_id": "dmz_tourism:b5338808f05f8bba",
+            "local_title": "국립 복주산자연휴양림"
+          }
+        ],
+        "matching_rule": "normalized_exact_title_within_cheorwon"
+      },
+      {
+        "content_id": "2353577",
+        "content_type_id": "12",
+        "exact_local_matches": [
+          {
+            "local_place_id": "dmz_tourism:1608509281a4043b",
+            "local_title": "DMZ 생태평화공원"
+          }
+        ],
+        "matching_rule": "normalized_exact_title_within_cheorwon"
+      }
+    ],
+    "known_goseokjeong_id": "125782",
+    "keyword_checks": [
+      {
+        "service": "KorWithService2",
+        "keyword": "고석정",
+        "scope": "nationwide_without_area_filters",
+        "total": 1,
+        "fetched": 1,
+        "exact_or_declared_alias_content_ids": [
+          "2749319"
+        ],
+        "candidate_content_ids": [
+          "2749319"
+        ]
+      },
+      {
+        "service": "KorService2",
+        "keyword": "고석정",
+        "scope": "nationwide_without_area_filters",
+        "total": 4,
+        "fetched": 4,
+        "exact_or_declared_alias_content_ids": [
+          "2749319",
+          "125782"
+        ],
+        "candidate_content_ids": [
+          "2615225",
+          "2749319",
+          "134047",
+          "125782"
+        ]
+      }
+    ],
+    "known_goseokjeong_common": {
+      "row_count": 1,
+      "response_fields": [
+        "addr1",
+        "addr2",
+        "areacode",
+        "cat1",
+        "cat2",
+        "cat3",
+        "contentid",
+        "contenttypeid",
+        "cpyrhtDivCd",
+        "createdtime",
+        "firstimage",
+        "firstimage2",
+        "homepage",
+        "lDongRegnCd",
+        "lDongSignguCd",
+        "lclsSystm1",
+        "lclsSystm2",
+        "lclsSystm3",
+        "mapx",
+        "mapy",
+        "mlevel",
+        "modifiedtime",
+        "overview",
+        "sigungucode",
+        "tel",
+        "telname",
+        "title",
+        "zipcode"
+      ],
+      "returned_content_ids": [
+        "125782"
+      ],
+      "title_matches_declared_alias": true,
+      "area_codes": [
+        ""
+      ],
+      "sigungu_codes": [
+        ""
+      ]
+    }
+  },
+  "legacy_filter_warning": "regions[] uses deprecated areaCode/sigunguCode and omits records whose legacy codes are blank. Use legal_dong_validation for current region coverage.",
+  "legal_dong_validation": {
+    "verified_at": "2026-09-07T07:06:40.737Z",
+    "code_method": "ldongCode2",
+    "list_method": "areaBasedList2",
+    "official_national_schema_note": "areaCode and sigunguCode are unused/deprecated; replaced by legal-dong codes.",
+    "regions": [
+      {
+        "region": "철원군",
+        "lDongSignguCd": "780",
+        "total": 18,
+        "fetched": 18,
+        "fully_paged": true,
+        "coordinate_missing": 0,
+        "blank_legacy_area_code": 14,
+        "blank_legacy_sigungu_code": 14,
+        "response_fields": [
+          "addr1",
+          "addr2",
+          "areacode",
+          "cat1",
+          "cat2",
+          "cat3",
+          "contentid",
+          "contenttypeid",
+          "cpyrhtDivCd",
+          "createdtime",
+          "firstimage",
+          "firstimage2",
+          "lDongRegnCd",
+          "lDongSignguCd",
+          "lclsSystm1",
+          "lclsSystm2",
+          "lclsSystm3",
+          "mapx",
+          "mapy",
+          "mlevel",
+          "modifiedtime",
+          "sigungucode",
+          "tel",
+          "title",
+          "zipcode"
+        ],
+        "content_type_counts": {
+          "12": 9,
+          "14": 1,
+          "28": 2,
+          "32": 1,
+          "38": 3,
+          "39": 2
+        }
+      },
+      {
+        "region": "화천군",
+        "lDongSignguCd": "790",
+        "total": 17,
+        "fetched": 17,
+        "fully_paged": true,
+        "coordinate_missing": 0,
+        "blank_legacy_area_code": 8,
+        "blank_legacy_sigungu_code": 8,
+        "response_fields": [
+          "addr1",
+          "addr2",
+          "areacode",
+          "cat1",
+          "cat2",
+          "cat3",
+          "contentid",
+          "contenttypeid",
+          "cpyrhtDivCd",
+          "createdtime",
+          "firstimage",
+          "firstimage2",
+          "lDongRegnCd",
+          "lDongSignguCd",
+          "lclsSystm1",
+          "lclsSystm2",
+          "lclsSystm3",
+          "mapx",
+          "mapy",
+          "mlevel",
+          "modifiedtime",
+          "sigungucode",
+          "tel",
+          "title",
+          "zipcode"
+        ],
+        "content_type_counts": {
+          "12": 8,
+          "14": 6,
+          "38": 2,
+          "39": 1
+        }
+      },
+      {
+        "region": "양구군",
+        "lDongSignguCd": "800",
+        "total": 16,
+        "fetched": 16,
+        "fully_paged": true,
+        "coordinate_missing": 0,
+        "blank_legacy_area_code": 7,
+        "blank_legacy_sigungu_code": 7,
+        "response_fields": [
+          "addr1",
+          "addr2",
+          "areacode",
+          "cat1",
+          "cat2",
+          "cat3",
+          "contentid",
+          "contenttypeid",
+          "cpyrhtDivCd",
+          "createdtime",
+          "firstimage",
+          "firstimage2",
+          "lDongRegnCd",
+          "lDongSignguCd",
+          "lclsSystm1",
+          "lclsSystm2",
+          "lclsSystm3",
+          "mapx",
+          "mapy",
+          "mlevel",
+          "modifiedtime",
+          "sigungucode",
+          "tel",
+          "title",
+          "zipcode"
+        ],
+        "content_type_counts": {
+          "12": 2,
+          "14": 7,
+          "28": 1,
+          "32": 2,
+          "38": 2,
+          "39": 2
+        }
+      },
+      {
+        "region": "인제군",
+        "lDongSignguCd": "810",
+        "total": 22,
+        "fetched": 22,
+        "fully_paged": true,
+        "coordinate_missing": 0,
+        "blank_legacy_area_code": 11,
+        "blank_legacy_sigungu_code": 11,
+        "response_fields": [
+          "addr1",
+          "addr2",
+          "areacode",
+          "cat1",
+          "cat2",
+          "cat3",
+          "contentid",
+          "contenttypeid",
+          "cpyrhtDivCd",
+          "createdtime",
+          "firstimage",
+          "firstimage2",
+          "lDongRegnCd",
+          "lDongSignguCd",
+          "lclsSystm1",
+          "lclsSystm2",
+          "lclsSystm3",
+          "mapx",
+          "mapy",
+          "mlevel",
+          "modifiedtime",
+          "sigungucode",
+          "tel",
+          "title",
+          "zipcode"
+        ],
+        "content_type_counts": {
+          "12": 5,
+          "14": 9,
+          "28": 3,
+          "32": 3,
+          "38": 1,
+          "39": 1
+        }
+      },
+      {
+        "region": "고성군",
+        "lDongSignguCd": "820",
+        "total": 35,
+        "fetched": 35,
+        "fully_paged": true,
+        "coordinate_missing": 0,
+        "blank_legacy_area_code": 19,
+        "blank_legacy_sigungu_code": 19,
+        "response_fields": [
+          "addr1",
+          "addr2",
+          "areacode",
+          "cat1",
+          "cat2",
+          "cat3",
+          "contentid",
+          "contenttypeid",
+          "cpyrhtDivCd",
+          "createdtime",
+          "firstimage",
+          "firstimage2",
+          "lDongRegnCd",
+          "lDongSignguCd",
+          "lclsSystm1",
+          "lclsSystm2",
+          "lclsSystm3",
+          "mapx",
+          "mapy",
+          "mlevel",
+          "modifiedtime",
+          "sigungucode",
+          "tel",
+          "title",
+          "zipcode"
+        ],
+        "content_type_counts": {
+          "12": 16,
+          "14": 6,
+          "28": 2,
+          "32": 7,
+          "38": 3,
+          "39": 1
+        }
+      }
+    ],
+    "lDongRegnCd": "51",
+    "code_response_fields": [
+      "code",
+      "name",
+      "rnum"
+    ],
+    "total": 108,
+    "fetched": 108
+  }
+}

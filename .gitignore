@@ -1,0 +1,7 @@
+.env*
+!.env.example
+tmp/
+node_modules/
+.DS_Store
+# Locally reviewed third-party PDFs are linked, not redistributed.
+data/raw/public/*.pdf

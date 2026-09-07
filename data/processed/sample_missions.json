@@ -1,0 +1,1016 @@
+[
+  {
+    "id": "철원군-가족",
+    "title": "철원장: 경계가 풍경이 되는 하루",
+    "brief": "풍경 한 곳, 쉬어가는 자리 한 곳. 함께 걷는 속도에 맞춘 미션.",
+    "region": "철원군",
+    "variant": "가족",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:b03b6bbf587765cc",
+        "title": "고석정국민관광지",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      },
+      {
+        "place_id": "dmz_cafe:a422796ed9b4ea29",
+        "title": "어울림",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_tourism:c5fabb6fcd82fcb7",
+        "title": "순담계곡",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:b03b6bbf587765cc",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": -8,
+      "available": 240,
+      "total": 248,
+      "band": "avoid",
+      "costs": {
+        "장소 체류": 165,
+        "구간·거점 이동 추정": 7,
+        "교통 대기 추정": 24,
+        "혼잡 여유(추정)": 2,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 3.9,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 45,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "철원군-회복",
+    "title": "철원장: 복귀 전, 잠시 숨 고르기",
+    "brief": "장소를 줄이고 쉬는 시간을 남긴 짧은 미션.",
+    "region": "철원군",
+    "variant": "회복",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:b03b6bbf587765cc",
+        "title": "고석정국민관광지",
+        "stay_minutes_estimated": 35,
+        "walk_minutes_estimated": 10
+      },
+      {
+        "place_id": "dmz_cafe:a422796ed9b4ea29",
+        "title": "어울림",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:b03b6bbf587765cc",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": 94,
+      "available": 240,
+      "total": 146,
+      "band": "safe",
+      "costs": {
+        "장소 체류": 80,
+        "구간·거점 이동 추정": 0,
+        "교통 대기 추정": 16,
+        "혼잡 여유(추정)": 0,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 0,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 15,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "철원군-평화",
+    "title": "철원장: 기억을 따라 걷는 오후",
+    "brief": "지역의 기억과 오늘의 일상을 잇는 호국·평화 미션.",
+    "region": "철원군",
+    "variant": "평화",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:494cd281ebd7561e",
+        "title": "고석정",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      },
+      {
+        "place_id": "dmz_cafe:a422796ed9b4ea29",
+        "title": "어울림",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_tourism:b03b6bbf587765cc",
+        "title": "고석정국민관광지",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:b03b6bbf587765cc",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": 1,
+      "available": 240,
+      "total": 239,
+      "band": "avoid",
+      "costs": {
+        "장소 체류": 165,
+        "구간·거점 이동 추정": 0,
+        "교통 대기 추정": 24,
+        "혼잡 여유(추정)": 0,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 0,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 45,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "화천군-가족",
+    "title": "화천장: 경계가 풍경이 되는 하루",
+    "brief": "풍경 한 곳, 쉬어가는 자리 한 곳. 함께 걷는 속도에 맞춘 미션.",
+    "region": "화천군",
+    "variant": "가족",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:c4e9881bd6570e6f",
+        "title": "붕어섬",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      },
+      {
+        "place_id": "dmz_cafe:f5976e8b53378153",
+        "title": "FOR;REST",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_tourism:2aa3493fed9da739",
+        "title": "용암리선사유적",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:c4e9881bd6570e6f",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": -11,
+      "available": 240,
+      "total": 251,
+      "band": "avoid",
+      "costs": {
+        "장소 체류": 165,
+        "구간·거점 이동 추정": 10,
+        "교통 대기 추정": 24,
+        "혼잡 여유(추정)": 2,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 5.7,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 45,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "화천군-회복",
+    "title": "화천장: 복귀 전, 잠시 숨 고르기",
+    "brief": "장소를 줄이고 쉬는 시간을 남긴 짧은 미션.",
+    "region": "화천군",
+    "variant": "회복",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:c4e9881bd6570e6f",
+        "title": "붕어섬",
+        "stay_minutes_estimated": 35,
+        "walk_minutes_estimated": 10
+      },
+      {
+        "place_id": "dmz_cafe:f5976e8b53378153",
+        "title": "FOR;REST",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:c4e9881bd6570e6f",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": 91,
+      "available": 240,
+      "total": 149,
+      "band": "safe",
+      "costs": {
+        "장소 체류": 80,
+        "구간·거점 이동 추정": 2,
+        "교통 대기 추정": 16,
+        "혼잡 여유(추정)": 1,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 0.9,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 15,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "화천군-평화",
+    "title": "화천장: 기억을 따라 걷는 오후",
+    "brief": "지역의 기억과 오늘의 일상을 잇는 호국·평화 미션.",
+    "region": "화천군",
+    "variant": "평화",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:35fd7f1ae60e9e1c",
+        "title": "산타우체국",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      },
+      {
+        "place_id": "dmz_cafe:f5976e8b53378153",
+        "title": "FOR;REST",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_tourism:74e72a688082bc3f",
+        "title": "산천어커피박물관",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 5
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:c4e9881bd6570e6f",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": -5,
+      "available": 240,
+      "total": 245,
+      "band": "avoid",
+      "costs": {
+        "장소 체류": 165,
+        "구간·거점 이동 추정": 5,
+        "교통 대기 추정": 24,
+        "혼잡 여유(추정)": 1,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 2.4,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 30,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "화천군-실내",
+    "title": "화천장: 비가 오면 검토할 실내 후보",
+    "brief": "명칭과 분류로 고른 실내 후보 초안. 실내 공간·운영 여부 모두 확인 필요합니다.",
+    "region": "화천군",
+    "variant": "실내",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:74e72a688082bc3f",
+        "title": "산천어커피박물관",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_cafe:f5976e8b53378153",
+        "title": "FOR;REST",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:c4e9881bd6570e6f",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": 64,
+      "available": 240,
+      "total": 176,
+      "band": "safe",
+      "costs": {
+        "장소 체류": 105,
+        "구간·거점 이동 추정": 4,
+        "교통 대기 추정": 16,
+        "혼잡 여유(추정)": 1,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 1.9,
+      "issues": [
+        "실내 여부는 장소명·분류 기반 후보이며 미검증",
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 10,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "양구군-가족",
+    "title": "양구장: 경계가 풍경이 되는 하루",
+    "brief": "풍경 한 곳, 쉬어가는 자리 한 곳. 함께 걷는 속도에 맞춘 미션.",
+    "region": "양구군",
+    "variant": "가족",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:728eea0086d5ce3b",
+        "title": "양구근현대사박물관",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_cafe:81a69b3d58a17da6",
+        "title": "하늘카페",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_tourism:b45e03c23f615a30",
+        "title": "후곡약수터",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:728eea0086d5ce3b",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": -25,
+      "available": 240,
+      "total": 265,
+      "band": "avoid",
+      "costs": {
+        "장소 체류": 165,
+        "구간·거점 이동 추정": 21,
+        "교통 대기 추정": 24,
+        "혼잡 여유(추정)": 5,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 12,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 30,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "양구군-회복",
+    "title": "양구장: 복귀 전, 잠시 숨 고르기",
+    "brief": "장소를 줄이고 쉬는 시간을 남긴 짧은 미션.",
+    "region": "양구군",
+    "variant": "회복",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:728eea0086d5ce3b",
+        "title": "양구근현대사박물관",
+        "stay_minutes_estimated": 35,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_cafe:81a69b3d58a17da6",
+        "title": "하늘카페",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:728eea0086d5ce3b",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": 94,
+      "available": 240,
+      "total": 146,
+      "band": "safe",
+      "costs": {
+        "장소 체류": 80,
+        "구간·거점 이동 추정": 0,
+        "교통 대기 추정": 16,
+        "혼잡 여유(추정)": 0,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 0,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 10,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "양구군-평화",
+    "title": "양구장: 기억을 따라 걷는 오후",
+    "brief": "지역의 기억과 오늘의 일상을 잇는 호국·평화 미션.",
+    "region": "양구군",
+    "variant": "평화",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:fa0e8d84e4264635",
+        "title": "한반도섬",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      },
+      {
+        "place_id": "dmz_cafe:81a69b3d58a17da6",
+        "title": "하늘카페",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_tourism:728eea0086d5ce3b",
+        "title": "양구근현대사박물관",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 5
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:728eea0086d5ce3b",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": -29,
+      "available": 240,
+      "total": 269,
+      "band": "avoid",
+      "costs": {
+        "장소 체류": 165,
+        "구간·거점 이동 추정": 25,
+        "교통 대기 추정": 24,
+        "혼잡 여유(추정)": 5,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 14.4,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 30,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "양구군-실내",
+    "title": "양구장: 비가 오면 검토할 실내 후보",
+    "brief": "명칭과 분류로 고른 실내 후보 초안. 실내 공간·운영 여부 모두 확인 필요합니다.",
+    "region": "양구군",
+    "variant": "실내",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:728eea0086d5ce3b",
+        "title": "양구근현대사박물관",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_cafe:81a69b3d58a17da6",
+        "title": "하늘카페",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:728eea0086d5ce3b",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": 69,
+      "available": 240,
+      "total": 171,
+      "band": "safe",
+      "costs": {
+        "장소 체류": 105,
+        "구간·거점 이동 추정": 0,
+        "교통 대기 추정": 16,
+        "혼잡 여유(추정)": 0,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 0,
+      "issues": [
+        "실내 여부는 장소명·분류 기반 후보이며 미검증",
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 10,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "인제군-가족",
+    "title": "인제장: 경계가 풍경이 되는 하루",
+    "brief": "풍경 한 곳, 쉬어가는 자리 한 곳. 함께 걷는 속도에 맞춘 미션.",
+    "region": "인제군",
+    "variant": "가족",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:a94a62c74319d22a",
+        "title": "만해마을",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      },
+      {
+        "place_id": "dmz_cafe:e8375789cb0ea3d8",
+        "title": "아니오니 베이커리카페",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_tourism:424d7d6ee1d73af8",
+        "title": "십이선녀탕(탕수동계곡)",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:a94a62c74319d22a",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": -15,
+      "available": 240,
+      "total": 255,
+      "band": "avoid",
+      "costs": {
+        "장소 체류": 165,
+        "구간·거점 이동 추정": 13,
+        "교통 대기 추정": 24,
+        "혼잡 여유(추정)": 3,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 7.3,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 45,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "인제군-회복",
+    "title": "인제장: 복귀 전, 잠시 숨 고르기",
+    "brief": "장소를 줄이고 쉬는 시간을 남긴 짧은 미션.",
+    "region": "인제군",
+    "variant": "회복",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:a94a62c74319d22a",
+        "title": "만해마을",
+        "stay_minutes_estimated": 35,
+        "walk_minutes_estimated": 10
+      },
+      {
+        "place_id": "dmz_cafe:e8375789cb0ea3d8",
+        "title": "아니오니 베이커리카페",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:a94a62c74319d22a",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": 88,
+      "available": 240,
+      "total": 152,
+      "band": "safe",
+      "costs": {
+        "장소 체류": 80,
+        "구간·거점 이동 추정": 5,
+        "교통 대기 추정": 16,
+        "혼잡 여유(추정)": 1,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 2.4,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 15,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "인제군-평화",
+    "title": "인제장: 기억을 따라 걷는 오후",
+    "brief": "지역의 기억과 오늘의 일상을 잇는 호국·평화 미션.",
+    "region": "인제군",
+    "variant": "평화",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:424d7d6ee1d73af8",
+        "title": "십이선녀탕(탕수동계곡)",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      },
+      {
+        "place_id": "dmz_cafe:e8375789cb0ea3d8",
+        "title": "아니오니 베이커리카페",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_tourism:a94a62c74319d22a",
+        "title": "만해마을",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:a94a62c74319d22a",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": -15,
+      "available": 240,
+      "total": 255,
+      "band": "avoid",
+      "costs": {
+        "장소 체류": 165,
+        "구간·거점 이동 추정": 13,
+        "교통 대기 추정": 24,
+        "혼잡 여유(추정)": 3,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 7.3,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 45,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "고성군-가족",
+    "title": "고성장: 경계가 풍경이 되는 하루",
+    "brief": "풍경 한 곳, 쉬어가는 자리 한 곳. 함께 걷는 속도에 맞춘 미션.",
+    "region": "고성군",
+    "variant": "가족",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:d096c36656960f75",
+        "title": "고성 왕곡마을",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      },
+      {
+        "place_id": "dmz_cafe:579e1de0b5ad8aae",
+        "title": "요거프레소 강원공현진점",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_tourism:2be9a3312d99e25e",
+        "title": "이덕균가옥",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:d096c36656960f75",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": -20,
+      "available": 240,
+      "total": 260,
+      "band": "avoid",
+      "costs": {
+        "장소 체류": 165,
+        "구간·거점 이동 추정": 17,
+        "교통 대기 추정": 24,
+        "혼잡 여유(추정)": 4,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 9.4,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 45,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "고성군-회복",
+    "title": "고성장: 복귀 전, 잠시 숨 고르기",
+    "brief": "장소를 줄이고 쉬는 시간을 남긴 짧은 미션.",
+    "region": "고성군",
+    "variant": "회복",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:d096c36656960f75",
+        "title": "고성 왕곡마을",
+        "stay_minutes_estimated": 35,
+        "walk_minutes_estimated": 10
+      },
+      {
+        "place_id": "dmz_cafe:579e1de0b5ad8aae",
+        "title": "요거프레소 강원공현진점",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:d096c36656960f75",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": 82,
+      "available": 240,
+      "total": 158,
+      "band": "safe",
+      "costs": {
+        "장소 체류": 80,
+        "구간·거점 이동 추정": 10,
+        "교통 대기 추정": 16,
+        "혼잡 여유(추정)": 2,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 5.7,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 15,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  },
+  {
+    "id": "고성군-평화",
+    "title": "고성장: 기억을 따라 걷는 오후",
+    "brief": "지역의 기억과 오늘의 일상을 잇는 호국·평화 미션.",
+    "region": "고성군",
+    "variant": "평화",
+    "stops": [
+      {
+        "place_id": "dmz_tourism:2be9a3312d99e25e",
+        "title": "이덕균가옥",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      },
+      {
+        "place_id": "dmz_cafe:579e1de0b5ad8aae",
+        "title": "요거프레소 강원공현진점",
+        "stay_minutes_estimated": 45,
+        "walk_minutes_estimated": 5
+      },
+      {
+        "place_id": "dmz_tourism:d096c36656960f75",
+        "title": "고성 왕곡마을",
+        "stay_minutes_estimated": 60,
+        "walk_minutes_estimated": 20
+      }
+    ],
+    "sample_assumptions": {
+      "synthetic_clock": true,
+      "reference_time": "2026-09-07T01:00:00.000Z",
+      "duration_minutes": 240,
+      "transport": "car",
+      "origin_id": "dmz_tourism:d096c36656960f75",
+      "weather": "unknown"
+    },
+    "assessment": {
+      "margin": -20,
+      "available": 240,
+      "total": 260,
+      "band": "avoid",
+      "costs": {
+        "장소 체류": 165,
+        "구간·거점 이동 추정": 17,
+        "교통 대기 추정": 24,
+        "혼잡 여유(추정)": 4,
+        "날씨 여유(시나리오)": 15,
+        "동행 여유": 20,
+        "추가 안전 버퍼": 15,
+        "숙박·휴식 확보": 0
+      },
+      "km": 9.4,
+      "issues": [
+        "실제 날씨 확인 필요",
+        "도보 시간은 장소 유형에 따른 추정",
+        "운영 여부 확인 필요",
+        "예약·신분확인 조건 미확인"
+      ],
+      "walk": 45,
+      "conditionsConfirmed": false
+    },
+    "publication_state": "draft_conditions_unverified",
+    "eligible_for_verified_recommendation": false
+  }
+]

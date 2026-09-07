@@ -1,0 +1,51 @@
+{
+  "verified_at": "2026-09-07T07:14:13.253Z",
+  "mode": "blocked_missing_key",
+  "app": "GunbeonGangwon",
+  "service": "KorService2",
+  "regional_filter": "legal_dong_current",
+  "key_source": null,
+  "accessibility_key_source": null,
+  "manual_version": "국문 v4.4 (2026-02-10); 무장애 v4.3 (2025-05-12)",
+  "code_method": "ldongCode2",
+  "list_method": "areaBasedList2",
+  "scope": {
+    "regions": [
+      "철원군",
+      "화천군",
+      "양구군",
+      "인제군",
+      "고성군"
+    ],
+    "content_type_ids": [
+      "12",
+      "14",
+      "15",
+      "32",
+      "39"
+    ],
+    "description": "현재 법정동 코드와 지정 5개 관광타입으로 수신한 API 목록의 검증. 현실의 모든 시설 또는 미선택 관광타입까지 포괄한다는 의미가 아님."
+  },
+  "regions": [],
+  "errors": [],
+  "key_logged": false,
+  "full_request_urls_logged": false,
+  "raw_tourapi_records_persisted": false,
+  "legacy_validation_comparison": {
+    "verified_at": "2026-09-07T06:57:54.256Z",
+    "area_code": "32",
+    "fetched_records": 237,
+    "interpretation": "과거 areaCode/sigunguCode로 반환된 부분 집합. 지역 전체 또는 현재 법정동 목록의 완전한 결과로 해석하면 안 됨."
+  },
+  "completed_at": "2026-09-07T07:14:13.256Z",
+  "api_calls": 0,
+  "max_api_calls": 80,
+  "summary": {
+    "region_count": 0,
+    "successful_category_combinations": 0,
+    "fully_paged_category_combinations": 0,
+    "fetched_records": 0,
+    "coordinate_missing": 0,
+    "error_count": 0
+  }
+}
