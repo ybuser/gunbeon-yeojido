@@ -20,7 +20,7 @@ KAKAO_MAP_JAVASCRIPT_KEY=카카오_JavaScript_키
 
 한 계정에서 같은 인증키를 발급받는 경우에도 각 서비스의 활용 신청/승인 여부를 확인한다. 국문 서비스는 기존 `TOUR_API_SERVICE_KEY`도 호환하며, 무장애 키가 없으면 국문 키를 사용해 호출한다. 해당 서비스가 승인되지 않았으면 무장애 정보 실패를 별도로 표시한다.
 
-서비스 식별 MobileApp: `GunbeonGangwon`, MobileOS: `ETC`. 개발계정 일일 트래픽 제한을 확인하며 실제 활용 호출만 실행한다. 실시간 연결·오류를 기록하되 인증키나 키가 든 전체 URL은 보고서/로그/클라이언트에 노출하지 않는다.
+서비스 식별 MobileApp: `GunbeonGangwon`, MobileOS: `WEB`. 개발계정 일일 트래픽 제한을 확인하며 실제 활용 호출만 실행한다. 실시간 연결·오류를 기록하되 인증키나 키가 든 전체 URL은 보고서/로그/클라이언트에 노출하지 않는다.
 
 지도: Kakao Developers JavaScript 키를 `KAKAO_MAP_JAVASCRIPT_KEY`에 설정한다. 이것은 도메인 제한을 사용하는 공개 브라우저 키다. 허용 웹 도메인에 로컬 개발 주소와 최종 배포 주소를 등록해야 한다. REST API secret과 혼동하지 않는다. 지도 미설정 시 명시적 지리 개략도와 외부 길찾기를 제공한다.
 
@@ -30,6 +30,15 @@ KAKAO_MAP_JAVASCRIPT_KEY=카카오_JavaScript_키
 
 현재 로컬 서버는 `http://localhost:3000`으로 고정했다. Kakao Developers → 앱 → 앱 설정 → 앱 → 플랫폼 키 → 사용할 JavaScript 키에서 JavaScript SDK 도메인으로 이 주소를 등록한다. `127.0.0.1` 또는 휴대전화의 같은 와이파이 내부 IP로 접속한다면 실제 접속 origin을 별도 등록해야 한다. 경로(/planner 등)나 GitHub 저장소 URL을 넣지 않는다.
 
-Sites 등록 시 반환된 배포 예정 주소는 `https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site`이며 성공적으로 배포된 뒤 확정 주소를 등록한다. JavaScript 키는 브라우저에서 사용하는 공개 키이고, 공공데이터포털 키는 서버 비밀값이다.
+배포 주소는 `https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site`이다. JavaScript 키는 브라우저에서 사용하는 공개 키이고, 공공데이터포털 키는 서버 비밀값이다.
 
 근거: [Kakao 지도 Web API 가이드](https://apis.map.kakao.com/web/guide/).
+
+
+## 2026-09-07 실제 연결 결과
+
+공통키 하나로 위 6종 모두 응답을 받았다. 국문·무장애·기상청은 앱의 서버 API에서도 연결을 확인했다. 집중률·중심·연관은 별도 검증 스크립트에서 실제 표본 행을 확인했으며 아직 앱 추천 엔진에는 통합하지 않았다. 중심·연관의 202608 데이터는 정상 빈 응답, 202607 데이터는 실제 행이 있어 월 지연을 처리해야 한다.
+
+Kakao Developers의 **제품 설정 → 카카오맵 사용 설정**을 활성화해야 한다. 활성화 전 `disabled OPEN_MAP_AND_LOCAL service`로 SDK 요청이 거절됐으나, 사용자가 활성화한 뒤 위 로컬·배포 origin에서 모두 HTTP 200과 SDK 응답을 받았다. 실제 브라우저 지도 타일·조작 검증과는 구분한다.
+
+검증 근거: `tour_api_live_validation.json`, `api_runtime_verification.json`, `app_runtime_verification.json`.

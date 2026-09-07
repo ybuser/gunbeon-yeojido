@@ -1,0 +1,38 @@
+{
+  "checked_at": "2026-09-07T08:08:19.855Z",
+  "origin": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
+  "version": 2,
+  "environment_revision": 1,
+  "scope": "Authenticated HTTP check; browser interactions not verified",
+  "results": [
+    {
+      "path": "/",
+      "http_status": 200,
+      "redesigned_home": true
+    },
+    {
+      "path": "/api/places?region=철원군",
+      "http_status": 200,
+      "mode": "live",
+      "count": 114
+    },
+    {
+      "path": "/api/accessibility?region=철원군",
+      "http_status": 200,
+      "mode": "live",
+      "count": 4
+    },
+    {
+      "path": "/api/weather?region=철원군",
+      "http_status": 200,
+      "mode": "live",
+      "hours": 8,
+      "coverage_complete": true
+    },
+    {
+      "path": "/api/status",
+      "http_status": 200,
+      "map_key_configured": true
+    }
+  ]
+}
