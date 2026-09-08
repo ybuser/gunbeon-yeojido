@@ -82,6 +82,7 @@ npm run test:groups-ui
 
 React 19 · TypeScript · Tailwind · Vinext/App Router · Sites · D1/Drizzle. 환경변수는 `.env.local`과 배포 secret으로 관리하며 키는 Git에 저장하지 않습니다.
 
+- [이번 공개 적용·CI 기록](reports/discovery_delivery.md)
 - [이번 UX 검토와 다음 계획](reports/discovery_ux_review.md) · [사용 시나리오 가이드](reports/usage_guide.md) · [이번 검증 결과](reports/qa/discovery/)
 - [그룹·UX·데이터 운영 및 다음 계획](reports/travel_groups_delivery.md)
 - [공식 규정](reports/notion_requirements.md) · [개발 계획](reports/implementation_plan.md) · [제출 준비](reports/submission_assets.md)

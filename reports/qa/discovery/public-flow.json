@@ -1,0 +1,25 @@
+{
+  "base": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
+  "startedAt": "2026-09-08T05:12:41.183Z",
+  "browser": "Chrome",
+  "viewport": "430×932 touch emulation",
+  "tourApi": "isolated quota response",
+  "kakao": "real SDK",
+  "checks": [
+    "Browse region preserved in blank plan; no inherited meeting",
+    "First meeting map works without favorites; start deadline survives cancel and save",
+    "Current outing has next-place navigation and visit details",
+    "Completion cancellation preserves active outing"
+  ],
+  "screenshots": [
+    "01-discover",
+    "02-course",
+    "03-meeting",
+    "04-editor",
+    "05-start",
+    "06-outing",
+    "07-completion"
+  ],
+  "errors": [],
+  "status": "passed"
+}
