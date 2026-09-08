@@ -1,0 +1,123 @@
+[
+  {
+    "id": "cheorwon-labor",
+    "titles": [
+      "철원 노동당사"
+    ],
+    "region": "철원군",
+    "url": "/photos/cheorwon-labor.jpg",
+    "caption": "노동당사 정면 · 2026년",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Korean_Workers%27_Party_Headquarters,_Cheorwon_(2026-05)_(1).jpg",
+    "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Korean_Workers%27_Party_Headquarters%2C_Cheorwon_%282026-05%29_%281%29.jpg",
+    "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Korean_Workers%27_Party_Headquarters%2C_Cheorwon_%282026-05%29_%281%29.jpg/1280px-Korean_Workers%27_Party_Headquarters%2C_Cheorwon_%282026-05%29_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "author": "Sadopaul / Gyuwon Lee",
+    "provider": "Wikimedia Commons",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "credit": "Gyuwon Lee (Sadopaul), Wikimedia Commons, CC BY-SA 4.0",
+    "fit": "cover",
+    "changes": "이미지 파일의 내용은 변경하지 않았습니다. 화면 비율에 따라 일부가 잘려 표시될 수 있습니다.",
+    "checkedAt": "2026-09-08"
+  },
+  {
+    "id": "cheorwon-memorial",
+    "titles": [
+      "백마고지 위령비와 기념관",
+      "백마고지전적기념관"
+    ],
+    "region": "철원군",
+    "url": "/photos/cheorwon-memorial.jpg",
+    "caption": "백마고지 위령비와 전승비 · 2011년",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Battle_of_White_Horse.jpg",
+    "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/2/29/Battle_of_White_Horse.jpg",
+    "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/2/29/Battle_of_White_Horse.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "author": "ACROFAN",
+    "provider": "Wikimedia Commons",
+    "license": "CC BY-SA 3.0, Wikimedia VRT 허가 확인",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "credit": "ACROFAN, Wikimedia Commons, CC BY-SA 3.0",
+    "fit": "contain",
+    "changes": "원본 비율을 유지하여 전체 표시합니다.",
+    "checkedAt": "2026-09-08"
+  },
+  {
+    "id": "hwacheon-dam",
+    "titles": [
+      "평화의댐(화천)"
+    ],
+    "region": "화천군",
+    "url": "/photos/hwacheon-dam.jpg",
+    "caption": "평화의 댐 · 2008년, 현재 경관과 차이가 있을 수 있습니다",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Peace_Dam.jpg",
+    "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Peace_Dam.jpg",
+    "downloadUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Peace_Dam.jpg/1280px-Peace_Dam.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "author": "Baeksu",
+    "provider": "Wikimedia Commons",
+    "license": "CC BY-SA 3.0 또는 GFDL 중 선택 가능; 여기서는 CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "credit": "Baeksu, Wikimedia Commons, CC BY-SA 3.0",
+    "fit": "cover",
+    "changes": "이미지 파일의 내용은 변경하지 않았습니다. 화면 비율에 따라 일부가 잘려 표시될 수 있습니다.",
+    "checkedAt": "2026-09-08"
+  },
+  {
+    "id": "yanggu-dutayeon",
+    "titles": [
+      "두타연 (국가지질공원)"
+    ],
+    "region": "양구군",
+    "url": "/photos/yanggu-dutayeon.jpg",
+    "caption": "두타연의 겨울 · 2014년",
+    "sourceUrl": "https://www.kogl.or.kr/recommend/recommendDivView.do?division=img&recommendIdx=2421",
+    "originalUrl": "https://www.kogl.or.kr/upload_recommend/thumb_V/%EC%A7%80%EC%97%AD%EB%B3%84%EA%B4%80%EA%B4%91%EC%A7%80/%EA%B0%95%EC%9B%90%EB%8F%84/%EC%96%91%EA%B5%AC/thumb_%EB%91%90%ED%83%80%EC%97%B0_1.jpg",
+    "downloadUrl": "https://www.kogl.or.kr/upload_recommend/thumb_V/%EC%A7%80%EC%97%AD%EB%B3%84%EA%B4%80%EA%B4%91%EC%A7%80/%EA%B0%95%EC%9B%90%EB%8F%84/%EC%96%91%EA%B5%AC/thumb_%EB%91%90%ED%83%80%EC%97%B0_1.jpg",
+    "author": "한국문화관광연구원 (개별 촬영자 미표기)",
+    "provider": "한국문화관광연구원 / 공공누리",
+    "license": "공공누리 제1유형",
+    "licenseUrl": "https://www.kogl.or.kr/open/info/license_info/by.do",
+    "credit": "사진: 한국문화관광연구원, 두타연(2014), 공공누리 제1유형",
+    "fit": "cover",
+    "changes": "이미지 파일의 내용은 변경하지 않았습니다. 화면 비율에 따라 일부가 잘려 표시될 수 있습니다.",
+    "checkedAt": "2026-09-08"
+  },
+  {
+    "id": "goseong-wanggok",
+    "titles": [
+      "고성 왕곡마을"
+    ],
+    "region": "고성군",
+    "url": "/photos/goseong-wanggok.jpg",
+    "caption": "왕곡마을 항공사진 · 2018년",
+    "sourceUrl": "https://www.kogl.or.kr/recommend/recommendDivView.do?division=img&recommendIdx=8199",
+    "originalUrl": "https://www.kogl.or.kr/upload_recommend/thumb_V/2018/%ED%95%AD%EA%B3%B5%EC%B4%AC%EC%98%81/thumb_B009-C009-0002-01_L.jpg",
+    "downloadUrl": "https://www.kogl.or.kr/upload_recommend/thumb_V/2018/%ED%95%AD%EA%B3%B5%EC%B4%AC%EC%98%81/thumb_B009-C009-0002-01_L.jpg",
+    "author": "강원특별자치도·한국문화정보원",
+    "provider": "강원특별자치도 / 공공누리",
+    "license": "공공누리 제1유형",
+    "licenseUrl": "https://www.kogl.or.kr/open/info/license_info/by.do",
+    "credit": "사진: 강원특별자치도·한국문화정보원, 고성 왕곡마을(2018), 공공누리 제1유형",
+    "fit": "cover",
+    "changes": "이미지 파일의 내용은 변경하지 않았습니다. 화면 비율에 따라 일부가 잘려 표시될 수 있습니다.",
+    "checkedAt": "2026-09-08"
+  },
+  {
+    "id": "goseong-observatory",
+    "titles": [
+      "고성 통일전망타워"
+    ],
+    "region": "고성군",
+    "url": "/photos/goseong-observatory.jpg",
+    "caption": "통일전망대 관람 구역에서 본 해안 · 2022년",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Goseong_Unification_Observatory_Tower.jpg",
+    "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/1/15/Goseong_Unification_Observatory_Tower.jpg",
+    "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/1/15/Goseong_Unification_Observatory_Tower.jpg",
+    "author": "Pierre Boureau",
+    "provider": "Wikimedia Commons / Flickr pierbou",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+    "credit": "Pierre Boureau, Goseong Unification Observatory Tower (2022), CC BY-SA 2.0 / Wikimedia Commons",
+    "fit": "cover",
+    "changes": "이미지 파일의 내용은 변경하지 않았습니다. 화면 비율에 따라 일부가 잘려 표시될 수 있습니다.",
+    "checkedAt": "2026-09-08"
+  }
+]

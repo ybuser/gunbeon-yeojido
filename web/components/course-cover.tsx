@@ -1,5 +1,6 @@
 'use client';
 import MemoryImage from './memory-image';
+import { placePhoto, photoUrl } from '@/lib/place-photos';
 import { useState } from 'react';
 import { MapPin } from 'lucide-react';
 import type { Place } from '@/lib/domain';
@@ -8,16 +9,23 @@ function Tile({
   index,
   eager,
 }: {
-  place: Pick<Place, 'id' | 'title' | 'image_url'>;
+  place: Pick<Place, 'id' | 'title' | 'image_url'> &
+    Partial<Pick<Place, 'source' | 'sigungu'>>;
   index: number;
   eager: boolean;
 }) {
   const [failed, setFailed] = useState(false);
+  const photo = placePhoto(place),
+    src = photoUrl(place);
   return (
-    <span className="course-cover-tile">
-      {place.image_url && !failed ? (
+    <span
+      className="course-cover-tile"
+      title={photo ? photo.caption + ' · ' + photo.credit : place.title}
+    >
+      {src && !failed ? (
         <MemoryImage
-          src={place.image_url}
+          src={src}
+          style={{ objectFit: photo?.fit === 'contain' ? 'contain' : 'cover' }}
           alt={`${index + 1}. ${place.title}`}
           loading={eager ? 'eager' : 'lazy'}
           onError={() => setFailed(true)}
@@ -36,7 +44,8 @@ export default function CourseCover({
   places,
   eager = false,
 }: {
-  places: Pick<Place, 'id' | 'title' | 'image_url'>[];
+  places: (Pick<Place, 'id' | 'title' | 'image_url'> &
+    Partial<Pick<Place, 'source' | 'sigungu'>>)[];
   eager?: boolean;
 }) {
   const unique = places.filter(

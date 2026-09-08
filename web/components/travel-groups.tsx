@@ -25,7 +25,7 @@ import { pageFetch, clearPageCache } from '@/lib/page-cache';
 import { groupKinds } from '@/lib/group-model';
 import type { GroupSummary, GroupDetail, GroupPlan } from '@/lib/group-model';
 import type { Entry, ActiveOuting } from '@/lib/domain';
-import { entryKey, hasVisitRecord } from '@/lib/domain';
+import { entryKey, hasVisitRecord, localInputDate } from '@/lib/domain';
 type GroupReply = {
   message?: string;
   profile?: { id: string; nickname: string } | null;
@@ -134,12 +134,21 @@ export function TravelHome({
   onGo: (v: string) => void;
   onNew: () => void;
 }) {
+  const today = localInputDate(new Date().toISOString()).slice(0, 10);
+  const category = (e: Entry) =>
+    !e.plan?.departureAt
+      ? 1
+      : localInputDate(e.plan.departureAt).slice(0, 10) >= today
+        ? 0
+        : 2;
   const planned = entries
     .filter((e) => !hasVisitRecord(e))
     .sort(
       (a, b) =>
-        (Date.parse(a.plan?.departureAt || '') || Infinity) -
-        (Date.parse(b.plan?.departureAt || '') || Infinity),
+        category(a) - category(b) ||
+        (category(a) === 2 ? -1 : 1) *
+          ((Date.parse(a.plan?.departureAt || '') || 0) -
+            (Date.parse(b.plan?.departureAt || '') || 0)),
     );
   return (
     <main className="page-container travel-home">
@@ -199,7 +208,10 @@ export function TravelHome({
                     </b>
                   </span>
                   <span>
-                    <small>나만 보기 · {e.region}</small>
+                    <small>
+                      나만 보기 · {e.region}
+                      {category(e) === 2 ? ' · 지난 계획' : ''}
+                    </small>
                     <strong>{e.title}</strong>
                     <span>
                       {dateLabel(e.plan?.departureAt)} ·{' '}
