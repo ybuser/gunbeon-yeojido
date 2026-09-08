@@ -1,0 +1,63 @@
+{
+  "verifiedAt": "2026-09-08T06:50:44.590Z",
+  "scope": "proposal mockup only; no production API or feature verified",
+  "browser": "152.0.7977.76",
+  "results": [
+    {
+      "width": 320,
+      "colorScheme": "light",
+      "reducedMotion": true,
+      "compareApplyUndo": "passed",
+      "overflow": "none",
+      "pageErrors": [],
+      "layout": {
+        "width": 288,
+        "scrollWidth": 288,
+        "documentWidth": 288,
+        "documentScrollWidth": 288
+      }
+    },
+    {
+      "width": 320,
+      "colorScheme": "dark",
+      "reducedMotion": true,
+      "compareApplyUndo": "passed",
+      "overflow": "none",
+      "pageErrors": [],
+      "layout": {
+        "width": 288,
+        "scrollWidth": 288,
+        "documentWidth": 288,
+        "documentScrollWidth": 288
+      }
+    },
+    {
+      "width": 736,
+      "colorScheme": "light",
+      "reducedMotion": true,
+      "compareApplyUndo": "passed",
+      "overflow": "none",
+      "pageErrors": [],
+      "layout": {
+        "width": 704,
+        "scrollWidth": 704,
+        "documentWidth": 704,
+        "documentScrollWidth": 704
+      }
+    },
+    {
+      "width": 736,
+      "colorScheme": "dark",
+      "reducedMotion": true,
+      "compareApplyUndo": "passed",
+      "overflow": "none",
+      "pageErrors": [],
+      "layout": {
+        "width": 704,
+        "scrollWidth": 704,
+        "documentWidth": 704,
+        "documentScrollWidth": 704
+      }
+    }
+  ]
+}
