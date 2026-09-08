@@ -93,6 +93,7 @@ export type Mission = {
   custom?: boolean;
   departureAt?: string;
   transport?: Settings['transport'];
+  timeBudgetMinutes?: number;
 };
 export type Assessment = {
   margin: number | null;
@@ -194,7 +195,7 @@ export function chooseOrigin(nodes: Place[], settings: Settings) {
   const anchor = anchors[settings.region] || '';
   const stem = anchor.replace('국민관광지', '');
   return (
-    local.find((p) => p.id === settings.originId) ||
+    nodes.find((p) => p.id === settings.originId && validCoord(p)) ||
     local.find(
       (p) => p.source === 'tourapi' && stem && p.title.includes(stem),
     ) ||
@@ -208,9 +209,9 @@ export function chooseOrigin(nodes: Place[], settings: Settings) {
 export function makeMissions(nodes: Place[], s: Settings): Mission[] {
   const origin = chooseOrigin(nodes, s);
   if (!origin) return [];
-  const list = regionPlaces(nodes, s.region).sort(
-    (a, b) => distance(origin, a) - distance(origin, b),
-  );
+  const list = regionPlaces(nodes, s.region)
+    .filter((p) => p.source !== 'manual')
+    .sort((a, b) => distance(origin, a) - distance(origin, b));
   const near = list.filter((p) => distance(origin, p) < 25);
   const cafes = near.filter(
     (p) => p.category === 'cafe' || p.category === 'restaurant',
@@ -334,6 +335,7 @@ export function routeSchedule(
   s: Settings,
   origin: Place,
   now = new Date(),
+  returnPoint = origin,
 ) {
   const planned = m.departureAt ? Date.parse(m.departureAt) : now.getTime();
   const start = Number.isFinite(planned)
@@ -341,7 +343,7 @@ export function routeSchedule(
     : now.getTime();
   const transport = m.transport || s.transport;
   const speed = transport === 'car' ? 35 : transport === 'taxi' ? 30 : 20;
-  const points = [origin, ...m.stops.map((x) => x.place), origin];
+  const points = [origin, ...m.stops.map((x) => x.place), returnPoint];
   let cursor = start,
     travel = 0,
     wait = 0;
@@ -387,10 +389,12 @@ export function assess(
   s: Settings,
   origin: Place,
   now = new Date(),
+  observedNow = now,
+  returnPoint = origin,
 ): Assessment {
   const end = Date.parse(s.returnAt),
     t = now.getTime();
-  const weather = effectiveWeather(s, now);
+  const weather = effectiveWeather(s, observedNow);
   const available = Math.floor((end - t) / 60000);
   const invalid =
     !Number.isFinite(available) ||
@@ -398,12 +402,12 @@ export function assess(
     s.duration <= 0 ||
     !Number.isFinite(s.extraBuffer) ||
     s.extraBuffer < 0;
-  const points = [origin, ...m.stops.map((x) => x.place), origin];
+  const points = [origin, ...m.stops.map((x) => x.place), returnPoint];
   let km = 0;
   for (let i = 1; i < points.length; i++)
     km += distance(points[i - 1], points[i]);
   const transport = m.transport || s.transport;
-  const schedule = routeSchedule(m, s, origin, now);
+  const schedule = routeSchedule(m, s, origin, now, returnPoint);
   const roadKm = km * 1.6;
   const travel = schedule.travel,
     wait = schedule.wait;
@@ -449,7 +453,7 @@ export function assess(
     issues.push('숙소·야간 운영·다음 날 일정 미확인');
   if (transport !== 'car') issues.push('시간표·환승·막차 미검증');
   if (m.stops.some((x) => x.place.source === 'manual'))
-    issues.push('직접 입력한 장소: 위치·운영·공개 출입 여부 미검증');
+    issues.push('직접 지정한 장소: 위치·운영 정보 확인 필요');
   if (schedule.shifted)
     issues.push('계획한 출발시각이 지나 현재 시각부터 다시 계산');
   if (weather.condition === 'unknown') issues.push('실제 날씨 확인 필요');
@@ -526,7 +530,7 @@ export type ManualPlace = {
   lon: number | null;
   sigungu: string;
   category: string;
-  publicPlaceDeclared: true;
+  publicPlaceDeclared?: boolean;
 };
 export const sensitivePlaceText = (text: string) =>
   /군번|부대|위병소|사단|여단|대대|중대|소대|작전|근무표|휴가증|신분증|탄약|사격장|훈련장|복무지|초소|[0-9]{2}-[0-9]{5,}/.test(
@@ -539,23 +543,21 @@ export function validManualPlace(value: unknown): value is ManualPlace {
     typeof p.id === 'string' &&
     /^manual:[\w-]{1,80}$/.test(p.id) &&
     typeof p.title === 'string' &&
-    p.title.trim().length >= 2 &&
+    p.title.trim().length >= 1 &&
     p.title.length <= 60 &&
     typeof p.address === 'string' &&
     p.address.length <= 160 &&
-    !sensitivePlaceText(p.title + ' ' + p.address) &&
     regions.includes(p.sigungu as (typeof regions)[number]) &&
-    p.publicPlaceDeclared === true &&
     ['attraction', 'restaurant', 'cafe', 'culture', 'other'].includes(
       p.category,
     ) &&
     ((p.lat === null && p.lon === null) ||
       (typeof p.lat === 'number' &&
         typeof p.lon === 'number' &&
-        p.lat >= 37.45 &&
-        p.lat <= 38.65 &&
-        p.lon >= 127.05 &&
-        p.lon <= 128.95))
+        p.lat > 33 &&
+        p.lat < 39.5 &&
+        p.lon > 124 &&
+        p.lon < 132))
   );
 }
 export function manualReference(p: Place): ManualPlace {
@@ -567,7 +569,6 @@ export function manualReference(p: Place): ManualPlace {
     lon: p.lon,
     sigungu: p.sigungu,
     category: p.category,
-    publicPlaceDeclared: true,
   };
 }
 export function manualToPlace(p: ManualPlace): Place {
@@ -586,7 +587,7 @@ export function manualToPlace(p: ManualPlace): Place {
     opening_status: 'unknown',
     image_url: null,
     overview:
-      '사용자가 직접 추가한 공개 장소입니다. 위치와 운영·출입 조건은 확인되지 않았습니다.',
+      '사용자가 직접 지정한 장소입니다. 위치와 운영 정보는 직접 확인해 주세요.',
     data_quality_flags: [
       'user_entered',
       'operations_unverified',
@@ -606,12 +607,14 @@ export type Entry = {
     kind?: 'custom';
     departureAt?: string;
     transport?: Settings['transport'];
+    timeBudgetMinutes?: number;
     manualPlaces?: ManualPlace[];
   };
   missionId: string;
   title: string;
   region: string;
   stamps: string[];
+  completedAt?: string;
 };
 export type Family = { code: string; expiresAt: number; scopes: Scopes };
 export function publicCard(entry: Entry) {
@@ -645,9 +648,7 @@ export function familyProjection(
             title: mission.custom ? '나만의 강원 여행' : mission.title,
             region: mission.region,
             placeNames: mission.stops.map((s) =>
-              s.place.source === 'manual'
-                ? '직접 추가한 공개 장소'
-                : s.place.title,
+              s.place.source === 'manual' ? '개인 장소' : s.place.title,
             ),
           }
         : null,
@@ -673,7 +674,7 @@ export const kakaoLink = (p: Place) =>
 /** Personal itinerary references only; never persist provider payloads or return times. */
 export function createEntry(
   mission: Mission,
-  origin: Place,
+  origin: Place | undefined,
   recordId = crypto.randomUUID(),
 ): Entry {
   return {
@@ -683,21 +684,18 @@ export function createEntry(
     region: mission.region,
     stamps: [],
     plan: {
-      ...(mission.custom
-        ? {
-            kind: 'custom' as const,
-            departureAt: mission.departureAt,
-            transport: mission.transport,
-            manualPlaces: [
-              ...new Map(
-                [origin, ...mission.stops.map((s) => s.place)]
-                  .filter((p) => p.source === 'manual')
-                  .map((p) => [p.id, manualReference(p)]),
-              ).values(),
-            ],
-          }
-        : {}),
-      originId: origin.id,
+      ...(mission.custom ? { kind: 'custom' as const } : {}),
+      departureAt: mission.departureAt,
+      timeBudgetMinutes: mission.timeBudgetMinutes,
+      transport: mission.transport,
+      manualPlaces: [
+        ...new Map(
+          [...(origin ? [origin] : []), ...mission.stops.map((s) => s.place)]
+            .filter((p) => p.source === 'manual')
+            .map((p) => [p.id, manualReference(p)]),
+        ).values(),
+      ],
+      originId: origin?.id || '',
       variant: mission.variant,
       stops: mission.stops.map(({ place, stay, walk }) => ({
         placeId: place.id,
@@ -709,24 +707,26 @@ export function createEntry(
 }
 export const entryKey = (entry: Entry) => entry.recordId || entry.missionId;
 export const hasVisitRecord = (entry: Entry) =>
-  entry.stamps.some((s) => ['입경', '전환', '복귀', '동행'].includes(s));
+  !(entry.plan && !entry.plan.stops.length) &&
+  (Boolean(entry.completedAt) ||
+    entry.stamps.some((s) => ['입경', '전환', '복귀', '동행'].includes(s)));
 export const planSignature = (entry: Entry) =>
   entry.plan ? JSON.stringify([entry.missionId, entry.plan]) : '';
 export function resolveEntry(
   entry: Entry,
   places: Place[],
-): { mission: Mission; origin: Place } | null {
+): { mission: Mission; origin: Place | undefined } | null {
   const plan = entry.plan;
   if (
     !plan ||
     !Array.isArray(plan.stops) ||
-    plan.stops.length < (plan.kind === 'custom' ? 1 : 2) ||
+    plan.stops.length < (plan.kind === 'custom' ? 0 : 2) ||
     plan.stops.length > (plan.kind === 'custom' ? 12 : 4)
   )
     return null;
   const candidates = [
-    ...places,
     ...(plan.manualPlaces || []).filter(validManualPlace).map(manualToPlace),
+    ...places,
   ];
   const origin = candidates.find(
     (p) => p.id === plan.originId && validCoord(p),
@@ -738,7 +738,7 @@ export function resolveEntry(
     ),
   }));
   if (
-    !origin ||
+    (!origin && plan.kind !== 'custom') ||
     stops.some(
       (s) =>
         !s.place ||
@@ -758,9 +758,10 @@ export function resolveEntry(
       variant: plan.variant,
       custom: plan.kind === 'custom',
       departureAt: plan.departureAt,
+      timeBudgetMinutes: plan.timeBudgetMinutes,
       transport: plan.transport,
       brief:
-        '저장한 장소와 순서입니다. 복귀 여유와 방문 조건은 현재 기준으로 다시 확인하세요.',
+        '저장한 장소와 순서입니다. 출발 계획 기준으로 시간과 방문 조건을 확인하세요.',
       stops: stops.map((s) => ({
         place: s.place!,
         stay: s.stay,
@@ -865,4 +866,139 @@ export function visitRestriction(
   if (h.last_ticket && at >= minutes(h.last_ticket))
     return '예상 도착이 공식 매표 종료 이후 · 입장 가능 여부 확인';
   return null;
+}
+
+/** Planning stays anchored to the selected departure; only active outings use wall time. */
+export function planningSettings(
+  m: Mission | null | undefined,
+  settings: Settings,
+): Settings {
+  const startedAt = m?.departureAt || settings.startedAt;
+  const duration =
+    m?.timeBudgetMinutes && m.timeBudgetMinutes > 0
+      ? m.timeBudgetMinutes
+      : settings.duration;
+  const returnAt = m?.timeBudgetMinutes
+    ? new Date(Date.parse(startedAt) + duration * 60000).toISOString()
+    : settings.returnAt;
+  return {
+    ...settings,
+    startedAt,
+    duration,
+    returnAt,
+    transport: m?.transport || settings.transport,
+  };
+}
+export function assessPlan(
+  m: Mission,
+  s: Settings,
+  origin: Place,
+  observedNow = new Date(),
+): Assessment {
+  const plan = planningSettings(m, s);
+  const result = assess(m, plan, origin, new Date(plan.startedAt), observedNow);
+  return m.stops.length
+    ? result
+    : {
+        ...result,
+        margin: null,
+        band: 'unknown',
+        conditionsConfirmed: false,
+        issues: ['장소를 담으면 여행 시간을 계산할 수 있어요.'],
+      };
+}
+export function planSchedule(m: Mission, s: Settings, origin: Place) {
+  const plan = planningSettings(m, s);
+  return routeSchedule(m, plan, origin, new Date(plan.startedAt));
+}
+export function withPlan(m: Mission, s: Settings): Mission {
+  return {
+    ...m,
+    departureAt: m.departureAt || s.startedAt,
+    transport: m.transport || s.transport,
+    timeBudgetMinutes:
+      m.timeBudgetMinutes ||
+      Math.max(
+        1,
+        Math.round((Date.parse(s.returnAt) - Date.parse(s.startedAt)) / 60000),
+      ),
+  };
+}
+export type ActiveOuting = {
+  entry: Entry;
+  startedAt: string;
+  timeBudgetMinutes: number;
+  completedStops: number;
+  settings: Pick<
+    Settings,
+    'transport' | 'companion' | 'walkLimit' | 'extraBuffer'
+  >;
+};
+export function validOuting(v: unknown): v is ActiveOuting {
+  if (!v || typeof v !== 'object') return false;
+  const a = v as ActiveOuting;
+  return (
+    !!a.entry?.plan?.stops?.length &&
+    Number.isFinite(Date.parse(a.startedAt)) &&
+    Number.isFinite(a.timeBudgetMinutes) &&
+    a.timeBudgetMinutes > 0 &&
+    a.timeBudgetMinutes <= 10080 &&
+    Number.isInteger(a.completedStops) &&
+    a.completedStops >= 0 &&
+    a.completedStops <= a.entry.plan.stops.length &&
+    !!a.settings &&
+    ['car', 'transit', 'taxi', 'unknown'].includes(a.settings.transport) &&
+    Number.isFinite(a.settings.extraBuffer)
+  );
+}
+export function assessOuting(
+  a: ActiveOuting,
+  places: Place[],
+  now = new Date(),
+) {
+  const resolved = resolveEntry(a.entry, places);
+  if (!resolved?.origin) return null;
+  const { mission, origin } = resolved;
+  const current = a.completedStops
+    ? mission.stops[a.completedStops - 1].place
+    : origin;
+  const remaining = {
+    ...mission,
+    custom: true,
+    departureAt: a.startedAt,
+    stops: mission.stops.slice(a.completedStops),
+  };
+  const settings = {
+    ...defaultSettings(now),
+    ...a.settings,
+    region: mission.region,
+    duration: a.timeBudgetMinutes,
+    startedAt: a.startedAt,
+    returnAt: new Date(
+      Date.parse(a.startedAt) + a.timeBudgetMinutes * 60000,
+    ).toISOString(),
+  };
+  return {
+    mission,
+    origin,
+    current,
+    remaining,
+    settings,
+    score: assess(remaining, settings, current, now, now, origin),
+  };
+}
+export function completeTrip(
+  entry: Entry,
+  stamps: string[],
+  now = new Date(),
+): Entry {
+  if (!entry.plan?.stops.length) return entry;
+  const chosen = stamps.filter((v) =>
+    ['입경', '전환', '복귀', '동행'].includes(v),
+  );
+  return {
+    ...entry,
+    completedAt: now.toISOString(),
+    stamps: [...new Set([...entry.stamps, ...chosen])],
+  };
 }

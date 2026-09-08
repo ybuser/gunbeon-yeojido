@@ -59,17 +59,13 @@ export default function PublicPlacePicker({
           }) => {
             const lat = event.latLng.getLat(),
               lon = event.latLng.getLng();
-            if (lat < 37.45 || lat > 38.65 || lon < 127.05 || lon > 128.95) {
-              setMessage(
-                '강원 접경지역과 춘천·속초의 공개 장소를 선택해 주세요.',
-              );
+            if (lat <= 33 || lat >= 39.5 || lon <= 124 || lon >= 132) {
+              setMessage('국내 지도에서 만날 위치를 골라주세요.');
               return;
             }
             marker.setPosition(new api.LatLng(lat, lon));
             marker.setMap(map);
-            setMessage(
-              '위치를 선택했습니다. 공개 장소가 맞는지 확인해 주세요.',
-            );
+            setMessage('위치를 선택했습니다.');
             callback.current({ lat, lon });
           };
           api.event.addListener(map, 'click', select);
@@ -126,7 +122,7 @@ export default function PublicPlacePicker({
       <div
         ref={element}
         className="public-pick-map"
-        aria-label="공개 장소 위치 선택 지도"
+        aria-label="장소 위치 선택 지도"
         data-ready={ready}
       />
       {!ready && (
