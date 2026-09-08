@@ -100,17 +100,30 @@ for (const channel of (process.env.QA_BROWSER_CHANNELS || 'chrome').split(
       await p.locator('.photo-credit-sheet').waitFor();
       const target = p.locator('.photo-credit-sheet img').first();
       await target.scrollIntoViewIfNeeded();
-      await target.evaluate((i) => i.decode());
+      await p.waitForFunction(() => {
+        const i = document.querySelector('.photo-credit-sheet img');
+        return (
+          i instanceof HTMLImageElement &&
+          !!i.currentSrc &&
+          i.complete &&
+          i.naturalWidth > 0
+        );
+      });
       assert.equal(photoCalls, 1);
       await p.keyboard.press('Escape');
       await p.locator('.photo-credit-sheet').waitFor({ state: 'hidden' });
       await p
         .getByRole('button', { name: '사진 출처와 이용조건', exact: true })
         .click();
-      await p
-        .locator('.photo-credit-sheet img')
-        .first()
-        .evaluate((i) => i.decode());
+      await p.waitForFunction(() => {
+        const i = document.querySelector('.photo-credit-sheet img');
+        return (
+          i instanceof HTMLImageElement &&
+          !!i.currentSrc &&
+          i.complete &&
+          i.naturalWidth > 0
+        );
+      });
       assert.equal(photoCalls, 1);
       result.checks.push(
         'Authenticated local photo fetched once across repeated opening via page-memory reuse',
