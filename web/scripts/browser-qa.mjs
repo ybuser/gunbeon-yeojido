@@ -174,47 +174,69 @@ for (const channel of channels) {
       result.checks.push(
         live ? 'Live TourAPI response received' : 'Explicit keyless fallback',
       );
+      await p.evaluate(() => {
+        const key = 'gangwon-passport-v1';
+        const s = JSON.parse(localStorage.getItem(key) || '{}');
+        s.favorites = [
+          {
+            id: 'manual:qa-station',
+            title: '함께 만날 장소',
+            address: '가이드용 예시 장소',
+            lat: 38.185,
+            lon: 127.287,
+            sigungu: '철원군',
+            category: 'other',
+          },
+        ];
+        localStorage.setItem(key, JSON.stringify(s));
+      });
+      await p.reload();
+      await p.locator('.app-shell[data-ready="true"]').waitFor();
       await readyPlaces(p);
       await noOverflow(p, result.checks, 'Home');
       await tab(p, '그룹').click();
       await p.goBack();
       await p
         .getByRole('heading', {
-          name: '강원에서 어떤 하루를 보낼까요?',
+          name: '어떤 강원을 만나볼까요?',
           exact: true,
         })
         .waitFor();
       assert.equal(new URL(p.url()).origin, new URL(base).origin);
       result.checks.push('Browser Back returns to the previous app screen');
-      assert(
-        await p
-          .locator('.journey-margin > span:last-child')
-          .first()
-          .isVisible(),
-        'Visit condition hidden at this width',
-      );
+      assert.equal(await p.locator('.departure-control').count(), 0);
       const homeShot = channel + '-' + size.name + '-home.png';
       await shot(p, homeShot);
       result.screenshots.push(homeShot);
+      await p.locator('.journey-image').first().click();
+      await p.locator('.recommendation-stops li').first().waitFor();
+      const detailShot = channel + '-' + size.name + '-course.png';
+      await shot(p, detailShot);
+      result.screenshots.push(detailShot);
       await p
-        .getByRole('button', { name: '내 조건으로 미션 찾기', exact: true })
+        .getByRole('button', { name: '이 코스로 일정 만들기', exact: true })
         .click();
-      await p.getByRole('dialog').waitFor();
-      await p.keyboard.press('Escape');
-      // The production sheet keeps its DOM until its exit transition finishes.
-      await p.getByRole('dialog').waitFor({ state: 'hidden' });
+      await p.locator('.course-builder').waitFor();
       await p
-        .getByRole('button', { name: '내 조건으로 미션 찾기', exact: true })
+        .getByLabel('출발 날짜·시간', { exact: true })
+        .fill('2026-10-03T10:00');
+      await p
+        .getByLabel('돌아올 예정 시각', { exact: true })
+        .fill('2026-10-03T18:00');
+      await p.locator('.builder-origin button').click();
+      await p
+        .locator('.favorite-choose')
+        .filter({ hasText: '함께 만날 장소' })
         .click();
-      await p.getByRole('button', { name: '다음', exact: true }).click();
-      await p.getByRole('radio', { name: '8시간', exact: true }).check();
-      await p.getByRole('button', { name: '다음', exact: true }).click();
-      await select(p, '편안한 전체 도보 시간', '60분');
       const editorShot = channel + '-' + size.name + '-editor.png';
       await shot(p, editorShot);
       result.screenshots.push(editorShot);
       await p
-        .getByRole('button', { name: '이 조건으로 미션 보기', exact: true })
+        .getByRole('button', { name: '내 코스 저장', exact: true })
+        .click();
+      await p.locator('.course-builder').waitFor({ state: 'hidden' });
+      await p
+        .getByRole('button', { name: '저장한 장소 다시 보기', exact: true })
         .click();
       await p.locator('.place-row').first().waitFor();
       await noOverflow(p, result.checks, 'Mission');
@@ -260,9 +282,6 @@ for (const channel of channels) {
       await p.evaluate(() => scrollTo(0, 0));
       await shot(p, mapShot);
       result.screenshots.push(mapShot);
-      await p
-        .getByRole('button', { name: '이 미션 내 여행에 담기', exact: true })
-        .click();
       await tab(p, '내 여행').click();
       await p.locator('.saved-mission').first().waitFor();
       const saved = await p.evaluate(() =>
@@ -285,7 +304,7 @@ for (const channel of channels) {
         'Saved itinerary survives reload and changed default duration',
       );
       result.checks.push(
-        'Three-step edit, save, reload and exact place order restore',
+        'Date-free course choice, explicit schedule editing, save/reload and exact place order restore',
       );
       if (['small', 'desktop'].includes(size.name)) {
         await tab(p, '내 여행').click();
@@ -305,7 +324,7 @@ for (const channel of channels) {
           'Independent parent briefing; server group invitation is covered in groups QA',
         );
         await tab(p, '내 여행').click();
-        await p.getByRole('button', { name: /휴가회수 레이더/ }).click();
+        await p.getByRole('button', { name: /현충시설 방문 준비/ }).click();
         const seed = p.getByRole('button', {
           name: '확인 준비를 휴가 씨앗으로 기록',
           exact: true,

@@ -51,7 +51,10 @@ export default function TestAccessForm() {
               window.location.assign(
                 join && /^[a-f0-9]{48}$/.test(join)
                   ? '/?join=' + join + '#groups'
-                  : '/',
+                  : new URLSearchParams(window.location.search).get('next') ===
+                      'guide'
+                    ? '/guide'
+                    : '/',
               );
             } catch {
               setMessage('연결이 원활하지 않습니다. 다시 시도해 주세요.');

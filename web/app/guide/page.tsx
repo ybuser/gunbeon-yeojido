@@ -1,0 +1,132 @@
+/* oxlint-disable next/no-img-element -- These small, pre-captured screenshots are served as static assets without a runtime image transform. */
+import Link from 'next/link';
+import { ArrowLeft, ArrowUpRight } from 'lucide-react';
+const steps = [
+  {
+    n: '01',
+    title: '날짜 없이 마음에 드는 코스부터',
+    image: '01-discover',
+    body: '둘러보기에서 지역과 취향을 고르세요. 출발 날짜와 복귀시각은 아직 정하지 않아도 됩니다. 코스에 표시된 시간은 자차 이동·체류의 대략적인 합계예요.',
+  },
+  {
+    n: '02',
+    title: '코스를 고르고 나의 일정으로',
+    image: '02-course',
+    body: '코스 표지의 사진은 방문 장소들입니다. 순서·머무는 시간·예약 주의사항을 살펴본 뒤 ‘이 코스로 일정 만들기’를 누르세요. ‘직접 만들기’로 빈 코스를 저장해도 좋아요.',
+  },
+  {
+    n: '03',
+    title: '만날 곳을 즐겨찾기에',
+    image: '03-meeting',
+    body: '일정표의 ‘만나는 곳 · 돌아올 곳’에서 변경을 누르세요. 즐겨찾기에서 선택하거나 지도에서 위치를 지정할 수 있어요. 즐겨찾기로 저장하면 다음 일정에서도 바로 고를 수 있습니다.',
+  },
+  {
+    n: '04',
+    title: '날짜·순서·머무는 시간 조정',
+    image: '04-editor',
+    body: '출발 날짜와 돌아올 예정 시각을 정하고, 장소 순서와 머무는 시간을 바꿔보세요. 장소 추가에서 가까운 후보·관광정보 검색·직접 입력을 이용할 수 있습니다. 저장한 계획은 내 여행에 남아요.',
+  },
+  {
+    n: '05',
+    title: '함께 갈 사람끼리 그룹으로',
+    image: '08-group',
+    body: '그룹에서 가족·연인·친구 등 함께할 사람을 정해 그룹을 만드세요. 멤버·초대에서 만든 링크를 보내면 다른 기기에서도 참여할 수 있어요. 그룹마다 여러 여행안을 만들거나, 내 여행의 ‘그룹에 공유’로 가져올 수 있습니다. 편집 후에는 공유 범위를 확인하고 최종 공유를 눌러주세요.',
+  },
+  {
+    n: '06',
+    title: '실제로 출발할 때 시계 시작',
+    image: '05-start',
+    body: '계획을 세울 때는 현재 시각 때문에 여유가 줄어들지 않습니다. 출발할 때 ‘출타 시작’을 누르고 오늘 돌아올 시각을 확인하세요. 만날 곳이 비어 있으면 이 화면에서 설정을 이어갈 수 있어요.',
+  },
+  {
+    n: '07',
+    title: '남은 시간과 다음 장소 확인',
+    image: '06-outing',
+    body: '현재 출타에서는 현재 시각으로 남은 시간을 계산합니다. 다음 장소의 방문 정보·카카오맵 길찾기를 이용하고, ‘이 장소 일정 마침’으로 진행을 표시하세요. 잘못 눌렀다면 마지막 진행을 되돌릴 수 있습니다.',
+  },
+  {
+    n: '08',
+    title: '다녀온 뒤 여행 완료로 기록',
+    image: '07-completion',
+    body: '여행 완료를 누르면 확인창이 열립니다. 실제로 다녀왔는지 확인하고 원하는 스탬프를 골라 기록하세요. 아직 출발 전이라면 취소하면 됩니다. 스탬프는 직접 남기는 기록이며 방문 인증이나 휴가 보상 증명이 아닙니다.',
+  },
+];
+export default function Guide() {
+  return (
+    <main className="usage-guide">
+      <header>
+        <Link href="/" prefetch={false}>
+          <ArrowLeft size={18} />
+          군번여지도로 돌아가기
+        </Link>
+        <span>이용 가이드</span>
+        <h1>
+          함께 고르고,
+          <br />
+          우리 일정으로 떠나기.
+        </h1>
+        <p>
+          추천을 찾는 순간부터 여행을 마치는 날까지.
+          <br />
+          실제 서비스 화면으로 차근차근 안내합니다.
+        </p>
+      </header>
+      <nav aria-label="가이드 목차">
+        <a href="#guide-01">코스 찾기</a>
+        <a href="#guide-03">일정 만들기</a>
+        <a href="#guide-05">그룹 공유</a>
+        <a href="#guide-06">출발과 완료</a>
+      </nav>
+      <div className="guide-steps">
+        {steps.map((s) => (
+          <section key={s.n} id={'guide-' + s.n}>
+            <div className="guide-step-copy">
+              <span>{s.n}</span>
+              <h2>{s.title}</h2>
+              <p>{s.body}</p>
+            </div>
+            <figure>
+              <img
+                src={'/guide/' + s.image + '.png'}
+                alt={s.title + ' 실제 사용 화면'}
+                loading="lazy"
+                width={430}
+                height={932}
+              />
+            </figure>
+          </section>
+        ))}
+      </div>
+      <aside>
+        <h2>저장과 공유를 구분해 주세요</h2>
+        <p>
+          내 여행·즐겨찾기·출타·스탬프는 사용 중인 브라우저에 저장됩니다. 그룹에
+          공유한 일정은 멤버들이 함께 보고 수정합니다. 개인 복귀 기준시각과 출타
+          진행은 그룹에 공유되지 않아요.
+        </p>
+        <p>
+          현재 테스트 로그인은 비밀번호 1234입니다. 초대 링크는 72시간 동안
+          유효하며, 쿠키를 삭제하거나 기기를 바꾸면 새 초대가 필요할 수
+          있습니다.
+        </p>
+        <p>
+          이동·도보 시간은 추정값입니다. 예약·운영·실제 교통과 소속 부대 복귀
+          규정은 출발 전에 확인해 주세요.
+        </p>
+      </aside>
+      <footer>
+        <p>
+          2026. 9. 8. 실제 브라우저 조작으로 촬영한 예시입니다. 화면 속 날짜와
+          장소는 테스트용이며, 관광공사 목록의 한도 초과 상태에서는 기본
+          공공자료로 검증했습니다. 지도는 카카오맵 실제 SDK를 사용했습니다.
+        </p>
+        <Link href="/#data" prefetch={false}>
+          여행 정보와 사진 출처 <ArrowUpRight size={16} />
+        </Link>
+        <a href="https://github.com/ybuser/gunbeon-yeojido/blob/master/reports/usage_guide.md">
+          GitHub에서 가이드 보기 <ArrowUpRight size={16} />
+        </a>
+      </footer>
+    </main>
+  );
+}

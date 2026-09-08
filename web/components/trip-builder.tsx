@@ -60,6 +60,7 @@ import {
   validCoord,
   validManualPlace,
 } from '@/lib/domain';
+import { withPhoto, photoUrl, placePhoto } from '@/lib/place-photos';
 import type {
   Entry,
   ManualPlace,
@@ -126,6 +127,7 @@ type Props = {
   places: Place[];
   placesLoading?: boolean;
   initialDirty?: boolean;
+  saveTarget?: 'personal' | 'group';
   initialOrigin?: Place;
   settings: Settings;
   mapKey: string;
@@ -140,7 +142,7 @@ export default function TripBuilder({
   places,
   placesLoading = false,
   initialDirty = false,
-  initialOrigin,
+  saveTarget = 'personal',
   settings,
   mapKey,
   favorites,
@@ -168,9 +170,9 @@ export default function TripBuilder({
   );
   const [deadline, setDeadline] = useState(
     localInputDate(
-      initial?.plan?.departureAt
+      initial?.plan?.timeBudgetMinutes
         ? new Date(
-            Date.parse(initial.plan.departureAt) +
+            Date.parse(initial.plan.departureAt || settings.startedAt) +
               (initial.plan.timeBudgetMinutes || 240) * 60000,
           ).toISOString()
         : settings.returnAt,
@@ -208,14 +210,22 @@ export default function TripBuilder({
   });
 
   const allPlaces = useMemo(
-    () => [
-      ...manuals.filter(validManualPlace).map(manualToPlace),
-      ...extra,
-      ...places,
-    ],
+    () =>
+      [
+        ...manuals.filter(validManualPlace).map(manualToPlace),
+        ...extra,
+        ...places,
+      ].map(withPhoto),
     [extra, places, manuals],
   );
   const origin = allPlaces.find((p) => p.id === originId);
+  const mapOrigin =
+    origin && validCoord(origin)
+      ? origin
+      : stops
+          .map((s) => allPlaces.find((p) => p.id === s.placeId))
+          .find((p) => p && validCoord(p)) ||
+        allPlaces.find((p) => p.sigungu === region && validCoord(p));
   const missing = stops.filter(
     (s) => !allPlaces.some((p) => p.id === s.placeId),
   );
@@ -330,7 +340,7 @@ export default function TripBuilder({
       ]);
     if (selectionTarget === 'origin') {
       if (!validCoord(p)) {
-        setNotice('만나는 장소은 위치가 확인된 장소를 선택해 주세요.');
+        setNotice('만나는 장소는 위치가 확인된 장소를 선택해 주세요.');
         return;
       }
       setOriginId(p.id);
@@ -539,7 +549,7 @@ export default function TripBuilder({
                 <SheetDescription>
                   {stage === 'plan'
                     ? '장소와 순서, 머무는 시간을 자유롭게 정해요.'
-                    : '장병과 가족이 방문할 수 있는 강원의 장소'}
+                    : '일정에 사용할 만남 장소를 정해요.'}
                 </SheetDescription>
               </div>
             </div>
@@ -809,7 +819,8 @@ export default function TripBuilder({
                 <aside className="builder-preview">
                   <CourseCover places={mission.stops.map((s) => s.place)} />
                   <p className="image-attribution">
-                    사진 출처: ⓒ한국관광공사 · 직접 입력 장소는 사진 없음
+                    사진: 관광공사·공공누리·Wikimedia Commons. 자세한 표기는
+                    여행 정보와 출처에서 확인하세요.
                   </p>
                   {origin && validCoord(origin) && (
                     <MissionMap
@@ -868,8 +879,8 @@ export default function TripBuilder({
                 region={region}
                 mapKey={mapKey}
                 center={
-                  initialOrigin && validCoord(initialOrigin)
-                    ? { lat: initialOrigin.lat!, lon: initialOrigin.lon! }
+                  mapOrigin && validCoord(mapOrigin)
+                    ? { lat: mapOrigin.lat!, lon: mapOrigin.lon! }
                     : undefined
                 }
               />
@@ -1125,7 +1136,7 @@ export default function TripBuilder({
                       (manual.lat === null || manual.lon === null)
                     ) {
                       setNotice(
-                        '만나는 장소은 지도에서 장소 위치를 선택해 주세요.',
+                        '만나는 장소는 지도에서 장소 위치를 선택해 주세요.',
                       );
                       return;
                     }
@@ -1156,12 +1167,18 @@ export default function TripBuilder({
               <>
                 <p>
                   <b>{stops.length}곳</b> ·{' '}
-                  {stops.reduce((a, s) => a + s.stay, 0)}분 머무름 · 이
-                  브라우저에 저장
+                  {stops.reduce((a, s) => a + s.stay, 0)}분 머무름 ·{' '}
+                  {saveTarget === 'group'
+                    ? '공유할 내용을 다음 단계에서 확인'
+                    : '내 여행에 저장'}
                 </p>
                 <Button onClick={save} disabled={missing.length > 0}>
                   <Check size={18} />
-                  {mode === 'edit' ? '변경사항 저장' : '내 코스 저장'}
+                  {saveTarget === 'group'
+                    ? '공유 범위 확인'
+                    : mode === 'edit'
+                      ? '변경사항 저장'
+                      : '내 코스 저장'}
                 </Button>
               </>
             )}
@@ -1196,8 +1213,13 @@ function PlaceResult({
 }) {
   return (
     <article className="finder-result">
-      {place.image_url ? (
-        <MemoryImage src={place.image_url} alt="" loading="lazy" />
+      {photoUrl(place) ? (
+        <MemoryImage
+          src={photoUrl(place)}
+          alt=""
+          loading="lazy"
+          title={placePhoto(place)?.credit}
+        />
       ) : (
         <span className="finder-result-icon">
           <MapPin size={22} />

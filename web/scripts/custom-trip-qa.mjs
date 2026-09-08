@@ -304,7 +304,7 @@ for (const channel of (
       await tab(p, '둘러보기').click();
       await p.locator('.journey-image').first().click();
       await p
-        .getByRole('button', { name: '가져와서 수정', exact: true })
+        .getByRole('button', { name: '이 코스로 일정 만들기', exact: true })
         .click();
       await p
         .getByLabel('코스 이름', { exact: true })

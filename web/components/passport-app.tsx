@@ -1,5 +1,9 @@
 'use client';
 import MemoryImage from './memory-image';
+import PhotoCredits from './photo-credits';
+import { withPhoto } from '@/lib/place-photos';
+import Discovery from './discovery';
+import { recommendationEntry } from '@/lib/discovery';
 import { pageFetch, clearPageCache } from '@/lib/page-cache';
 import Brand from './brand';
 import { Input } from './ui/input';
@@ -110,7 +114,7 @@ const LABELS = {
   outing: '현재 출타',
   family: '동행 브리핑',
   passport: '내 여행',
-  radar: '휴가회수 레이더',
+  radar: '현충시설 방문 준비',
   data: '데이터·출처',
 };
 const STORAGE = 'gangwon-passport-v1';
@@ -293,6 +297,8 @@ export default function PassportApp() {
     mode: 'new' | 'edit' | 'copy';
     group?: GroupDetail;
     groupPlan?: GroupPlan;
+    resumeOuting?: boolean;
+    outingDeadline?: string;
   } | null>(null);
   const [view, setView] = useState('dashboard');
   const groupStore = useTravelGroups();
@@ -304,8 +310,9 @@ export default function PassportApp() {
     record?: GroupPlan;
     resume?: typeof composer;
   } | null>(null);
-  const [dateEditing, setDateEditing] = useState(false);
-  const [dateDraft, setDateDraft] = useState('');
+  const [photoOpen, setPhotoOpen] = useState(false);
+  const [outingDeadline, setOutingDeadline] = useState<string>();
+  const [browseRegion, setBrowseRegion] = useState('철원군');
   const [editing, setEditing] = useState(false);
   const [editStep, setEditStep] = useState(0);
   const [draft, setDraft] = useState<Settings | null>(null);
@@ -362,6 +369,7 @@ export default function PassportApp() {
   const [installPrompt, setInstallPrompt] = useState<{
     prompt: () => Promise<void>;
   } | null>(null);
+  const requestedRegion = view === 'home' ? browseRegion : settings.region;
   useEffect(() => {
     const readView = () => {
       const key = window.location.hash.slice(1).split('?')[0];
@@ -510,7 +518,7 @@ export default function PassportApp() {
     let canceled = false;
     const controller = new AbortController();
     setLive({ mode: 'loading', places: [] });
-    pageFetch('/api/places?region=' + encodeURIComponent(settings.region), {
+    pageFetch('/api/places?region=' + encodeURIComponent(requestedRegion), {
       signal: controller.signal,
       cache: 'no-store',
     })
@@ -526,7 +534,7 @@ export default function PassportApp() {
       canceled = true;
       controller.abort();
     };
-  }, [settings.region, refresh]);
+  }, [requestedRegion, refresh]);
   useEffect(() => {
     if (!notice) return;
     const t = setTimeout(() => setNotice(''), 7000);
@@ -540,7 +548,7 @@ export default function PassportApp() {
           ...extraPlaces,
           ...basePlaces,
           ...live.places,
-        ].map((p) => [p.id, p]),
+        ].map((p) => [p.id, withPhoto(p)]),
       ).values(),
     ],
     [live.places, basePlaces, extraPlaces, favorites],
@@ -552,8 +560,8 @@ export default function PassportApp() {
   useEffect(() => {
     if (live.mode === 'loading') return;
     const candidates =
-      view === 'outing' && activeOuting
-        ? [activeOuting.entry]
+      view === 'outing' && (startCandidate || activeOuting)
+        ? [startCandidate || activeOuting!.entry]
         : reviewEntry
           ? [reviewEntry]
           : view === 'passport'
@@ -602,7 +610,15 @@ export default function PassportApp() {
     return () => {
       canceled = true;
     };
-  }, [reviewEntry, view, entries, activeOuting, live.mode, refresh]);
+  }, [
+    reviewEntry,
+    view,
+    entries,
+    activeOuting,
+    startCandidate,
+    live.mode,
+    refresh,
+  ]);
   const resolvedEntry = useMemo(
     () => (reviewEntry ? resolveEntry(reviewEntry, places) : null),
     [reviewEntry, places],
@@ -849,6 +865,7 @@ export default function PassportApp() {
       setNotice('현재 진행 중인 출타를 먼저 마치거나 종료해 주세요.');
       return;
     }
+    setOutingDeadline(undefined);
     setStartCandidate(entry);
     go('outing');
   }
@@ -909,7 +926,7 @@ export default function PassportApp() {
       )
       .join(
         '',
-      )}<text x="80" y="775" fill="#667c99" font-family="sans-serif" font-size="30">${safe(card.stamps.join(' · ') || '계획한 미션')}</text><line x1="80" y1="870" x2="1000" y2="870" stroke="#e0e7f0"/><text x="80" y="940" fill="#94a1b2" font-family="sans-serif" font-size="26">복무 경험을 관광 경험으로.</text></svg>`;
+      )}<text x="80" y="775" fill="#667c99" font-family="sans-serif" font-size="30">${safe(card.stamps.join(' · ') || '여행 계획')}</text><line x1="80" y1="870" x2="1000" y2="870" stroke="#e0e7f0"/><text x="80" y="940" fill="#94a1b2" font-family="sans-serif" font-size="26">복무 경험을 관광 경험으로.</text></svg>`;
     const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
     const a = document.createElement('a');
     a.href = url;
@@ -1035,228 +1052,46 @@ export default function PassportApp() {
           />
         </TabsContent>
         <TabsContent value="home">
-          <main className="explore-page">
-            <section className="explore-heading">
-              <div>
-                <h1>강원에서 어떤 하루를 보낼까요?</h1>
-                <p>출발 예정 시각에 맞춰 함께 세우는 여행 계획</p>
-              </div>
-              <button className="saved-shortcut" onClick={() => go('passport')}>
-                <BookOpen size={18} />내 여행 <span>{entries.length}</span>
-              </button>
-            </section>
-            <div className="region-tabs" aria-label="여행 지역">
-              {regions.map((r) => (
-                <button
-                  key={r}
-                  className={settings.region === r ? 'active' : ''}
-                  aria-pressed={settings.region === r}
-                  onClick={() => change('region', r)}
-                >
-                  {r.replace(/[군시]$/, '')}
-                </button>
-              ))}
-            </div>
-            <button
-              className="departure-control"
-              onClick={() => {
-                setDateDraft(localInputDate(settings.startedAt));
-                setDateEditing(true);
-              }}
-            >
-              <CalendarDays size={23} />
-              <span>
-                <small>출발 예정 날짜·시간</small>
-                <strong>
-                  {loaded
-                    ? new Date(settings.startedAt).toLocaleString('ko-KR', {
-                        timeZone: 'Asia/Seoul',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        weekday: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false,
-                      })
-                    : '불러오는 중'}
-                </strong>
-                <span>
-                  {loaded && Date.parse(settings.startedAt) < Date.now()
-                    ? '지난 출발 계획 · 날짜를 바꿔 주세요'
-                    : '이 시각을 기준으로 여행을 계획해요'}
-                </span>
-              </span>
-              <span className="departure-edit">
-                변경 <ChevronRight size={16} />
-              </span>
-            </button>
-            <section className="trip-search" aria-label="여행 계획 조건">
-              <button onClick={editTrip}>
-                <Clock3 />
-                <span>
-                  <small>여행 시간</small>
-                  <b>
-                    {settings.duration === 1440
-                      ? '1박 2일'
-                      : settings.duration / 60 + '시간'}
-                  </b>
-                </span>
-                <ChevronRight size={16} />
-              </button>
-              <button onClick={editTrip}>
-                <Users />
-                <span>
-                  <small>동행</small>
-                  <b>
-                    {settings.companion} ·{' '}
-                    {
-                      {
-                        car: '자차',
-                        transit: '대중교통',
-                        taxi: '택시+버스',
-                        unknown: '이동수단 미정',
-                      }[settings.transport]
-                    }
-                  </b>
-                </span>
-                <ChevronRight size={16} />
-              </button>
-              <Button className="search-submit" onClick={editTrip}>
-                내 조건으로 미션 찾기 <ArrowRight size={18} />
-              </Button>
-            </section>
-            <div className="section-title">
-              <div>
-                <h2>
-                  {settings.region.replace(/[군시]$/, '')}에서 보내는 하루
-                </h2>
-                <p>풍경도 보고, 쉬어갈 시간도 남겨요.</p>
-              </div>
-              <button onClick={() => go('planner')}>
-                지도 보기 <ArrowUpRight size={17} />
-              </button>
-            </div>
-            <div className="journey-cards">
-              {missions.map((m, i) => {
-                const evaluated = origin
-                  ? assessPlan(m, settings, origin)
-                  : null;
-                return (
-                  <article className="journey-card" key={m.id}>
-                    <button
-                      className="journey-image"
-                      onClick={() => {
-                        setReviewEntry(null);
-                        setSelectedId(m.id);
-                        go('planner');
-                      }}
-                      aria-label={m.title + ' 자세히 보기'}
-                    >
-                      <CourseCover
-                        places={m.stops.map((s) => s.place)}
-                        eager={!i}
-                      />
-                      <span className="image-category">
-                        {m.variant === '실내'
-                          ? '실내 후보'
-                          : m.variant + ' 미션'}
-                      </span>
-                      <span className="image-corner">
-                        <ArrowUpRight size={21} />
-                      </span>
-                    </button>
-                    <span className="image-attribution">
-                      {m.stops.some((s) => s.place.image_url)
-                        ? '출처: ⓒ한국관광공사 · 코스 장소 사진'
-                        : '사진이 없는 곳은 장소 이름으로 표시합니다'}
-                    </span>
-                    <button
-                      className="journey-text"
-                      onClick={() => {
-                        setReviewEntry(null);
-                        setSelectedId(m.id);
-                        go('planner');
-                      }}
-                    >
-                      <h3>
-                        {{
-                          가족: '부모님과 천천히 돌아보기',
-                          회복: '잠깐 둘러보고, 편하게 쉬기',
-                          평화: '평화의 흔적을 따라',
-                          탐방: '지역의 이야기를 따라',
-                          실내: '실내에서 여유롭게',
-                        }[m.variant] || m.title}
-                      </h3>
-                      <p>{m.stops.map((x) => x.place.title).join(' · ')}</p>
-                      <div className="journey-meta">
-                        <span>
-                          <Clock3 size={14} />
-                          {evaluated?.total || '—'}분 예상
-                        </span>
-                        <span>
-                          <Footprints size={14} />
-                          도보 {evaluated?.walk || '—'}분 추정
-                        </span>
-                      </div>
-                      <div
-                        className={
-                          'journey-margin ' + (evaluated?.band || 'unknown')
-                        }
-                      >
-                        <span className="status-dot" />
-                        <b>
-                          {evaluated?.margin == null
-                            ? '복귀 시간 확인 필요'
-                            : evaluated.margin >= 0
-                              ? '복귀 여유 +' + evaluated.margin + '분'
-                              : '복귀 시간 ' +
-                                Math.abs(evaluated.margin) +
-                                '분 부족'}
-                        </b>
-                        <span>
-                          {evaluated?.band === 'avoid'
-                            ? '현재 조건 비추천'
-                            : '방문 조건 확인 필요'}
-                        </span>
-                      </div>
-                    </button>
-                  </article>
-                );
-              })}
-              {!missions.length && (
-                <div className="list-empty">
-                  {live.mode === 'loading'
-                    ? '여행 장소를 불러오고 있어요.'
-                    : '이 지역의 여행 후보를 확인하지 못했습니다.'}
-                  <button
-                    onClick={() => {
-                      clearPageCache();
-                      setRefresh((x) => x + 1);
-                    }}
-                  >
-                    다시 확인
-                  </button>
-                </div>
-              )}
-            </div>
-            <section className="family-entry">
-              <div className="family-entry-icon">
-                <HeartHandshake size={28} />
-              </div>
-              <div>
-                <h2>부모님이 편한 여행을 함께 골라요.</h2>
-                <p>걷는 시간, 주차, 좋아하는 식사부터.</p>
-              </div>
-              <Button variant="outline" onClick={() => go('family')}>
-                가족 여행 준비 <ArrowRight size={17} />
-              </Button>
-            </section>
-            <p className="explore-footnote">
-              복귀 여유는 만남 장소까지의 추정값입니다. 실제 교통과 소속 부대
-              복귀 규정을 확인해 주세요.
-            </p>
-          </main>
+          <Discovery
+            places={places}
+            region={browseRegion}
+            onRegion={setBrowseRegion}
+            onNew={() =>
+              setComposer({
+                key: crypto.randomUUID(),
+                mode: 'new',
+                entry: {
+                  recordId: crypto.randomUUID(),
+                  missionId: 'custom:' + crypto.randomUUID(),
+                  title:
+                    browseRegion.replace('군', '') + '에서 보내는 우리 하루',
+                  region: browseRegion,
+                  stamps: [],
+                  plan: {
+                    kind: 'custom',
+                    variant: '직접 만든 코스',
+                    originId: '',
+                    stops: [],
+                    manualPlaces: [],
+                    timeBudgetMinutes: 240,
+                  },
+                },
+              })
+            }
+            onPhotos={() => setPhotoOpen(true)}
+            onChoose={(m) => {
+              setExtraPlaces((v) => [
+                ...new Map(
+                  [...v, ...m.stops.map((s) => s.place)].map((p) => [p.id, p]),
+                ).values(),
+              ]);
+              setComposer({
+                key: crypto.randomUUID(),
+                entry: recommendationEntry(m),
+                mode: 'new',
+              });
+            }}
+          />
         </TabsContent>
         <TabsContent value="planner">
           <main className="route-page">
@@ -1619,10 +1454,26 @@ export default function PassportApp() {
             places={places}
             settings={settings}
             now={now}
+            placesLoading={catalogLoading || savedReferencesLoading}
             onChange={setActiveOuting}
-            onCandidate={setStartCandidate}
+            initialDeadline={outingDeadline}
+            onCandidate={(entry) => {
+              setOutingDeadline(undefined);
+              setStartCandidate(entry);
+            }}
             onComplete={setCompletion}
             onPlan={() => go('passport')}
+            onEdit={(entry, deadline) => {
+              setStartCandidate(null);
+              setComposer({
+                key: crypto.randomUUID(),
+                entry,
+                mode: 'edit',
+                resumeOuting: true,
+                outingDeadline: deadline,
+              });
+            }}
+            onPlace={setPlaceOpen}
           />
         </TabsContent>
         <TabsContent value="family">
@@ -1931,7 +1782,7 @@ export default function PassportApp() {
                     className={recordTab === 'plans' ? 'active' : ''}
                     onClick={() => setRecordTab('plans')}
                   >
-                    계획한 미션{' '}
+                    여행 계획{' '}
                     <span>
                       {entries.filter((e) => !hasVisitRecord(e)).length}
                     </span>
@@ -2131,7 +1982,8 @@ export default function PassportApp() {
                 <button className="radar-shortcut" onClick={() => go('radar')}>
                   <Leaf size={18} />
                   <span>
-                    휴가회수 레이더<small>현충시설 방문과 제도 확인 준비</small>
+                    현충시설 방문 준비
+                    <small>현충시설 방문과 제도 확인 준비</small>
                   </span>
                   <ChevronRight size={16} />
                 </button>
@@ -2198,7 +2050,7 @@ export default function PassportApp() {
             <div className="page-heading">
               <div>
                 <span className="section-overline">현충시설 방문 준비</span>
-                <h1>휴가회수 레이더</h1>
+                <h1>현충시설 방문 준비</h1>
                 <p>
                   호국의 기억을 돌아보는 여행, 방문 전 인정 조건을 확인하세요.
                 </p>
@@ -2316,6 +2168,14 @@ export default function PassportApp() {
               </div>
               <Database size={40} />
             </div>
+            <a className="guide-callout" href="/guide">
+              처음 사용하시나요? 화면으로 보는 사용 가이드{' '}
+              <ArrowUpRight size={17} />
+            </a>
+            <details className="data-photo-disclosure">
+              <summary>사진 출처와 이용조건</summary>
+              <PhotoCredits />
+            </details>
             <div className="data-metrics">
               <div>
                 <b>{basePlaces.length}</b>
@@ -2521,6 +2381,9 @@ export default function PassportApp() {
           안전마진은 만남 장소까지의 참고값입니다. 실제 교통과 소속 부대 복귀
           규정은 직접 확인해 주세요.
         </p>
+        <a href="/guide">
+          사용 가이드 <ArrowUpRight size={14} />
+        </a>
         <button onClick={() => go('data')}>
           출처·데이터 상태 확인 <ArrowUpRight size={14} />
         </button>
@@ -2536,56 +2399,6 @@ export default function PassportApp() {
           테스트 입장 종료
         </button>
       </footer>
-      {dateEditing && (
-        <Sheet open onOpenChange={setDateEditing}>
-          <SheetContent side="bottom" className="date-sheet">
-            <SheetHeader>
-              <SheetTitle>언제 출발할까요?</SheetTitle>
-              <SheetDescription>
-                둘러보기와 지도·미션에 적용할 출발 예정 시각입니다.
-              </SheetDescription>
-            </SheetHeader>
-            <div className="editor-body">
-              <label className="field">
-                출발 예정 날짜·시간
-                <Input
-                  type="datetime-local"
-                  value={dateDraft}
-                  onChange={(e) => setDateDraft(e.target.value)}
-                />
-              </label>
-              <p className="helper">
-                여행 시간은 유지합니다. 현재 출타 시계는 바뀌지 않습니다.
-              </p>
-              <div className="group-card-buttons">
-                <Button variant="outline" onClick={() => setDateEditing(false)}>
-                  취소
-                </Button>
-                <Button
-                  disabled={
-                    !dateDraft ||
-                    !Number.isFinite(Date.parse(parseKoreaInput(dateDraft)))
-                  }
-                  onClick={() => {
-                    const startedAt = parseKoreaInput(dateDraft);
-                    setSettings((v) => ({
-                      ...v,
-                      startedAt,
-                      returnAt: new Date(
-                        Date.parse(startedAt) + v.duration * 60000,
-                      ).toISOString(),
-                    }));
-                    setReviewEntry(null);
-                    setDateEditing(false);
-                  }}
-                >
-                  출발 계획 적용
-                </Button>
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
-      )}
       {groupSharing && (
         <GroupShare
           entries={entries}
@@ -2613,12 +2426,22 @@ export default function PassportApp() {
           }}
         />
       )}
+      <Sheet open={photoOpen} onOpenChange={setPhotoOpen}>
+        <SheetContent side="bottom" className="photo-credit-sheet">
+          <SheetHeader>
+            <SheetTitle>사진 출처</SheetTitle>
+            <SheetDescription>장소별 사진 원문과 이용조건</SheetDescription>
+          </SheetHeader>
+          <PhotoCredits />
+        </SheetContent>
+      </Sheet>
       {composer && (
         <TripBuilder
           key={composer.key}
           initial={composer.entry}
           mode={composer.mode}
           initialDirty={!!composer.group && !!composer.entry}
+          saveTarget={composer.group ? 'group' : 'personal'}
           places={places}
           placesLoading={catalogLoading || live.mode === 'loading'}
           initialOrigin={origin}
@@ -2626,7 +2449,13 @@ export default function PassportApp() {
           mapKey={mapKey}
           favorites={favorites}
           onFavoritesChange={setFavorites}
-          onClose={() => setComposer(null)}
+          onClose={() => {
+            if (composer.resumeOuting) {
+              setOutingDeadline(composer.outingDeadline);
+              setStartCandidate(composer.entry);
+            }
+            setComposer(null);
+          }}
           onSave={(entry, memoryPlaces, returnAt) => {
             if (composer.group) {
               setExtraPlaces((v) => [...v, ...memoryPlaces]);
@@ -2670,7 +2499,11 @@ export default function PassportApp() {
             }));
             setComposer(null);
             setRecordTab('plans');
-            go('passport');
+            if (composer.resumeOuting) {
+              setOutingDeadline(composer.outingDeadline);
+              setStartCandidate(entry);
+              go('outing');
+            } else go('passport');
             setNotice(
               '여행 계획을 저장했습니다. 내 여행에서 언제든 이어서 만들 수 있어요.',
             );
@@ -3033,15 +2866,22 @@ export default function PassportApp() {
           )}
         </SheetContent>
       </Sheet>
-      {notice && (
-        <div className="notice" role="status">
-          <Check size={18} />
-          {notice}
-          <button onClick={() => setNotice('')} aria-label="알림 닫기">
-            ×
-          </button>
-        </div>
-      )}
+      {notice &&
+        !composer &&
+        !completion &&
+        !startCandidate &&
+        !photoOpen &&
+        !groupSharing &&
+        !placeOpen &&
+        !editing && (
+          <div className="notice" role="status">
+            <Check size={18} />
+            {notice}
+            <button onClick={() => setNotice('')} aria-label="알림 닫기">
+              ×
+            </button>
+          </div>
+        )}
     </div>
   );
 }

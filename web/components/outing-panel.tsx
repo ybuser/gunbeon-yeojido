@@ -18,6 +18,8 @@ import {
   entryKey,
   localInputDate,
   parseKoreaInput,
+  kakaoLink,
+  validCoord,
   type ActiveOuting,
   type Entry,
   type Place,
@@ -35,6 +37,10 @@ export default function OutingPanel({
   onCandidate,
   onComplete,
   onPlan,
+  onEdit,
+  onPlace,
+  initialDeadline,
+  placesLoading = false,
 }: {
   active: ActiveOuting | null;
   candidate: Entry | null;
@@ -46,14 +52,19 @@ export default function OutingPanel({
   onCandidate: (v: Entry | null) => void;
   onComplete: (e: Entry) => void;
   onPlan: () => void;
+  onEdit: (e: Entry, deadline: string) => void;
+  initialDeadline?: string;
+  placesLoading?: boolean;
+  onPlace: (p: Place) => void;
 }) {
   const [deadline, setDeadline] = useState(
-    localInputDate(
-      new Date(
-        Date.now() +
-          (candidate?.plan?.timeBudgetMinutes || settings.duration) * 60000,
-      ).toISOString(),
-    ),
+    initialDeadline ||
+      localInputDate(
+        new Date(
+          Date.now() +
+            (candidate?.plan?.timeBudgetMinutes || settings.duration) * 60000,
+        ).toISOString(),
+      ),
   );
   const [error, setError] = useState('');
   const [end, setEnd] = useState(false);
@@ -198,6 +209,22 @@ export default function OutingPanel({
                             ? '다음 장소'
                             : `${s.stay}분 머무름`}
                       </small>
+                      {i === active.completedStops && (
+                        <div className="outing-place-actions">
+                          {validCoord(s.place) && (
+                            <a
+                              href={kakaoLink(s.place)}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              카카오맵 길찾기
+                            </a>
+                          )}
+                          <button onClick={() => onPlace(s.place)}>
+                            방문 정보
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </li>
                 ))}
@@ -268,12 +295,41 @@ export default function OutingPanel({
               onChange={(e) => setDeadline(e.target.value)}
             />
           </label>
-          {!resolved?.origin && <p>만나는 장소와 위치를 먼저 설정해 주세요.</p>}
+          {placesLoading ? (
+            <p role="status">저장한 장소 정보를 확인하고 있어요.</p>
+          ) : !resolved ? (
+            <div>
+              <p>
+                일부 장소 정보를 불러오지 못했어요. 일정표에서 확인해 주세요.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => candidate && onEdit(candidate, deadline)}
+              >
+                일정표 확인
+              </Button>
+            </div>
+          ) : !resolved.origin || !validCoord(resolved.origin) ? (
+            <div>
+              <p>만나는 장소와 위치를 먼저 설정해 주세요.</p>
+              <Button
+                variant="outline"
+                onClick={() => candidate && onEdit(candidate, deadline)}
+              >
+                만나는 장소 설정
+              </Button>
+            </div>
+          ) : null}
           {error && <p role="alert">{error}</p>}
           <AlertDialogFooter>
             <AlertDialogCancel>아직 출발 전</AlertDialogCancel>
             <Button
-              disabled={!resolved?.origin || !candidate?.plan?.stops.length}
+              disabled={
+                placesLoading ||
+                !resolved?.origin ||
+                !validCoord(resolved.origin) ||
+                !candidate?.plan?.stops.length
+              }
               onClick={() => {
                 const start = new Date();
                 const minutes = Math.round(

@@ -17,7 +17,8 @@
     "test:custom": "node scripts/custom-trip-qa.mjs",
     "test:outing": "node scripts/planning-outing-qa.mjs",
     "test:groups": "node scripts/groups-api-qa.mjs",
-    "test:groups-ui": "node scripts/groups-ui-qa.mjs"
+    "test:groups-ui": "node scripts/groups-ui-qa.mjs",
+    "test:guide": "node scripts/guide-page-qa.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",

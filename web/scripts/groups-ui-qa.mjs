@@ -121,24 +121,14 @@ for (const channel of (
       assert.equal(await p.locator('.main-nav [role=tab]').count(), 5);
       await shot('home-empty');
       await tab(p, '둘러보기').click();
-      await p.locator('.departure-control').click();
-      await p
-        .getByLabel('출발 예정 날짜·시간', { exact: true })
-        .fill('2026-10-03T10:30');
-      await p
-        .getByRole('button', { name: '출발 계획 적용', exact: true })
-        .click();
-      assert.match(
-        await p.locator('.departure-control').innerText(),
-        /10월 3일/,
-      );
-      assert.match(await p.locator('.departure-control').innerText(), /10:30/);
+      await p.locator('.journey-card').first().waitFor();
+      assert.equal(await p.locator('input[type=datetime-local]').count(), 0);
       const firstCount = apiCounts['/api/places'];
       await tab(p, '홈').click();
       await tab(p, '둘러보기').click();
       assert.equal(apiCounts['/api/places'], firstCount);
       result.checks.push(
-        'Visible departure date/time directly editable; page navigation reuses list response',
+        'Date-free recommendations; page navigation reuses list response',
       );
       await shot('browse');
       await tab(p, '그룹').click();
@@ -171,7 +161,7 @@ for (const channel of (
         .getByLabel('코스 이름', { exact: true })
         .fill('철원에서 함께 보내는 토요일');
       await p
-        .getByRole('button', { name: '내 코스 저장', exact: true })
+        .getByRole('button', { name: '공유 범위 확인', exact: true })
         .click();
       await p
         .getByRole('button', { name: '이 그룹에 공유', exact: true })
@@ -186,7 +176,7 @@ for (const channel of (
         .getByLabel('코스 이름', { exact: true })
         .fill('철원, 느긋하게 만나는 하루');
       await p
-        .getByRole('button', { name: '변경사항 저장', exact: true })
+        .getByRole('button', { name: '공유 범위 확인', exact: true })
         .click();
       await p
         .getByRole('button', { name: '변경사항 공유', exact: true })
