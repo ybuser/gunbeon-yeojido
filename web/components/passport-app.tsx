@@ -1,7 +1,17 @@
 'use client';
+import MemoryImage from './memory-image';
+import { pageFetch, clearPageCache } from '@/lib/page-cache';
+import Brand from './brand';
+import { Input } from './ui/input';
+import TravelGroups, { TravelHome, useTravelGroups } from './travel-groups';
+import GroupShare from './group-share';
+import { groupEntry } from '@/lib/group-model';
+import type { GroupDetail, GroupPlan } from '@/lib/group-model';
 import { useEffect, useMemo, useState, type ComponentProps } from 'react';
 import {
   X,
+  Home,
+  CalendarDays,
   Star,
   ArrowUpRight,
   ArrowRight,
@@ -22,7 +32,6 @@ import {
   Leaf,
   Navigation,
   RefreshCw,
-  Stamp,
   Users,
   Database,
   ExternalLink,
@@ -66,7 +75,6 @@ import {
   regionPlaces,
   assessPlan,
   planSchedule,
-  planningSettings,
   withPlan,
   validManualPlace,
   manualToPlace,
@@ -75,8 +83,6 @@ import {
   completeTrip,
   localInputDate,
   parseKoreaInput,
-  scopeLabels,
-  createCode,
   familyProjection,
   publicCard,
   kakaoLink,
@@ -93,16 +99,16 @@ import type {
   ManualPlace,
   ActiveOuting,
   Settings,
-  Mission,
   Entry,
   Family,
-  Scopes,
 } from '@/lib/domain';
 const LABELS = {
+  dashboard: '홈',
+  groups: '그룹',
   home: '둘러보기',
   planner: '지도·미션',
   outing: '현재 출타',
-  family: '가족',
+  family: '동행 브리핑',
   passport: '내 여행',
   radar: '휴가회수 레이더',
   data: '데이터·출처',
@@ -130,6 +136,7 @@ type Accessibility = {
 type Live = {
   mode: string;
   error?: string;
+  message?: string;
   places: Place[];
   fetchedAt?: string;
   categories?: {
@@ -268,7 +275,7 @@ function PlacePhoto({
       <span>사진을 불러올 수 없어요</span>
     </span>
   ) : (
-    <img
+    <MemoryImage
       src={src}
       alt={title}
       loading={eager ? 'eager' : 'lazy'}
@@ -284,8 +291,21 @@ export default function PassportApp() {
     key: string;
     entry: Entry | null;
     mode: 'new' | 'edit' | 'copy';
+    group?: GroupDetail;
+    groupPlan?: GroupPlan;
   } | null>(null);
-  const [view, setView] = useState('home');
+  const [view, setView] = useState('dashboard');
+  const groupStore = useTravelGroups();
+  const [selectedGroupId, setSelectedGroupId] = useState('');
+  const [groupReload, setGroupReload] = useState(0);
+  const [groupSharing, setGroupSharing] = useState<{
+    entry?: Entry;
+    groupId?: string;
+    record?: GroupPlan;
+    resume?: typeof composer;
+  } | null>(null);
+  const [dateEditing, setDateEditing] = useState(false);
+  const [dateDraft, setDateDraft] = useState('');
   const [editing, setEditing] = useState(false);
   const [editStep, setEditStep] = useState(0);
   const [draft, setDraft] = useState<Settings | null>(null);
@@ -309,10 +329,9 @@ export default function PassportApp() {
     'draft' | 'favorites' | null
   >(null);
   const [family, setFamily] = useState<Family | null>(null);
-  const [invite, setInvite] = useState('');
-  const [joined, setJoined] = useState('');
+  const joined = '';
   const [loaded, setLoaded] = useState(false);
-  const [proposal, setProposal] = useState<{
+  const [proposal] = useState<{
     entry: Entry;
     walkLimit: number;
     transport: Settings['transport'];
@@ -345,8 +364,14 @@ export default function PassportApp() {
   } | null>(null);
   useEffect(() => {
     const readView = () => {
-      const key = window.location.hash.slice(1);
-      setView(Object.hasOwn(LABELS, key) ? key : 'home');
+      const key = window.location.hash.slice(1).split('?')[0];
+      setView(
+        new URLSearchParams(window.location.search).has('join')
+          ? 'groups'
+          : Object.hasOwn(LABELS, key)
+            ? key
+            : 'dashboard',
+      );
       setEditing(false);
       setPlaceOpen(null);
       setShared(null);
@@ -357,7 +382,7 @@ export default function PassportApp() {
   }, []);
   useEffect(() => {
     setNow(new Date());
-    fetch('/api/catalog')
+    pageFetch('/api/catalog')
       .then((r) => r.json())
       .then((data) => {
         const result = data as { places?: Place[] };
@@ -436,7 +461,7 @@ export default function PassportApp() {
     window.addEventListener('beforeinstallprompt', install);
     if ('serviceWorker' in navigator)
       navigator.serviceWorker.register('/sw.js').catch(() => {});
-    fetch('/api/status')
+    pageFetch('/api/status')
       .then((r) => r.json())
       .then((x) => setMapKey((x as { kakaoMapKey?: string }).kakaoMapKey || ''))
       .catch(() => {});
@@ -485,7 +510,7 @@ export default function PassportApp() {
     let canceled = false;
     const controller = new AbortController();
     setLive({ mode: 'loading', places: [] });
-    fetch('/api/places?region=' + encodeURIComponent(settings.region), {
+    pageFetch('/api/places?region=' + encodeURIComponent(settings.region), {
       signal: controller.signal,
       cache: 'no-store',
     })
@@ -553,7 +578,7 @@ export default function PassportApp() {
     );
     void Promise.all(
       batches.map((batch) =>
-        fetch('/api/places/resolve', {
+        pageFetch('/api/places/resolve', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ids: batch }),
@@ -652,7 +677,7 @@ export default function PassportApp() {
     const options = { signal: controller.signal, cache: 'no-store' as const };
     setFamilyLive({ mode: 'loading', places: [] });
     setAccess({ mode: 'loading', items: [] });
-    fetch('/api/places?region=' + encodeURIComponent(familyRegion), options)
+    pageFetch('/api/places?region=' + encodeURIComponent(familyRegion), options)
       .then((r) => r.json())
       .then((x) => {
         if (!controller.signal.aborted) setFamilyLive(x as Live);
@@ -661,7 +686,7 @@ export default function PassportApp() {
         if (!controller.signal.aborted)
           setFamilyLive({ mode: 'unavailable', places: [] });
       });
-    fetch(
+    pageFetch(
       '/api/accessibility?region=' + encodeURIComponent(familyRegion),
       options,
     )
@@ -743,7 +768,7 @@ export default function PassportApp() {
       window.history.pushState(
         null,
         '',
-        v === 'home'
+        v === 'dashboard'
           ? window.location.pathname + window.location.search
           : '#' + v,
       );
@@ -827,45 +852,12 @@ export default function PassportApp() {
     setStartCandidate(entry);
     go('outing');
   }
-  function createInvite() {
-    setFamily({
-      code: createCode(),
-      expiresAt: Date.now() + 86400000,
-      scopes: {
-        passport: true,
-        schedule: true,
-        meal: false,
-        propose: true,
-        stamp: true,
-      },
-    });
-    setJoined('');
-    setNotice(
-      '이 브라우저에서 24시간 유효한 체험 코드가 생성됐습니다. 다른 기기에는 연결되지 않습니다.',
-    );
-  }
-  function join() {
-    if (
-      !familyProjection(
-        family,
-        invite.trim().toUpperCase(),
-        entries,
-        selected || null,
-        settings.meal,
-      )
-    ) {
-      setNotice('이 브라우저에서 만든 유효한 코드인지 확인해 주세요.');
-      return;
-    }
-    setJoined(invite.trim().toUpperCase());
-    setNotice('허용된 공유범위로 연결했습니다.');
-  }
   useEffect(() => {
     const p = placeOpen;
     if (!p || p.source !== 'tourapi') return;
     const controller = new AbortController();
     setDetail({ id: p.id, data: null, loading: true });
-    fetch(
+    pageFetch(
       '/api/place-detail?id=' + p.source_id + '&type=' + p.content_type_id,
       { cache: 'no-store', signal: controller.signal },
     )
@@ -941,11 +933,12 @@ export default function PassportApp() {
       aria-busy={!loaded}
     >
       <header className="topbar travel-header">
-        <button className="brand" onClick={() => go('home')}>
-          <Navigation size={23} strokeWidth={2.6} />
-          <span>
-            군번여지도 <b>강원</b>
-          </span>
+        <button
+          className="brand"
+          aria-label="군번여지도 홈"
+          onClick={() => go('dashboard')}
+        >
+          <Brand />
         </button>
         <span className="header-location">강원에서 함께 보내는 하루</span>
         <button className="top-link" onClick={() => go('data')}>
@@ -955,16 +948,31 @@ export default function PassportApp() {
       <Tabs value={view} onValueChange={(v) => go(String(v))}>
         <TabsList className="main-nav" variant="line">
           {Object.entries(LABELS)
-            .filter(([key]) => !['radar', 'data'].includes(key))
+            .filter(([key]) =>
+              ['dashboard', 'home', 'outing', 'groups', 'passport'].includes(
+                key,
+              ),
+            )
+            .sort(
+              ([a], [b]) =>
+                ['dashboard', 'home', 'outing', 'groups', 'passport'].indexOf(
+                  a,
+                ) -
+                ['dashboard', 'home', 'outing', 'groups', 'passport'].indexOf(
+                  b,
+                ),
+            )
             .map(([key, label]) => (
               <TabsTrigger key={key} value={key} className={'nav-' + key}>
-                {key === 'home' ? (
+                {key === 'dashboard' ? (
+                  <Home />
+                ) : key === 'home' ? (
                   <Compass />
                 ) : key === 'planner' ? (
                   <Navigation />
                 ) : key === 'outing' ? (
                   <Clock3 />
-                ) : key === 'family' ? (
+                ) : key === 'groups' ? (
                   <Users />
                 ) : key === 'passport' ? (
                   <BookOpen />
@@ -977,6 +985,55 @@ export default function PassportApp() {
               </TabsTrigger>
             ))}
         </TabsList>
+        <TabsContent value="dashboard">
+          <TravelHome
+            entries={entries}
+            outing={activeOuting}
+            store={groupStore}
+            onOpen={openEntry}
+            onGroup={(id) => {
+              setSelectedGroupId(id);
+              go('groups');
+            }}
+            onGo={go}
+            onNew={() => openBuilder(null, 'new')}
+          />
+        </TabsContent>
+        <TabsContent value="groups">
+          <TravelGroups
+            key={groupReload}
+            store={groupStore}
+            selectedId={selectedGroupId}
+            onSelect={setSelectedGroupId}
+            onNew={(group) =>
+              setComposer({
+                key: crypto.randomUUID(),
+                entry: null,
+                mode: 'new',
+                group,
+              })
+            }
+            onEdit={(group, record) =>
+              setComposer({
+                key: crypto.randomUUID(),
+                entry: groupEntry(record),
+                mode: 'edit',
+                group,
+                groupPlan: record,
+              })
+            }
+            onImport={(_group, record) => {
+              const entry = groupEntry(record);
+              setEntries((v) => [entry, ...v]);
+              go('passport');
+              setNotice(
+                '내 여행에 사본을 담았어요. 만남 장소와 복귀 기준은 직접 확인해 주세요.',
+              );
+            }}
+            onShare={(group) => setGroupSharing({ groupId: group.id })}
+            onBrief={() => go('family')}
+          />
+        </TabsContent>
         <TabsContent value="home">
           <main className="explore-page">
             <section className="explore-heading">
@@ -1000,13 +1057,40 @@ export default function PassportApp() {
                 </button>
               ))}
             </div>
-            <p className="plan-context">
-              출발 계획{' '}
-              {loaded
-                ? scheduleTime(Date.parse(settings.startedAt))
-                : '불러오는 중'}{' '}
-              · 현재 시각과 무관하게 계획해요.
-            </p>
+            <button
+              className="departure-control"
+              onClick={() => {
+                setDateDraft(localInputDate(settings.startedAt));
+                setDateEditing(true);
+              }}
+            >
+              <CalendarDays size={23} />
+              <span>
+                <small>출발 예정 날짜·시간</small>
+                <strong>
+                  {loaded
+                    ? new Date(settings.startedAt).toLocaleString('ko-KR', {
+                        timeZone: 'Asia/Seoul',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                      })
+                    : '불러오는 중'}
+                </strong>
+                <span>
+                  {loaded && Date.parse(settings.startedAt) < Date.now()
+                    ? '지난 출발 계획 · 날짜를 바꿔 주세요'
+                    : '이 시각을 기준으로 여행을 계획해요'}
+                </span>
+              </span>
+              <span className="departure-edit">
+                변경 <ChevronRight size={16} />
+              </span>
+            </button>
             <section className="trip-search" aria-label="여행 계획 조건">
               <button onClick={editTrip}>
                 <Clock3 />
@@ -1145,7 +1229,12 @@ export default function PassportApp() {
                   {live.mode === 'loading'
                     ? '여행 장소를 불러오고 있어요.'
                     : '이 지역의 여행 후보를 확인하지 못했습니다.'}
-                  <button onClick={() => setRefresh((x) => x + 1)}>
+                  <button
+                    onClick={() => {
+                      clearPageCache();
+                      setRefresh((x) => x + 1);
+                    }}
+                  >
                     다시 확인
                   </button>
                 </div>
@@ -1212,7 +1301,12 @@ export default function PassportApp() {
                   : reviewEntry
                     ? '저장한 장소 정보를 연결하지 못했습니다. 다른 장소로 바꾸지 않았어요.'
                     : '이 조건의 미션을 구성하지 못했습니다.'}
-                <button onClick={() => setRefresh((x) => x + 1)}>
+                <button
+                  onClick={() => {
+                    clearPageCache();
+                    setRefresh((x) => x + 1);
+                  }}
+                >
                   장소 다시 조회
                 </button>
                 <button
@@ -1585,76 +1679,19 @@ export default function PassportApp() {
               <aside className="family-connection">
                 <div className="connection-title">
                   <Users size={23} />
-                  <h2>가족과 함께 정하기</h2>
+                  <h2>함께 계획할 사람 초대하기</h2>
                 </div>
-                {projected ? (
-                  <>
-                    <span className="connection-state">
-                      <Check size={15} />
-                      가족 여권 연결됨
-                    </span>
-                    <p>
-                      {projected.mission
-                        ? projected.mission.title
-                        : '미션 공유는 허용되지 않았어요.'}
-                    </p>
-                    {projected.mission && (
-                      <p className="shared-place-names">
-                        {projected.mission.placeNames.join(' → ')}
-                      </p>
-                    )}
-                    <p>
-                      {projected.meal
-                        ? '식사 선호: ' + projected.meal
-                        : '식사 선호는 공유되지 않았어요.'}
-                    </p>
-                    <div className="scope-chips">
-                      {Object.entries(projected.scopes)
-                        .filter(([, v]) => v)
-                        .map(([k]) => (
-                          <span key={k}>{scopeLabels[k as keyof Scopes]}</span>
-                        ))}
-                    </div>
-                    {projected.scopes.passport && (
-                      <small>
-                        공유된 여행 기록 {projected.passport.length}개
-                      </small>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <p>
-                      초대코드가 있으면 허용된 여행 계획을 함께 볼 수 있어요.
-                    </p>
-                    <label className="field">
-                      초대코드
-                      <input
-                        value={invite}
-                        onChange={(e) =>
-                          setInvite(
-                            e.target.value
-                              .toUpperCase()
-                              .replace(/[^A-Z0-9]/g, '')
-                              .slice(0, 8),
-                          )
-                        }
-                        placeholder="8자리 초대코드"
-                        autoComplete="off"
-                      />
-                    </label>
-                    <Button variant="outline" onClick={join}>
-                      가족 여권 연결
-                    </Button>
-                  </>
-                )}
-                <p className="helper">
-                  현재는 같은 브라우저에서 역할을 바꾸는 체험입니다. 다른
-                  기기와는 연결되지 않습니다.
+                <p>
+                  가족, 연인, 친구와 그룹을 만들면 서로 다른 기기에서도 여행
+                  계획을 함께 보고 수정할 수 있어요.
                 </p>
-                <button className="text-action" onClick={() => go('passport')}>
-                  초대코드 만들기
-                  <ChevronRight size={14} />
-                </button>
+                <Button variant="outline" onClick={() => go('groups')}>
+                  그룹 만들기 · 초대 참여
+                </Button>
+                <p className="helper">
+                  이 브리핑은 부모님과의 여행을 준비할 때 도보·식사·날씨를
+                  확인하는 도구입니다.
+                </p>
               </aside>
             </div>
             {brief && (
@@ -1728,30 +1765,20 @@ export default function PassportApp() {
                     )}
                   {familyMission && familyOrigin && (
                     <Button
-                      disabled={!projected?.scopes.propose}
-                      onClick={() => {
-                        if (projected?.scopes.propose) {
-                          setProposal({
-                            entry: createEntry(
-                              withPlan(familyMission, familySettings),
-                              familyOrigin!,
-                            ),
-                            walkLimit: familySettings.walkLimit,
-                            transport: familySettings.transport,
-                          });
-                          setNotice('내 여행에 가족의 제안을 남겼습니다.');
-                        }
-                      }}
+                      onClick={() =>
+                        groupStore.groups.length
+                          ? setGroupSharing({
+                              entry: createEntry(
+                                withPlan(familyMission, familySettings),
+                                familyOrigin!,
+                              ),
+                            })
+                          : go('groups')
+                      }
                     >
-                      이 미션을 가족에게 제안
+                      이 여행안을 그룹에 공유
                       <ArrowUpRight size={16} />
                     </Button>
-                  )}
-                  {!projected?.scopes.propose && (
-                    <p className="helper">
-                      가족 연결 후 미션 제안 권한이 있으면 제안을 남길 수
-                      있어요.
-                    </p>
                   )}
                 </section>
                 <section className="family-meals">
@@ -1848,7 +1875,7 @@ export default function PassportApp() {
                 <p>계획한 하루와 함께 다녀온 곳을 모아둬요.</p>
               </div>
               <button className="text-action" onClick={() => go('family')}>
-                가족 브리핑
+                동행 브리핑
                 <ArrowUpRight size={16} />
               </button>
             </div>
@@ -2027,6 +2054,16 @@ export default function PassportApp() {
                           저장한 장소 다시 보기
                           <ChevronRight size={14} />
                         </button>
+                        <button
+                          disabled={!e.plan}
+                          onClick={() =>
+                            groupStore.groups.length
+                              ? setGroupSharing({ entry: e })
+                              : go('groups')
+                          }
+                        >
+                          그룹에 공유
+                        </button>
                         <button onClick={() => setShared(e)}>
                           <ArrowUpRight size={14} />
                           공유 카드
@@ -2059,7 +2096,8 @@ export default function PassportApp() {
                 )}
                 <p className="helper">
                   스탬프는 여행 완료 후 직접 남기는 기록입니다. 계획 시각과 개인
-                  장소는 가족·공개 카드에 공유하지 않습니다.
+                  장소는 공개 카드에 포함하지 않습니다. 그룹 공유는 별도 확인 후
+                  진행합니다.
                 </p>
               </section>
               <aside className="passport-summary">
@@ -2082,59 +2120,14 @@ export default function PassportApp() {
                     </div>
                   ))}
                 </div>
-                <details className="invite-settings">
-                  <summary>
-                    가족에게 여권 초대하기
-                    <ChevronRight size={17} />
-                  </summary>
-                  <p className="helper">
-                    같은 브라우저에서만 사용할 수 있는 24시간 체험 코드입니다.
-                  </p>
-                  {family ? (
-                    <>
-                      <div className="invite-code">
-                        {family.code}
-                        <button
-                          onClick={() => copy(family.code)}
-                          aria-label="초대코드 복사"
-                        >
-                          <Copy size={18} />
-                        </button>
-                      </div>
-                      {(Object.keys(scopeLabels) as (keyof Scopes)[]).map(
-                        (k) => (
-                          <Toggle
-                            key={k}
-                            label={scopeLabels[k]}
-                            checked={family.scopes[k]}
-                            onChange={(v) =>
-                              setFamily((x) =>
-                                x
-                                  ? { ...x, scopes: { ...x.scopes, [k]: v } }
-                                  : x,
-                              )
-                            }
-                          />
-                        ),
-                      )}
-                      <button
-                        className="text-action"
-                        onClick={() => {
-                          setFamily(null);
-                          setJoined('');
-                          setProposal(null);
-                          setNotice('초대를 해제했습니다.');
-                        }}
-                      >
-                        초대 해제
-                      </button>
-                    </>
-                  ) : (
-                    <Button variant="outline" onClick={createInvite}>
-                      초대코드 만들기
-                    </Button>
-                  )}
-                </details>
+                <button className="radar-shortcut" onClick={() => go('groups')}>
+                  <Users size={18} />
+                  <span>
+                    함께 떠나는 그룹
+                    <small>가족·연인·친구와 여행 계획 공유</small>
+                  </span>
+                  <ChevronRight size={16} />
+                </button>
                 <button className="radar-shortcut" onClick={() => go('radar')}>
                   <Leaf size={18} />
                   <span>
@@ -2343,6 +2336,7 @@ export default function PassportApp() {
             </div>
             <section className="panel">
               <h2>한국관광공사 OpenAPI</h2>
+              {live.message && <p className="warning">{live.message}</p>}
               <p>
                 출처: ⓒ한국관광공사 · 국문 관광정보 서비스_GW / 무장애 여행 정보
               </p>
@@ -2350,7 +2344,13 @@ export default function PassportApp() {
                 {live.mode === 'live'
                   ? '실시간 호출 성공'
                   : '실시간 호출 미완료'}{' '}
-                {live.error && '· ' + live.error}
+                {live.error &&
+                  '· ' +
+                    (live.error === 'DAILY_QUOTA_EXCEEDED'
+                      ? '오늘의 관광정보 요청 한도 초과'
+                      : live.error === 'RATE_LIMITED'
+                        ? '요청 제한 중'
+                        : live.error)}
               </p>
               <p>
                 법정동 코드 응답 → 강원·시군구 발견 →
@@ -2366,13 +2366,17 @@ export default function PassportApp() {
                 </p>
               )}
               <p className="helper">
-                운영 DB에 TourAPI 응답을 저장하지 않습니다. 화면 요청마다 서버를
-                통해 조회합니다. 유형별 첫 100개만 화면 후보로 사용하며 전체
-                수집 결과와 구분합니다.
+                같은 관광정보는 이 페이지가 열려 있는 동안 재사용합니다.
+                새로고침하거나 다시 조회하면 갱신합니다. 서버 DB 저장은
+                제공기관·공모전의 별도 신청 조건을 확인한 후 도입할 수 있습니다.
+                유형별 첫 100개를 후보로 사용합니다.
               </p>
               <Button
                 variant="outline"
-                onClick={() => setRefresh((x) => x + 1)}
+                onClick={() => {
+                  clearPageCache();
+                  setRefresh((x) => x + 1);
+                }}
               >
                 <RefreshCw size={16} /> 실제 API 다시 호출
               </Button>
@@ -2532,11 +2536,89 @@ export default function PassportApp() {
           테스트 입장 종료
         </button>
       </footer>
+      {dateEditing && (
+        <Sheet open onOpenChange={setDateEditing}>
+          <SheetContent side="bottom" className="date-sheet">
+            <SheetHeader>
+              <SheetTitle>언제 출발할까요?</SheetTitle>
+              <SheetDescription>
+                둘러보기와 지도·미션에 적용할 출발 예정 시각입니다.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="editor-body">
+              <label className="field">
+                출발 예정 날짜·시간
+                <Input
+                  type="datetime-local"
+                  value={dateDraft}
+                  onChange={(e) => setDateDraft(e.target.value)}
+                />
+              </label>
+              <p className="helper">
+                여행 시간은 유지합니다. 현재 출타 시계는 바뀌지 않습니다.
+              </p>
+              <div className="group-card-buttons">
+                <Button variant="outline" onClick={() => setDateEditing(false)}>
+                  취소
+                </Button>
+                <Button
+                  disabled={
+                    !dateDraft ||
+                    !Number.isFinite(Date.parse(parseKoreaInput(dateDraft)))
+                  }
+                  onClick={() => {
+                    const startedAt = parseKoreaInput(dateDraft);
+                    setSettings((v) => ({
+                      ...v,
+                      startedAt,
+                      returnAt: new Date(
+                        Date.parse(startedAt) + v.duration * 60000,
+                      ).toISOString(),
+                    }));
+                    setReviewEntry(null);
+                    setDateEditing(false);
+                  }}
+                >
+                  출발 계획 적용
+                </Button>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+      {groupSharing && (
+        <GroupShare
+          entries={entries}
+          groups={groupStore.groups}
+          entry={groupSharing.entry}
+          groupId={groupSharing.groupId}
+          record={groupSharing.record}
+          onClose={() => {
+            if (groupSharing.resume) setComposer(groupSharing.resume);
+            setGroupSharing(null);
+          }}
+          onSave={async (groupId, plan, record) => {
+            await groupStore.action({
+              action: 'savePlan',
+              groupId,
+              plan,
+              planId: record?.id,
+              version: record?.version,
+            });
+            setGroupSharing(null);
+            setSelectedGroupId(groupId);
+            setGroupReload((v) => v + 1);
+            go('groups');
+            setNotice('그룹에 여행을 공유했어요.');
+          }}
+        />
+      )}
       {composer && (
         <TripBuilder
           key={composer.key}
           initial={composer.entry}
           mode={composer.mode}
+          initialDirty={!!composer.group && !!composer.entry}
           places={places}
           placesLoading={catalogLoading || live.mode === 'loading'}
           initialOrigin={origin}
@@ -2546,6 +2628,17 @@ export default function PassportApp() {
           onFavoritesChange={setFavorites}
           onClose={() => setComposer(null)}
           onSave={(entry, memoryPlaces, returnAt) => {
+            if (composer.group) {
+              setExtraPlaces((v) => [...v, ...memoryPlaces]);
+              setGroupSharing({
+                entry,
+                groupId: composer.group.id,
+                record: composer.groupPlan,
+                resume: { ...composer, entry, mode: 'edit' },
+              });
+              setComposer(null);
+              return;
+            }
             const old =
               composer.mode === 'edit' &&
               composer.entry &&

@@ -1,0 +1,215 @@
+{
+  "base": "http://localhost:3000",
+  "startedAt": "2026-09-08T04:07:12.324Z",
+  "deviceMode": "Desktop Chrome/Edge viewport and touch emulation; not physical phones",
+  "cases": [
+    {
+      "channel": "chrome",
+      "version": "152.0.7977.76",
+      "size": {
+        "name": "small",
+        "width": 360,
+        "height": 740
+      },
+      "checks": [
+        "Visible departure date/time directly editable; page navigation reuses list response",
+        "Create family group and empty itinerary through UI",
+        "Group edit saved and invitation generated",
+        "Invitation survives test login; another browser session joins and reads the same plan",
+        "Home shows personal upcoming plan and two groups; group opens its own plans",
+        "Group draft close confirmation retains changes"
+      ],
+      "errors": [],
+      "screenshots": [
+        "home-empty",
+        "browse",
+        "group-plans",
+        "home",
+        "editor"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "chrome",
+      "version": "152.0.7977.76",
+      "size": {
+        "name": "large",
+        "width": 430,
+        "height": 932
+      },
+      "checks": [
+        "Visible departure date/time directly editable; page navigation reuses list response",
+        "Create family group and empty itinerary through UI",
+        "Group edit saved and invitation generated",
+        "Invitation survives test login; another browser session joins and reads the same plan",
+        "Home shows personal upcoming plan and two groups; group opens its own plans",
+        "Group draft close confirmation retains changes"
+      ],
+      "errors": [],
+      "screenshots": [
+        "home-empty",
+        "browse",
+        "group-plans",
+        "home",
+        "editor"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "chrome",
+      "version": "152.0.7977.76",
+      "size": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "checks": [
+        "Visible departure date/time directly editable; page navigation reuses list response",
+        "Create family group and empty itinerary through UI",
+        "Group edit saved and invitation generated",
+        "Invitation survives test login; another browser session joins and reads the same plan",
+        "Home shows personal upcoming plan and two groups; group opens its own plans",
+        "Group draft close confirmation retains changes"
+      ],
+      "errors": [],
+      "screenshots": [
+        "home-empty",
+        "browse",
+        "group-plans",
+        "home",
+        "editor"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "chrome",
+      "version": "152.0.7977.76",
+      "size": {
+        "name": "wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "checks": [
+        "Visible departure date/time directly editable; page navigation reuses list response",
+        "Create family group and empty itinerary through UI",
+        "Group edit saved and invitation generated",
+        "Invitation survives test login; another browser session joins and reads the same plan",
+        "Home shows personal upcoming plan and two groups; group opens its own plans",
+        "Group draft close confirmation retains changes"
+      ],
+      "errors": [],
+      "screenshots": [
+        "home-empty",
+        "browse",
+        "group-plans",
+        "home",
+        "editor"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "msedge",
+      "version": "152.0.4191.66",
+      "size": {
+        "name": "small",
+        "width": 360,
+        "height": 740
+      },
+      "checks": [
+        "Visible departure date/time directly editable; page navigation reuses list response",
+        "Create family group and empty itinerary through UI",
+        "Group edit saved and invitation generated",
+        "Invitation survives test login; another browser session joins and reads the same plan",
+        "Home shows personal upcoming plan and two groups; group opens its own plans",
+        "Group draft close confirmation retains changes"
+      ],
+      "errors": [],
+      "screenshots": [
+        "home-empty",
+        "browse",
+        "group-plans",
+        "home",
+        "editor"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "msedge",
+      "version": "152.0.4191.66",
+      "size": {
+        "name": "large",
+        "width": 430,
+        "height": 932
+      },
+      "checks": [
+        "Visible departure date/time directly editable; page navigation reuses list response",
+        "Create family group and empty itinerary through UI",
+        "Group edit saved and invitation generated",
+        "Invitation survives test login; another browser session joins and reads the same plan",
+        "Home shows personal upcoming plan and two groups; group opens its own plans",
+        "Group draft close confirmation retains changes"
+      ],
+      "errors": [],
+      "screenshots": [
+        "home-empty",
+        "browse",
+        "group-plans",
+        "home",
+        "editor"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "msedge",
+      "version": "152.0.4191.66",
+      "size": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "checks": [
+        "Visible departure date/time directly editable; page navigation reuses list response",
+        "Create family group and empty itinerary through UI",
+        "Group edit saved and invitation generated",
+        "Invitation survives test login; another browser session joins and reads the same plan",
+        "Home shows personal upcoming plan and two groups; group opens its own plans",
+        "Group draft close confirmation retains changes"
+      ],
+      "errors": [],
+      "screenshots": [
+        "home-empty",
+        "browse",
+        "group-plans",
+        "home",
+        "editor"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "msedge",
+      "version": "152.0.4191.66",
+      "size": {
+        "name": "wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "checks": [
+        "Visible departure date/time directly editable; page navigation reuses list response",
+        "Create family group and empty itinerary through UI",
+        "Group edit saved and invitation generated",
+        "Invitation survives test login; another browser session joins and reads the same plan",
+        "Home shows personal upcoming plan and two groups; group opens its own plans",
+        "Group draft close confirmation retains changes"
+      ],
+      "errors": [],
+      "screenshots": [
+        "home-empty",
+        "browse",
+        "group-plans",
+        "home",
+        "editor"
+      ],
+      "status": "passed"
+    }
+  ]
+}

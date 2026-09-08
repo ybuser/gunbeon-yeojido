@@ -1,4 +1,5 @@
 'use client';
+import { pageFetch, clearPageCache } from '@/lib/page-cache';
 import { useEffect, useState } from 'react';
 import { CloudRain, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -32,7 +33,7 @@ export default function WeatherCard({
   useEffect(() => {
     const controller = new AbortController();
     setForecast({ mode: 'loading' });
-    fetch('/api/weather?region=' + encodeURIComponent(region), {
+    pageFetch('/api/weather?region=' + encodeURIComponent(region), {
       signal: controller.signal,
       cache: 'no-store',
     })
@@ -52,7 +53,10 @@ export default function WeatherCard({
         <b>{region} 출발 전 날씨</b>
         <button
           aria-label="날씨 다시 확인"
-          onClick={() => setRevision((x) => x + 1)}
+          onClick={() => {
+            clearPageCache('/api/weather?region=' + encodeURIComponent(region));
+            setRevision((x) => x + 1);
+          }}
         >
           <RefreshCw size={15} />
         </button>

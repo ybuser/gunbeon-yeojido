@@ -68,6 +68,7 @@ async function shot(p, file) {
   });
 }
 async function readyPlaces(p) {
+  await tab(p, '둘러보기').click();
   await p.locator('.journey-card').first().waitFor();
 }
 for (const channel of channels) {
@@ -161,6 +162,7 @@ for (const channel of channels) {
         .getByRole('button', { name: '여행 시작하기', exact: true })
         .click();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
+      await tab(p, '둘러보기').click();
       const response = await placeResponse;
       const responseData = await response.json();
       if (live)
@@ -174,7 +176,7 @@ for (const channel of channels) {
       );
       await readyPlaces(p);
       await noOverflow(p, result.checks, 'Home');
-      await tab(p, '가족').click();
+      await tab(p, '그룹').click();
       await p.goBack();
       await p
         .getByRole('heading', {
@@ -271,7 +273,6 @@ for (const channel of channels) {
       assert(!JSON.stringify(saved).includes('returnAt'));
       await p.reload();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
-      await tab(p, '둘러보기').click();
       await readyPlaces(p);
       await tab(p, '내 여행').click();
       await p
@@ -289,52 +290,19 @@ for (const channel of channels) {
       if (['small', 'desktop'].includes(size.name)) {
         await tab(p, '내 여행').click();
         await p
-          .locator('summary')
-          .filter({ hasText: '가족에게 여권 초대하기' })
+          .getByRole('button', { name: '동행 브리핑', exact: true })
           .click();
-        await p
-          .getByRole('button', { name: '초대코드 만들기', exact: true })
-          .click();
-        const invite = (await p.locator('.invite-code').innerText()).trim();
-        assert.equal(invite.length, 8);
-        await tab(p, '가족').click();
-        await p.getByPlaceholder('8자리 초대코드').fill(invite);
-        await p
-          .getByRole('button', { name: '가족 여권 연결', exact: true })
-          .click();
-        await p.getByText('가족 여권 연결됨', { exact: true }).waitFor();
-        const familyResponse = p.waitForResponse(
-          (r) => new URL(r.url()).pathname === '/api/places',
-        );
         await p
           .getByRole('button', { name: '우리 가족 여행안 보기', exact: true })
           .click();
-        await familyResponse;
         await p.locator('.family-route-preview b').first().waitFor();
-        const proposed = await p
-          .locator('.family-route-preview b')
-          .allTextContents();
-        await noOverflow(p, result.checks, 'Family');
+        await noOverflow(p, result.checks, 'Family briefing');
         const familyShot = channel + '-' + size.name + '-family.png';
         await p.evaluate(() => scrollTo(0, 0));
         await shot(p, familyShot);
         result.screenshots.push(familyShot);
-        await p
-          .getByRole('button', { name: '이 미션을 가족에게 제안', exact: true })
-          .click();
-        await tab(p, '내 여행').click();
-        await p
-          .locator('.received-proposal')
-          .getByRole('button', { name: '살펴보기', exact: true })
-          .click();
-        await p.locator('.place-row').first().waitFor();
-        assert.deepEqual(
-          await p.locator('.place-name').allTextContents(),
-          proposed,
-          'Family proposal must keep its places',
-        );
         result.checks.push(
-          'Invite scopes, independent family briefing and exact proposal review',
+          'Independent parent briefing; server group invitation is covered in groups QA',
         );
         await tab(p, '내 여행').click();
         await p.getByRole('button', { name: /휴가회수 레이더/ }).click();
@@ -377,17 +345,6 @@ for (const channel of channels) {
         result.checks.push(
           'Explicit preparation target; preparation/visit split; SVG share download',
         );
-        await p
-          .locator('summary')
-          .filter({ hasText: '가족에게 여권 초대하기' })
-          .click();
-        await p.getByRole('button', { name: '초대 해제', exact: true }).click();
-        await tab(p, '가족').click();
-        assert.equal(
-          await p.getByText('가족 여권 연결됨', { exact: true }).count(),
-          0,
-        );
-        result.checks.push('Revoked invitation removes connected view');
       }
       // Fail both list and saved-place lookup; never replace the preserved itinerary.
       if (live && size.name === 'small') {

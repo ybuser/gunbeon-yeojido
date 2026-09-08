@@ -89,6 +89,7 @@ for (const channel of (
         .getByRole('button', { name: '여행 시작하기', exact: true })
         .click();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
+      await tab(p, '둘러보기').click();
       await p.locator('.journey-card').first().waitFor();
       await p.clock.install({ time: new Date() });
       assert.equal(await p.locator('.main-nav [role=tab]').count(), 5);

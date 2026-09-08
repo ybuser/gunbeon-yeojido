@@ -20,7 +20,8 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - name: Exercise fallback, planning, family and sharing flows
+      - run: npx wrangler d1 migrations apply DB --local --config wrangler.local.jsonc
+      - name: Exercise fallback, planning, briefing and group sharing flows
         env:
           QA_BROWSER_CHANNELS: chromium
           QA_CASES: small,desktop
@@ -43,6 +44,8 @@ jobs:
           }
           if(!ready) process.exit(1);
           JS
+          QA_OUT_FILE=test-results/browser/groups-api.json npm run test:groups
+          QA_OUT_DIR=test-results/browser/groups npm run test:groups-ui
           npm run test:browser
           QA_OUT_DIR=test-results/browser/custom npm run test:custom
           QA_OUT_DIR=test-results/browser/outing npm run test:outing
