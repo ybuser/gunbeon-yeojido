@@ -50,3 +50,30 @@ test('matching live tourism information replaces base place without changing the
     ),
   );
 });
+
+test('photo additions map to exact regional places and never to personal meeting places', async () => {
+  const { photoLibrary, placePhoto } = await import('../lib/place-photos.ts');
+  for (const photo of photoLibrary) {
+    const p = nodes.find(
+      (p) => p.sigungu === photo.region && photo.titles.includes(p.title),
+    );
+    assert.ok(p, photo.id);
+    assert.equal(placePhoto(p).id, photo.id);
+    assert.equal(placePhoto({ ...p, source: 'manual' }), undefined);
+    assert.equal(placePhoto({ ...p, sigungu: '다른 지역' }), undefined);
+    assert.ok(fs.existsSync(new URL('../public' + photo.url, import.meta.url)));
+    assert.match(photo.sourceUrl, /^https:\/\//);
+    assert.match(photo.licenseUrl, /^https:\/\//);
+  }
+});
+test('missing photos stay empty and tourism image URL upgrades to HTTPS', async () => {
+  const { photoUrl } = await import('../lib/place-photos.ts');
+  assert.equal(photoUrl({ title: '없는 장소', image_url: null }), '');
+  assert.equal(
+    photoUrl({
+      title: '관광지',
+      image_url: 'http://tong.visitkorea.or.kr/a.jpg',
+    }),
+    'https://tong.visitkorea.or.kr/a.jpg',
+  );
+});

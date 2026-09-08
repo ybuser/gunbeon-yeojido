@@ -2168,8 +2168,14 @@ export default function PassportApp() {
               </div>
               <Database size={40} />
             </div>
-            <a className="guide-callout" href="/guide">처음 사용하시나요? 화면으로 보는 사용 가이드 <ArrowUpRight size={17}/></a>
-            <details className="data-photo-disclosure"><summary>사진 출처와 이용조건</summary><PhotoCredits /></details>
+            <a className="guide-callout" href="/guide">
+              처음 사용하시나요? 화면으로 보는 사용 가이드{' '}
+              <ArrowUpRight size={17} />
+            </a>
+            <details className="data-photo-disclosure">
+              <summary>사진 출처와 이용조건</summary>
+              <PhotoCredits />
+            </details>
             <div className="data-metrics">
               <div>
                 <b>{basePlaces.length}</b>
@@ -2375,7 +2381,9 @@ export default function PassportApp() {
           안전마진은 만남 장소까지의 참고값입니다. 실제 교통과 소속 부대 복귀
           규정은 직접 확인해 주세요.
         </p>
-        <a href="/guide">사용 가이드 <ArrowUpRight size={14}/></a>
+        <a href="/guide">
+          사용 가이드 <ArrowUpRight size={14} />
+        </a>
         <button onClick={() => go('data')}>
           출처·데이터 상태 확인 <ArrowUpRight size={14} />
         </button>
@@ -2858,15 +2866,22 @@ export default function PassportApp() {
           )}
         </SheetContent>
       </Sheet>
-      {notice && (
-        <div className="notice" role="status">
-          <Check size={18} />
-          {notice}
-          <button onClick={() => setNotice('')} aria-label="알림 닫기">
-            ×
-          </button>
-        </div>
-      )}
+      {notice &&
+        !composer &&
+        !completion &&
+        !startCandidate &&
+        !photoOpen &&
+        !groupSharing &&
+        !placeOpen &&
+        !editing && (
+          <div className="notice" role="status">
+            <Check size={18} />
+            {notice}
+            <button onClick={() => setNotice('')} aria-label="알림 닫기">
+              ×
+            </button>
+          </div>
+        )}
     </div>
   );
 }

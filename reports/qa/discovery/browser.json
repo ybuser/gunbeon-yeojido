@@ -1,0 +1,303 @@
+{
+  "startedAt": "2026-09-08T05:00:08.861Z",
+  "base": "http://localhost:3000",
+  "liveApis": false,
+  "deviceMode": "Desktop browsers with viewport/touch emulation; not physical phones or mobile OS browsers",
+  "cases": [
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "width": 360,
+        "height": 740
+      },
+      "touchEmulated": true,
+      "name": "small",
+      "checks": [
+        "Explicit keyless fallback",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Explicit geographic fallback",
+        "Date-free course choice, explicit schedule editing, save/reload and exact place order restore",
+        "Family briefing has no horizontal page overflow",
+        "Independent parent briefing; server group invitation is covered in groups QA",
+        "Explicit preparation target; preparation/visit split; SVG share download"
+      ],
+      "screenshots": [
+        "chrome-small-home.png",
+        "chrome-small-course.png",
+        "chrome-small-editor.png",
+        "chrome-small-mission.png",
+        "chrome-small-family.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/groups": 3,
+        "/api/catalog": 3,
+        "/api/status": 3,
+        "/api/places": 3,
+        "/api/weather": 2,
+        "/api/accessibility": 1
+      },
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "touchEmulated": true,
+      "name": "large",
+      "checks": [
+        "Explicit keyless fallback",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Explicit geographic fallback",
+        "Date-free course choice, explicit schedule editing, save/reload and exact place order restore"
+      ],
+      "screenshots": [
+        "chrome-large-home.png",
+        "chrome-large-course.png",
+        "chrome-large-editor.png",
+        "chrome-large-mission.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/groups": 3,
+        "/api/catalog": 3,
+        "/api/status": 3,
+        "/api/places": 3,
+        "/api/weather": 2
+      },
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "touchEmulated": false,
+      "name": "desktop",
+      "checks": [
+        "Explicit keyless fallback",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Explicit geographic fallback",
+        "Date-free course choice, explicit schedule editing, save/reload and exact place order restore",
+        "Family briefing has no horizontal page overflow",
+        "Independent parent briefing; server group invitation is covered in groups QA",
+        "Explicit preparation target; preparation/visit split; SVG share download"
+      ],
+      "screenshots": [
+        "chrome-desktop-home.png",
+        "chrome-desktop-course.png",
+        "chrome-desktop-editor.png",
+        "chrome-desktop-mission.png",
+        "chrome-desktop-family.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/groups": 3,
+        "/api/catalog": 3,
+        "/api/status": 3,
+        "/api/places": 3,
+        "/api/weather": 2,
+        "/api/accessibility": 1
+      },
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "touchEmulated": false,
+      "name": "wide",
+      "checks": [
+        "Explicit keyless fallback",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Explicit geographic fallback",
+        "Date-free course choice, explicit schedule editing, save/reload and exact place order restore"
+      ],
+      "screenshots": [
+        "chrome-wide-home.png",
+        "chrome-wide-course.png",
+        "chrome-wide-editor.png",
+        "chrome-wide-mission.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/groups": 3,
+        "/api/catalog": 3,
+        "/api/status": 3,
+        "/api/places": 3,
+        "/api/weather": 2
+      },
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "width": 360,
+        "height": 740
+      },
+      "touchEmulated": true,
+      "name": "small",
+      "checks": [
+        "Explicit keyless fallback",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Explicit geographic fallback",
+        "Date-free course choice, explicit schedule editing, save/reload and exact place order restore",
+        "Family briefing has no horizontal page overflow",
+        "Independent parent briefing; server group invitation is covered in groups QA",
+        "Explicit preparation target; preparation/visit split; SVG share download"
+      ],
+      "screenshots": [
+        "msedge-small-home.png",
+        "msedge-small-course.png",
+        "msedge-small-editor.png",
+        "msedge-small-mission.png",
+        "msedge-small-family.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/groups": 3,
+        "/api/catalog": 3,
+        "/api/status": 3,
+        "/api/places": 3,
+        "/api/weather": 2,
+        "/api/accessibility": 1
+      },
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "touchEmulated": true,
+      "name": "large",
+      "checks": [
+        "Explicit keyless fallback",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Explicit geographic fallback",
+        "Date-free course choice, explicit schedule editing, save/reload and exact place order restore"
+      ],
+      "screenshots": [
+        "msedge-large-home.png",
+        "msedge-large-course.png",
+        "msedge-large-editor.png",
+        "msedge-large-mission.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/groups": 3,
+        "/api/catalog": 3,
+        "/api/status": 3,
+        "/api/places": 3,
+        "/api/weather": 2
+      },
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "touchEmulated": false,
+      "name": "desktop",
+      "checks": [
+        "Explicit keyless fallback",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Explicit geographic fallback",
+        "Date-free course choice, explicit schedule editing, save/reload and exact place order restore",
+        "Family briefing has no horizontal page overflow",
+        "Independent parent briefing; server group invitation is covered in groups QA",
+        "Explicit preparation target; preparation/visit split; SVG share download"
+      ],
+      "screenshots": [
+        "msedge-desktop-home.png",
+        "msedge-desktop-course.png",
+        "msedge-desktop-editor.png",
+        "msedge-desktop-mission.png",
+        "msedge-desktop-family.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/groups": 3,
+        "/api/catalog": 3,
+        "/api/status": 3,
+        "/api/places": 3,
+        "/api/weather": 2,
+        "/api/accessibility": 1
+      },
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "touchEmulated": false,
+      "name": "wide",
+      "checks": [
+        "Explicit keyless fallback",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Explicit geographic fallback",
+        "Date-free course choice, explicit schedule editing, save/reload and exact place order restore"
+      ],
+      "screenshots": [
+        "msedge-wide-home.png",
+        "msedge-wide-course.png",
+        "msedge-wide-editor.png",
+        "msedge-wide-mission.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/groups": 3,
+        "/api/catalog": 3,
+        "/api/status": 3,
+        "/api/places": 3,
+        "/api/weather": 2
+      },
+      "pageErrors": [],
+      "status": "passed"
+    }
+  ],
+  "completedAt": "2026-09-08T05:01:35.684Z",
+  "passed": 8,
+  "failed": 0
+}

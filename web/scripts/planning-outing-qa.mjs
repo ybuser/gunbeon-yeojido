@@ -93,14 +93,14 @@ for (const channel of (
       await p.locator('.journey-card').first().waitFor();
       await p.clock.install({ time: new Date() });
       assert.equal(await p.locator('.main-nav [role=tab]').count(), 5);
-      const planBefore = await p.locator('.journey-margin').first().innerText();
+      const planBefore = await p.locator('.journey-meta').first().innerText();
       await p.clock.fastForward(30 * 60000);
       assert.equal(
-        await p.locator('.journey-margin').first().innerText(),
+        await p.locator('.journey-meta').first().innerText(),
         planBefore,
       );
       result.checks.push(
-        'Planning margin remains fixed after 30 minutes; five navigation tabs fit',
+        'Date-free discovery estimates remain fixed after 30 minutes; five navigation tabs fit',
       );
       await tab(p, '내 여행').click();
       await p

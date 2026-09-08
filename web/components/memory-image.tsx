@@ -6,7 +6,10 @@ function loadImage(src: string) {
   let cached = images.get(src);
   if (cached) return cached;
   cached = fetch(src, {
-    credentials: 'omit',
+    credentials:
+      new URL(src, window.location.href).origin === window.location.origin
+        ? 'same-origin'
+        : 'omit',
     cache: 'no-store',
     signal: AbortSignal.timeout(15000),
   })

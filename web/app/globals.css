@@ -4568,3 +4568,169 @@ input {
     height: 160px;
   }
 }
+.guide-callout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 20px;
+  border: 1px solid #ccd9f5;
+  border-radius: 12px;
+  color: #225bc7;
+  margin: 10px 0 20px;
+  font-size: 16px;
+}
+.data-photo-disclosure {
+  border-bottom: 1px solid #e6eaf1;
+  padding: 18px 0;
+  margin-bottom: 24px;
+}
+.data-photo-disclosure > summary {
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 650;
+}
+.footer > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--primary);
+  margin-right: 18px;
+}
+.usage-guide {
+  max-width: 1000px;
+  margin: auto;
+  padding: 36px 30px 60px;
+}
+.usage-guide header > a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  color: #52647d;
+  margin-bottom: 70px;
+}
+.usage-guide header > span {
+  font-size: 14px;
+  color: #276bf1;
+  font-weight: 650;
+}
+.usage-guide h1 {
+  font-size: 48px;
+  line-height: 1.25;
+  letter-spacing: -2px;
+  margin: 16px 0 20px;
+}
+.usage-guide header > p {
+  font-size: 18px;
+  line-height: 1.7;
+  color: #647188;
+}
+.usage-guide nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 30px 0 50px;
+}
+.usage-guide nav a {
+  border: 1px solid #dbe2ed;
+  padding: 10px 16px;
+  border-radius: 50px;
+  font-size: 14px;
+}
+.guide-steps > section {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 70px;
+  align-items: start;
+  padding: 50px 0;
+  border-top: 1px solid #e1e6ed;
+  scroll-margin-top: 24px;
+}
+.guide-step-copy > span {
+  font-size: 15px;
+  color: #276bf1;
+  font-weight: 700;
+}
+.guide-step-copy h2 {
+  font-size: 27px;
+  line-height: 1.4;
+  margin: 18px 0;
+}
+.guide-step-copy p {
+  font-size: 17px;
+  line-height: 1.85;
+  color: #566278;
+}
+.guide-steps figure {
+  border: 1px solid #dce3ed;
+  border-radius: 18px;
+  overflow: hidden;
+  margin: 0;
+  background: #f8fafc;
+  box-shadow: 0 10px 25px #2233480a;
+}
+.guide-steps img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.usage-guide aside {
+  background: #f2f5fa;
+  padding: 28px;
+  border-radius: 16px;
+  font-size: 16px;
+  line-height: 1.8;
+}
+.usage-guide aside h2 {
+  font-size: 21px;
+}
+.usage-guide footer {
+  padding-top: 30px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #68788e;
+}
+.usage-guide footer a {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin-right: 18px;
+  color: #276bf1;
+}
+.photo-library-link,
+.recommendation-scroll .text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+@media (max-width: 650px) {
+  .usage-guide {
+    padding: 24px 22px 50px;
+  }
+  .usage-guide header > a {
+    margin-bottom: 46px;
+  }
+  .usage-guide h1 {
+    font-size: 36px;
+  }
+  .guide-steps > section {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 36px 0;
+  }
+  .guide-step-copy h2 {
+    font-size: 24px;
+    margin: 12px 0;
+  }
+  .guide-steps figure {
+    width: min(100%, 340px);
+    margin: 0 auto;
+  }
+  .usage-guide nav {
+    gap: 8px;
+  }
+  .usage-guide nav a {
+    padding: 9px 12px;
+  }
+}

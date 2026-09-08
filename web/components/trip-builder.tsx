@@ -549,7 +549,7 @@ export default function TripBuilder({
                 <SheetDescription>
                   {stage === 'plan'
                     ? '장소와 순서, 머무는 시간을 자유롭게 정해요.'
-                    : '장병과 가족이 방문할 수 있는 강원의 장소'}
+                    : '일정에 사용할 만남 장소를 정해요.'}
                 </SheetDescription>
               </div>
             </div>

@@ -6,6 +6,8 @@
 
 [테스트 사이트 열기](https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site/) · 임시 비밀번호 **1234** · ChatGPT 로그인 불필요
 
+[화면으로 보는 사용 가이드](https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site/guide) · [사진 원문·이용조건 검토 목록](reports/photo_sources.md)
+
 ## 실제 화면
 
 실행 중인 앱을 Chrome에서 촬영했습니다. 예시 그룹·일정은 검증용 데이터입니다.
@@ -16,10 +18,12 @@
 
 ![데스크톱 홈](reports/screenshots/home-desktop.png)
 
+<img src="web/public/guide/01-discover.png" width="280" alt="날짜 없는 추천 코스 탐색" /> <img src="web/public/guide/02-course.png" width="280" alt="장소별 사진이 나뉜 코스 상세" />
+
 ## 이렇게 사용합니다
 
 1. **함께 준비하기** — 홈 → 그룹 만들기 → 가족·연인·친구·동행 선택 → 초대 링크 전달. 초대받은 사람은 자기 브라우저에서 참여해 같은 여행을 봅니다.
-2. **출발일 정하기** — 둘러보기 상단 날짜·시각을 누릅니다. 계획의 여유 시간은 그 출발 시각을 기준으로 계산하며, 현재 시각 때문에 줄어들지 않습니다.
+2. **날짜 없이 둘러보기** — 강원 접경 5군의 추천 코스 15개를 지역·취향으로 살펴봅니다. 코스를 고른 뒤 일정표에서 날짜·시간을 정합니다. 둘러보기는 현재 시각과 개인 복귀 조건을 사용하지 않습니다.
 3. **내 코스 만들기** — 빈 여행을 먼저 저장하거나 추천 코스를 가져옵니다. TourAPI 검색·가까운 장소·즐겨찾기·지도/직접 입력으로 최대 12곳을 담고 순서와 체류 시간을 바꿉니다.
 4. **그룹에 공유하기** — 개인 여행을 선택하거나 그룹 안에서 새 일정을 만듭니다. 직접 지정한 장소는 포함 여부를 확인합니다. 동시 수정 충돌 시 자신의 변경을 새 여행 사본으로 저장할 수 있습니다.
 5. **출타와 기록** — 내 여행에 담은 뒤 개인 복귀 기준을 정하고 ‘출타 시작’을 누릅니다. 여행이 끝나면 ‘여행 완료’ 확인 후 스탬프를 남깁니다.
@@ -78,6 +82,7 @@ npm run test:groups-ui
 
 React 19 · TypeScript · Tailwind · Vinext/App Router · Sites · D1/Drizzle. 환경변수는 `.env.local`과 배포 secret으로 관리하며 키는 Git에 저장하지 않습니다.
 
+- [이번 UX 검토와 다음 계획](reports/discovery_ux_review.md) · [사용 시나리오 가이드](reports/usage_guide.md) · [이번 검증 결과](reports/qa/discovery/)
 - [그룹·UX·데이터 운영 및 다음 계획](reports/travel_groups_delivery.md)
 - [공식 규정](reports/notion_requirements.md) · [개발 계획](reports/implementation_plan.md) · [제출 준비](reports/submission_assets.md)
 - [검증 결과](reports/qa/travel-groups/) · [이전 계획/현재 출타 검증](reports/planning_outing_delivery.md)
@@ -85,7 +90,7 @@ React 19 · TypeScript · Tailwind · Vinext/App Router · Sites · D1/Drizzle. 
 - `web/db/schema.ts`, `web/drizzle/`: 그룹 DB 스키마와 마이그레이션
 - `web/scripts/`: 재현 가능한 브라우저·API 검사 / `reports/`: 요구사항·결정·근거
 
-단위 검사 55개, 그룹 API 11개 케이스, Chrome·Edge 4개 화면 크기로 검증했습니다. 실제 휴대폰 OS/Safari·현장 조건은 별도 검증 대상입니다. 이번 UI 검사에서 관광공사 목록은 한도 초과 응답으로 격리했으며 실시간 목록 성공을 의미하지 않습니다. 전체 lint의 기존 규칙 오류는 남아 있습니다.
+단위 검사 60개, 새 탐색·편집 흐름은 Chrome·Edge 4개 화면 크기(360/430/1440/1920px), 그룹·맞춤 코스·현재 출타는 두 브라우저의 작은 화면·데스크톱으로 검증했습니다. 실제 카카오맵으로 만남 장소 설정과 복귀시각 보존도 확인했습니다. 그룹 API의 이전 11개 케이스는 유지됩니다. 실제 휴대폰 OS/Safari·현장 조건은 별도 검증 대상입니다. 이번 UI 검사에서 관광공사 목록은 한도 초과 응답으로 격리했으며 실시간 목록 성공을 의미하지 않습니다. 전체 lint의 기존 규칙 오류는 남아 있습니다.
 
 ## 출처와 한계
 
@@ -94,3 +99,5 @@ React 19 · TypeScript · Tailwind · Vinext/App Router · Sites · D1/Drizzle. 
 교통·도보는 거리 기반 추정입니다. 예약·운영·실제 이동과 소속 부대 복귀 규정은 직접 확인해야 합니다. 휴가회수 레이더는 제도 준비 안내이며 보상을 보장하지 않습니다. GPS 자동 수집·군번·작전·근무정보·휴가증·신분증 이미지 입력 기능은 없습니다.
 
 공사 출처: ⓒ한국관광공사. 고석정 사진: 한국문화관광연구원(2015), [공공누리 제1유형](https://www.kogl.or.kr/recommend/recommendDivView.do?division=img&oc=&recommendIdx=2453). 각 원천의 이미지 이용조건을 따릅니다.
+
+추가 사진 6장은 공공누리·Wikimedia Commons에서 실제 장소와 개별 이용조건을 확인해 적용했습니다. [적용·보류·제외 전체 17건](reports/photo_sources.md)과 앱의 사진 출처 화면에서 원문·저작자·촬영 시점·라이선스를 확인할 수 있습니다.

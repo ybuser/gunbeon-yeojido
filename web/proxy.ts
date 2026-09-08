@@ -41,6 +41,7 @@ export async function proxy(request: Request) {
       { status: 401, headers: { 'Cache-Control': 'no-store' } },
     );
   const login = new URL('/login', url);
+  if (url.pathname === '/guide') login.searchParams.set('next', 'guide');
   const join = url.searchParams.get('join');
   if (join && /^[a-f0-9]{48}$/.test(join)) login.searchParams.set('join', join);
   return NextResponse.redirect(login, 307);

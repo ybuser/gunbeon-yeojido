@@ -1,0 +1,115 @@
+{
+  "startedAt": "2026-09-08T05:02:24.079Z",
+  "base": "http://localhost:3000",
+  "live": false,
+  "deviceMode": "Desktop Chrome/Edge with viewport and touch emulation, not physical phones",
+  "cases": [
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "name": "small",
+        "width": 360,
+        "height": 740
+      },
+      "checks": [
+        "Anonymous API denied; wrong password rejected; correct password admits without ChatGPT",
+        "Search outage shown; public catalogue still usable",
+        "1/2/3/4 tile layouts, five-place cap, add/reorder/stay/manual place and missing-coordinate state",
+        "Reload restores exact manual and provider references; editing updates the same record",
+        "Public share strips free text; importing preserves original; discard leaves saved course intact"
+      ],
+      "pageErrors": [],
+      "apiRequests": {
+        "/api/test-access": 2,
+        "/api/groups": 2,
+        "/api/catalog": 2,
+        "/api/status": 2,
+        "/api/places": 2,
+        "/api/places/search": 1
+      },
+      "status": "passed"
+    },
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "checks": [
+        "Anonymous API denied; wrong password rejected; correct password admits without ChatGPT",
+        "Search outage shown; public catalogue still usable",
+        "1/2/3/4 tile layouts, five-place cap, add/reorder/stay/manual place and missing-coordinate state",
+        "Reload restores exact manual and provider references; editing updates the same record",
+        "Public share strips free text; importing preserves original; discard leaves saved course intact"
+      ],
+      "pageErrors": [],
+      "apiRequests": {
+        "/api/test-access": 2,
+        "/api/groups": 2,
+        "/api/catalog": 2,
+        "/api/status": 2,
+        "/api/places": 2,
+        "/api/places/search": 1
+      },
+      "status": "passed"
+    },
+    {
+      "browser": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "name": "small",
+        "width": 360,
+        "height": 740
+      },
+      "checks": [
+        "Anonymous API denied; wrong password rejected; correct password admits without ChatGPT",
+        "Search outage shown; public catalogue still usable",
+        "1/2/3/4 tile layouts, five-place cap, add/reorder/stay/manual place and missing-coordinate state",
+        "Reload restores exact manual and provider references; editing updates the same record",
+        "Public share strips free text; importing preserves original; discard leaves saved course intact"
+      ],
+      "pageErrors": [],
+      "apiRequests": {
+        "/api/test-access": 2,
+        "/api/groups": 2,
+        "/api/catalog": 2,
+        "/api/status": 2,
+        "/api/places": 2,
+        "/api/places/search": 1
+      },
+      "status": "passed"
+    },
+    {
+      "browser": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "checks": [
+        "Anonymous API denied; wrong password rejected; correct password admits without ChatGPT",
+        "Search outage shown; public catalogue still usable",
+        "1/2/3/4 tile layouts, five-place cap, add/reorder/stay/manual place and missing-coordinate state",
+        "Reload restores exact manual and provider references; editing updates the same record",
+        "Public share strips free text; importing preserves original; discard leaves saved course intact"
+      ],
+      "pageErrors": [],
+      "apiRequests": {
+        "/api/test-access": 2,
+        "/api/groups": 2,
+        "/api/catalog": 2,
+        "/api/status": 2,
+        "/api/places": 2,
+        "/api/places/search": 1
+      },
+      "status": "passed"
+    }
+  ],
+  "completedAt": "2026-09-08T05:03:16.604Z",
+  "passed": 4,
+  "failed": 0
+}

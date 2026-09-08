@@ -139,8 +139,8 @@ export default function MeetingPicker({
           />
         </label>
         <p className="helper">
-          이 브라우저에만 보관합니다. 가족·공개 공유 카드에는 이 장소가 표시되지
-          않아요.
+          이 브라우저에 보관합니다. 공개 공유 카드에는 표시되지 않으며, 그룹에는
+          공유 범위를 확인한 뒤 보낼 수 있어요.
         </p>
         {error && (
           <p role="alert" className="builder-notice">
