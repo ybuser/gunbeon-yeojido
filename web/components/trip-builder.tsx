@@ -42,8 +42,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import MissionMap from './mission-map';
 import PublicPlacePicker from './public-place-picker';
 import CourseCover from './course-cover';
+import MeetingPicker, { FavoritePlaces } from './meeting-picker';
 import {
-  assess,
+  assessPlan,
+  planSchedule,
+  planningSettings,
   createEntry,
   distance,
   hasVisitRecord,
@@ -52,7 +55,6 @@ import {
   parseKoreaInput,
   regionPlaces,
   regions,
-  routeSchedule,
   sensitivePlaceText,
   validCoord,
   validManualPlace,
@@ -121,9 +123,12 @@ type Props = {
   initial: Entry | null;
   mode: 'new' | 'edit' | 'copy';
   places: Place[];
+  placesLoading?: boolean;
   initialOrigin?: Place;
   settings: Settings;
   mapKey: string;
+  favorites: ManualPlace[];
+  onFavoritesChange: (places: ManualPlace[]) => void;
   onClose: () => void;
   onSave: (entry: Entry, places: Place[], returnAt: string) => void;
 };
@@ -131,9 +136,12 @@ export default function TripBuilder({
   initial,
   mode,
   places,
+  placesLoading = false,
   initialOrigin,
   settings,
   mapKey,
+  favorites,
+  onFavoritesChange,
   onClose,
   onSave,
 }: Props) {
@@ -143,7 +151,7 @@ export default function TripBuilder({
   );
   const [region] = useState(initial?.region || settings.region);
   const [originId, setOriginId] = useState(
-    initial?.plan?.originId || initialOrigin?.id || '',
+    initial?.plan ? initial.plan.originId : settings.originId || '',
   );
   const [stops, setStops] = useState(initial?.plan?.stops || []);
   const [manuals, setManuals] = useState<ManualPlace[]>(
@@ -153,9 +161,18 @@ export default function TripBuilder({
   const [referencesLoading, setReferencesLoading] = useState(false);
   const [referenceRetry, setReferenceRetry] = useState(0);
   const [departure, setDeparture] = useState(
-    localInputDate(initial?.plan?.departureAt || new Date().toISOString()),
+    localInputDate(initial?.plan?.departureAt || settings.startedAt),
   );
-  const [deadline, setDeadline] = useState(localInputDate(settings.returnAt));
+  const [deadline, setDeadline] = useState(
+    localInputDate(
+      initial?.plan?.departureAt
+        ? new Date(
+            Date.parse(initial.plan.departureAt) +
+              (initial.plan.timeBudgetMinutes || 240) * 60000,
+          ).toISOString()
+        : settings.returnAt,
+    ),
+  );
   const [transport, setTransport] = useState<Settings['transport']>(
     initial?.plan?.transport || settings.transport,
   );
@@ -186,12 +203,12 @@ export default function TripBuilder({
     lon: null,
     publicPlaceDeclared: true,
   });
-  const [declared, setDeclared] = useState(false);
+
   const allPlaces = useMemo(
     () => [
+      ...manuals.filter(validManualPlace).map(manualToPlace),
       ...extra,
       ...places,
-      ...manuals.filter(validManualPlace).map(manualToPlace),
     ],
     [extra, places, manuals],
   );
@@ -208,6 +225,14 @@ export default function TripBuilder({
       custom: true,
       departureAt: parseKoreaInput(departure),
       transport,
+      timeBudgetMinutes: Math.max(
+        1,
+        Math.round(
+          (Date.parse(parseKoreaInput(deadline)) -
+            Date.parse(parseKoreaInput(departure))) /
+            60000,
+        ),
+      ),
       brief: '직접 고른 장소와 순서로 계획한 하루입니다.',
       stops: stops.flatMap((s) => {
         const place = allPlaces.find((p) => p.id === s.placeId);
@@ -223,21 +248,22 @@ export default function TripBuilder({
           : [];
       }),
     }),
-    [initial, title, region, departure, transport, stops, allPlaces],
+    [initial, title, region, departure, deadline, transport, stops, allPlaces],
   );
   const previewSettings = {
     ...settings,
     region,
     transport,
     returnAt: parseKoreaInput(deadline),
+    startedAt: parseKoreaInput(departure),
   };
   const schedule =
     origin && !missing.length
-      ? routeSchedule(mission, previewSettings, origin)
+      ? planSchedule(mission, previewSettings, origin)
       : null;
   const score =
     origin && stops.length && !missing.length
-      ? assess(mission, previewSettings, origin)
+      ? assessPlan(mission, previewSettings, origin)
       : null;
   const nearby = useMemo(() => {
     const last = mission.stops.at(-1)?.place || origin;
@@ -286,9 +312,22 @@ export default function TripBuilder({
     setNotice('');
   };
   function choose(p: Place) {
+    if (p.source === 'manual')
+      setManuals((v) => [
+        ...v.filter((x) => x.id !== p.id),
+        {
+          id: p.id,
+          title: p.title,
+          address: p.address,
+          lat: p.lat,
+          lon: p.lon,
+          sigungu: p.sigungu,
+          category: p.category,
+        },
+      ]);
     if (selectionTarget === 'origin') {
       if (!validCoord(p)) {
-        setNotice('만남 거점은 위치가 확인된 공개 장소를 선택해 주세요.');
+        setNotice('만나는 장소은 위치가 확인된 장소를 선택해 주세요.');
         return;
       }
       setOriginId(p.id);
@@ -368,9 +407,9 @@ export default function TripBuilder({
       setNotice('군 정보가 없는 코스 이름을 2~60자로 입력해 주세요.');
       return;
     }
-    if (!origin || !validCoord(origin) || !stops.length || missing.length) {
+    if (missing.length) {
       setNotice(
-        '공개 만남 거점과 최소 1곳의 장소가 필요합니다. 조회하지 못한 장소는 다시 찾거나 제외해 주세요.',
+        '조회하지 못한 장소는 다시 찾거나 제외해 주세요. 빈 코스도 저장할 수 있어요.',
       );
       return;
     }
@@ -447,7 +486,6 @@ export default function TripBuilder({
             publicPlaceDeclared: true,
           },
     );
-    setDeclared(false);
     setStage('manual');
     setNotice('');
   }
@@ -485,10 +523,10 @@ export default function TripBuilder({
                 <SheetTitle>
                   {stage === 'places'
                     ? selectionTarget === 'origin'
-                      ? '공개 만남 거점 선택'
+                      ? '만나는 장소 선택'
                       : '코스에 장소 담기'
                     : stage === 'manual'
-                      ? '공개 장소 직접 추가'
+                      ? '장소 직접 추가'
                       : mode === 'edit'
                         ? '내 코스 수정하기'
                         : '나만의 코스 만들기'}
@@ -496,7 +534,7 @@ export default function TripBuilder({
                 <SheetDescription>
                   {stage === 'plan'
                     ? '장소와 순서, 머무는 시간을 자유롭게 정해요.'
-                    : '장병과 가족이 방문할 수 있는 강원의 공개 장소'}
+                    : '장병과 가족이 방문할 수 있는 강원의 장소'}
                 </SheetDescription>
               </div>
             </div>
@@ -532,6 +570,18 @@ export default function TripBuilder({
                         aria-label="출발 날짜·시간"
                         value={departure}
                         onChange={(e) => {
+                          const next = parseKoreaInput(e.target.value),
+                            prior = parseKoreaInput(departure);
+                          if (next && prior)
+                            setDeadline(
+                              localInputDate(
+                                new Date(
+                                  Date.parse(parseKoreaInput(deadline)) +
+                                    Date.parse(next) -
+                                    Date.parse(prior),
+                                ).toISOString(),
+                              ),
+                            );
                           setDeparture(e.target.value);
                           change();
                         }}
@@ -552,7 +602,7 @@ export default function TripBuilder({
                     <div>
                       <span>만나는 곳 · 돌아올 곳</span>
                       <strong>
-                        {origin?.title || '공개 거점을 선택해 주세요'}
+                        {origin?.title || '즐겨찾기 또는 지도에서 설정'}
                       </strong>
                     </div>
                     <Button
@@ -566,17 +616,19 @@ export default function TripBuilder({
                       변경
                     </Button>
                   </div>
-                  {missing.length > 0 && !referencesLoading && (
-                    <div className="warning">
-                      저장한 장소 정보를 연결하지 못했습니다.
-                      <Button
-                        variant="outline"
-                        onClick={() => setReferenceRetry((v) => v + 1)}
-                      >
-                        장소 정보 다시 확인
-                      </Button>
-                    </div>
-                  )}
+                  {missing.length > 0 &&
+                    !referencesLoading &&
+                    !placesLoading && (
+                      <div className="warning">
+                        저장한 장소 정보를 연결하지 못했습니다.
+                        <Button
+                          variant="outline"
+                          onClick={() => setReferenceRetry((v) => v + 1)}
+                        >
+                          장소 정보 다시 확인
+                        </Button>
+                      </div>
+                    )}
                   <ol className="builder-stops">
                     {stops.map((stop, i) => {
                       const p = allPlaces.find((p) => p.id === stop.placeId);
@@ -594,7 +646,7 @@ export default function TripBuilder({
                             <div>
                               <strong>
                                 {p?.title ||
-                                  (referencesLoading
+                                  (referencesLoading || placesLoading
                                     ? '장소 정보를 확인하고 있어요'
                                     : '장소를 다시 조회하지 못했어요')}
                               </strong>
@@ -602,7 +654,7 @@ export default function TripBuilder({
                                 {p?.source === 'tourapi'
                                   ? '한국관광공사 관광정보'
                                   : p?.source === 'manual'
-                                    ? '직접 입력 · 운영·위치 미검증'
+                                    ? '직접 지정한 장소'
                                     : '공개 관광자료'}
                               </small>
                             </div>
@@ -730,7 +782,7 @@ export default function TripBuilder({
                       <MapPin size={18} />
                       <div>
                         <strong>
-                          {origin?.title || '공개 거점'}로 돌아오기
+                          {origin?.title || '만나는 장소'}로 돌아오기
                         </strong>
                         <p>
                           {schedule
@@ -756,10 +808,10 @@ export default function TripBuilder({
                   )}
                   <section className="builder-margin">
                     <label className="builder-field">
-                      <span>공개 거점 복귀 기준시각</span>
+                      <span>돌아올 예정 시각</span>
                       <Input
                         type="datetime-local"
-                        aria-label="공개 거점 복귀 기준시각"
+                        aria-label="돌아올 예정 시각"
                         value={deadline}
                         onChange={(e) => {
                           setDeadline(e.target.value);
@@ -767,7 +819,10 @@ export default function TripBuilder({
                         }}
                       />
                     </label>
-                    <p>복귀시각은 이번 계산에만 사용하고 저장하지 않습니다.</p>
+                    <p>
+                      출발 계획과 사용 가능한 시간을 저장합니다. 현재 시각과
+                      무관하게 계획할 수 있어요.
+                    </p>
                     <div className={score?.band || 'unknown'}>
                       <span>이동·체류·안전 여유를 반영하면</span>
                       <strong>
@@ -793,8 +848,28 @@ export default function TripBuilder({
                 </aside>
               </div>
             )}
-            {stage === 'places' && (
+            {stage === 'places' && selectionTarget === 'origin' && (
+              <MeetingPicker
+                favorites={favorites}
+                onFavoritesChange={onFavoritesChange}
+                onChoose={choose}
+                region={region}
+                mapKey={mapKey}
+                center={
+                  initialOrigin && validCoord(initialOrigin)
+                    ? { lat: initialOrigin.lat!, lon: initialOrigin.lon! }
+                    : undefined
+                }
+              />
+            )}
+            {stage === 'places' && selectionTarget === 'stop' && (
               <section className="builder-finder">
+                {favorites.length > 0 && (
+                  <section className="finder-favorites">
+                    <h3>즐겨찾는 장소</h3>
+                    <FavoritePlaces favorites={favorites} onChoose={choose} />
+                  </section>
+                )}
                 <Choice
                   label="장소를 찾을 권역"
                   value={searchRegion}
@@ -932,7 +1007,7 @@ export default function TripBuilder({
                 <div className="finder-manual">
                   <div>
                     <strong>목록에 없는 곳인가요?</strong>
-                    <p>공개 장소를 직접 입력하거나 지도에서 골라요.</p>
+                    <p>장소를 직접 입력하거나 지도에서 골라요.</p>
                   </div>
                   <Button variant="outline" onClick={() => manualForm()}>
                     <Plus size={18} />
@@ -943,14 +1018,10 @@ export default function TripBuilder({
             )}
             {stage === 'manual' && (
               <section className="builder-manual">
-                <p className="manual-notice">
-                  카페·식당·관광지처럼 누구나 방문할 수 있는 민간 장소만 추가해
-                  주세요. 부대·복무지·위병소·집 주소는 입력하지 마세요.
-                </p>
                 <label className="builder-field">
-                  <span>공개 장소 이름</span>
+                  <span>장소 이름</span>
                   <Input
-                    aria-label="공개 장소 이름"
+                    aria-label="장소 이름"
                     value={manual.title}
                     maxLength={60}
                     onChange={(e) =>
@@ -979,17 +1050,17 @@ export default function TripBuilder({
                     restaurant: '식당',
                     cafe: '카페',
                     culture: '문화시설',
-                    other: '기타 공개 장소',
+                    other: '기타 장소',
                   }}
                   onChange={(v) => setManual((p) => ({ ...p, category: v }))}
                 />
                 <label className="builder-field">
-                  <span>공개 주소 · 선택</span>
+                  <span>주소 · 선택</span>
                   <Input
-                    aria-label="공개 주소"
+                    aria-label="주소"
                     value={manual.address}
                     maxLength={160}
-                    placeholder="상호의 공개 도로명주소"
+                    placeholder="주소 또는 만날 지점"
                     onChange={(e) =>
                       setManual((p) => ({ ...p, address: e.target.value }))
                     }
@@ -998,8 +1069,7 @@ export default function TripBuilder({
                 <div className="manual-location">
                   <h3>지도에서 위치 선택 · 선택</h3>
                   <p>
-                    지도를 눌러 공개 장소의 위치를 고르세요. GPS는 사용하지
-                    않습니다.
+                    지도를 눌러 장소의 위치를 고르세요. GPS는 사용하지 않습니다.
                   </p>
                   <PublicPlacePicker
                     mapKey={mapKey}
@@ -1031,21 +1101,11 @@ export default function TripBuilder({
                       : '선택 위치는 사용자가 지정한 값이며 공식 확인된 좌표가 아닙니다.'}
                   </p>
                 </div>
-                <label className="manual-declaration">
-                  <Checkbox
-                    checked={declared}
-                    onCheckedChange={(v) => setDeclared(Boolean(v))}
-                  />
-                  군 시설·개인 주소가 아닌, 방문 가능한 공개 민간 장소입니다.
-                </label>
                 <Button
                   className="manual-save"
-                  disabled={!declared}
                   onClick={() => {
                     if (!validManualPlace(manual)) {
-                      setNotice(
-                        '공개 장소 이름·권역·위치를 확인해 주세요. 군 관련 정보는 저장할 수 없습니다.',
-                      );
+                      setNotice('장소 이름·권역·위치를 확인해 주세요.');
                       return;
                     }
                     if (
@@ -1053,7 +1113,7 @@ export default function TripBuilder({
                       (manual.lat === null || manual.lon === null)
                     ) {
                       setNotice(
-                        '만남 거점은 지도에서 공개 장소 위치를 선택해 주세요.',
+                        '만나는 장소은 지도에서 장소 위치를 선택해 주세요.',
                       );
                       return;
                     }
@@ -1087,10 +1147,7 @@ export default function TripBuilder({
                   {stops.reduce((a, s) => a + s.stay, 0)}분 머무름 · 이
                   브라우저에 저장
                 </p>
-                <Button
-                  onClick={save}
-                  disabled={!stops.length || missing.length > 0 || !origin}
-                >
+                <Button onClick={save} disabled={missing.length > 0}>
                   <Check size={18} />
                   {mode === 'edit' ? '변경사항 저장' : '내 코스 저장'}
                 </Button>

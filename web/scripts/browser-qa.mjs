@@ -177,7 +177,10 @@ for (const channel of channels) {
       await tab(p, '가족').click();
       await p.goBack();
       await p
-        .getByRole('heading', { name: '오늘, 강원 어디 갈까요?', exact: true })
+        .getByRole('heading', {
+          name: '강원에서 어떤 하루를 보낼까요?',
+          exact: true,
+        })
         .waitFor();
       assert.equal(new URL(p.url()).origin, new URL(base).origin);
       result.checks.push('Browser Back returns to the previous app screen');
@@ -353,7 +356,10 @@ for (const channel of channels) {
           1,
           'Preparation stays under plans',
         );
-        await p.getByRole('button', { name: '입경', exact: true }).click();
+        await p.getByRole('button', { name: '여행 완료', exact: true }).click();
+        await p
+          .getByRole('button', { name: '여행 완료로 기록', exact: true })
+          .click();
         await p.getByRole('button', { name: /^여행 기록/ }).click();
         await p.locator('.saved-mission').first().waitFor();
         await p.getByRole('button', { name: '공유 카드', exact: true }).click();

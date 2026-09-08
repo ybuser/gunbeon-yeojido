@@ -168,10 +168,10 @@ for (const channel of (
       await add.click();
       await p.getByRole('button', { name: '직접 추가', exact: true }).click();
       await p
-        .getByLabel('공개 장소 이름', { exact: true })
+        .getByLabel('장소 이름', { exact: true })
         .fill('가족이 찾은 공개 카페');
       await p
-        .getByLabel('공개 주소', { exact: true })
+        .getByLabel('주소', { exact: true })
         .fill('강원특별자치도 철원군 공개 카페');
       if (live) {
         await p.locator('.public-pick-map[data-ready="true"]').waitFor();
@@ -179,14 +179,17 @@ for (const channel of (
           .locator('.public-pick-map')
           .click({ position: { x: 120, y: 140 } });
         await p
-          .getByText('위치를 선택했습니다. 공개 장소가 맞는지 확인해 주세요.', {
+          .getByText('위치를 선택했습니다.', {
             exact: true,
           })
           .waitFor();
       }
-      await p
-        .getByRole('checkbox', { name: /군 시설·개인 주소가 아닌/ })
-        .check();
+      assert.equal(
+        await p
+          .getByRole('checkbox', { name: /군 시설·개인 주소가 아닌/ })
+          .count(),
+        0,
+      );
       await p
         .getByRole('button', { name: '이 장소 코스에 추가', exact: true })
         .click();
@@ -197,11 +200,14 @@ for (const channel of (
       await add.click();
       await p.getByRole('button', { name: '직접 추가', exact: true }).click();
       await p
-        .getByLabel('공개 장소 이름', { exact: true })
+        .getByLabel('장소 이름', { exact: true })
         .fill('위치는 나중에 정할 식당');
-      await p
-        .getByRole('checkbox', { name: /군 시설·개인 주소가 아닌/ })
-        .check();
+      assert.equal(
+        await p
+          .getByRole('checkbox', { name: /군 시설·개인 주소가 아닌/ })
+          .count(),
+        0,
+      );
       await p
         .getByRole('button', { name: '이 장소 코스에 추가', exact: true })
         .click();

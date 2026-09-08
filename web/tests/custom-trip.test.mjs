@@ -147,13 +147,14 @@ test('free text and manual coordinates never escape into public or family projec
     'returnAt',
   ])
     assert(!serialized.includes(text));
-  assert(projection.mission.placeNames.includes('직접 추가한 공개 장소'));
+  assert(projection.mission.placeNames.includes('개인 장소'));
 });
-test('manual military terms and out-of-region coordinates are rejected; matching names do not gain official status', () => {
+test('personal meeting places need no declaration and never gain official status', () => {
   assert(validManualPlace(manual));
-  assert(!validManualPlace({ ...manual, title: '우리 부대 위병소' }));
-  assert(!validManualPlace({ ...manual, lat: 37, lon: 126 }));
-  assert(!validManualPlace({ ...manual, publicPlaceDeclared: false }));
+  assert(validManualPlace({ ...manual, title: '정문 앞' }));
+  assert(validManualPlace({ ...manual, lat: 37, lon: 126 }));
+  assert(!validManualPlace({ ...manual, lat: 100, lon: 126 }));
+  assert(validManualPlace({ ...manual, publicPlaceDeclared: false }));
   const flower = manualToPlace({ ...manual, title: '고석정꽃밭' });
   assert.equal(
     visitRestriction(flower, new Date('2026-09-08T03:00:00Z'), 60),
