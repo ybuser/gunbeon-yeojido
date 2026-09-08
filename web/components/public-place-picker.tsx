@@ -116,7 +116,7 @@ export default function PublicPlacePicker({
       disposed = true;
       cleanup();
     };
-  }, [mapKey, region]);
+  }, [mapKey, region, center?.lat, center?.lon]);
   return (
     <div className="public-place-picker">
       <div

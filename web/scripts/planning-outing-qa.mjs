@@ -129,6 +129,18 @@ for (const channel of (
         'Blank course saves and restores; completion disabled until places exist',
       );
       if (live) {
+        let releaseLocation;
+        const locationReady = new Promise(
+          (resolve) => (releaseLocation = resolve),
+        );
+        const delayedLocation = async (route) => {
+          await locationReady;
+          await route.continue();
+        };
+        await ctx.route('**/api/catalog', delayedLocation);
+        await ctx.route('**/api/places?*', delayedLocation);
+        await p.reload();
+        await p.locator('.app-shell[data-ready="true"]').waitFor();
         await p
           .getByRole('button', { name: '즐겨찾는 장소', exact: true })
           .click();
@@ -140,7 +152,19 @@ for (const channel of (
           .getByLabel('만남 장소 설명', { exact: true })
           .fill('늘 만나는 정문 맞은편');
         assert.equal(await p.getByRole('checkbox').count(), 0);
+        await p
+          .getByText(
+            '위치가 확인된 만남 거점을 고르면 지도를 사용할 수 있어요.',
+            { exact: true },
+          )
+          .waitFor();
+        releaseLocation();
         await p.locator('.public-pick-map[data-ready=true]').waitFor();
+        await ctx.unroute('**/api/catalog', delayedLocation);
+        await ctx.unroute('**/api/places?*', delayedLocation);
+        result.checks.push(
+          'Map initializes after meeting coordinates arrive later than the SDK key',
+        );
         await p
           .getByRole('button', {
             name: '지도 중심을 이 장소로 선택',
