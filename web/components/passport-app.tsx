@@ -709,12 +709,7 @@ export default function PassportApp() {
     setSettings(draft);
     setNow(new Date());
     setSelectedId('');
-    if (
-      draft.region !== settings.region ||
-      draft.originId !== settings.originId ||
-      draft.duration !== settings.duration
-    )
-      setReviewEntry(null);
+    setReviewEntry(null);
     setEditing(false);
     if (draft.role === '부모님') {
       setFamilyRegion(draft.region);
@@ -754,6 +749,18 @@ export default function PassportApp() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function openBuilder(entry: Entry | null, mode: 'new' | 'edit' | 'copy') {
+    if (
+      mode === 'edit' &&
+      entry &&
+      activeOuting &&
+      entryKey(entry) === entryKey(activeOuting.entry)
+    ) {
+      setNotice(
+        '현재 출타 중인 여행은 수정할 수 없어요. 출타를 마친 뒤 새 코스로 복사할 수 있습니다.',
+      );
+      go('outing');
+      return;
+    }
     setComposer({ key: crypto.randomUUID(), entry, mode });
   }
   function saveMission() {
@@ -774,6 +781,10 @@ export default function PassportApp() {
       openBuilder(entry, 'edit');
       return;
     }
+    if (!entry.plan?.timeBudgetMinutes)
+      setNotice(
+        '이전 버전 계획은 사용 시간이 저장되지 않아 4시간으로 열었어요. 계획 시간을 확인해 주세요.',
+      );
     setReviewEntry(entry);
     setSettings((s) => ({
       ...s,
@@ -988,8 +999,11 @@ export default function PassportApp() {
               ))}
             </div>
             <p className="plan-context">
-              출발 계획 {loaded ? scheduleTime(Date.parse(settings.startedAt)) : '불러오는 중'} · 현재
-              시각과 무관하게 계획해요.
+              출발 계획{' '}
+              {loaded
+                ? scheduleTime(Date.parse(settings.startedAt))
+                : '불러오는 중'}{' '}
+              · 현재 시각과 무관하게 계획해요.
             </p>
             <section className="trip-search" aria-label="여행 계획 조건">
               <button onClick={editTrip}>
@@ -2532,6 +2546,7 @@ export default function PassportApp() {
             const old =
               composer.mode === 'edit' &&
               composer.entry &&
+              entries.some((e) => entryKey(e) === entryKey(composer.entry!)) &&
               !hasVisitRecord(composer.entry)
                 ? entryKey(composer.entry)
                 : null;

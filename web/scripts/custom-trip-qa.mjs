@@ -184,7 +184,12 @@ for (const channel of (
           })
           .waitFor();
       }
-      assert.equal(await p.getByRole('checkbox', { name: /군 시설·개인 주소가 아닌/ }).count(), 0);
+      assert.equal(
+        await p
+          .getByRole('checkbox', { name: /군 시설·개인 주소가 아닌/ })
+          .count(),
+        0,
+      );
       await p
         .getByRole('button', { name: '이 장소 코스에 추가', exact: true })
         .click();
@@ -197,7 +202,12 @@ for (const channel of (
       await p
         .getByLabel('장소 이름', { exact: true })
         .fill('위치는 나중에 정할 식당');
-      assert.equal(await p.getByRole('checkbox', { name: /군 시설·개인 주소가 아닌/ }).count(), 0);
+      assert.equal(
+        await p
+          .getByRole('checkbox', { name: /군 시설·개인 주소가 아닌/ })
+          .count(),
+        0,
+      );
       await p
         .getByRole('button', { name: '이 장소 코스에 추가', exact: true })
         .click();

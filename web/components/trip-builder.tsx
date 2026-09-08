@@ -568,8 +568,18 @@ export default function TripBuilder({
                         aria-label="출발 날짜·시간"
                         value={departure}
                         onChange={(e) => {
-                          const next=parseKoreaInput(e.target.value), prior=parseKoreaInput(departure);
-                          if(next && prior) setDeadline(localInputDate(new Date(Date.parse(parseKoreaInput(deadline))+Date.parse(next)-Date.parse(prior)).toISOString()));
+                          const next = parseKoreaInput(e.target.value),
+                            prior = parseKoreaInput(departure);
+                          if (next && prior)
+                            setDeadline(
+                              localInputDate(
+                                new Date(
+                                  Date.parse(parseKoreaInput(deadline)) +
+                                    Date.parse(next) -
+                                    Date.parse(prior),
+                                ).toISOString(),
+                              ),
+                            );
                           setDeparture(e.target.value);
                           change();
                         }}

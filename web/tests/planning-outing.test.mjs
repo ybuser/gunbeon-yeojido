@@ -178,3 +178,39 @@ test('forecast age uses real observation time while visit schedule uses plan dep
   assert(stale.issues.some((x) => x.includes('만료')));
   assert.equal(stale.costs['출발 전 대기'], 0);
 });
+test('active outings retain weather risk and recheck forecast validity', () => {
+  const a = {
+    entry,
+    startedAt: morning.toISOString(),
+    timeBudgetMinutes: 240,
+    completedStops: 0,
+    settings: {
+      transport: 'car',
+      companion: '부모님',
+      walkLimit: 120,
+      extraBuffer: 15,
+      weather: 'snow',
+    },
+  };
+  assert.equal(assessOuting(a, [], morning).score.band, 'avoid');
+  const withForecast = {
+    ...a,
+    settings: {
+      ...a.settings,
+      weatherForecast: {
+        region: '철원군',
+        fetchedAt: morning.toISOString(),
+        validUntil: '2026-09-09T01:00:00Z',
+        baseDate: '20260908',
+        baseTime: '0800',
+      },
+    },
+  };
+  assert(
+    assessOuting(
+      withForecast,
+      [],
+      new Date(morning.getTime() + 4 * 3600000),
+    ).score.issues.some((x) => x.includes('만료')),
+  );
+});

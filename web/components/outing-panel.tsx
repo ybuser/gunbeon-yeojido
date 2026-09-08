@@ -138,6 +138,42 @@ export default function OutingPanel({
                 마지막으로 확인한 장소 기준의 거리 추정입니다. 실제 이동 위치를
                 추적하지 않습니다.
               </p>
+              <label className="builder-field outing-weather">
+                현재 날씨 보정
+                <select
+                  aria-label="현재 날씨 보정"
+                  value={active.settings.weather || 'unknown'}
+                  onChange={(e) =>
+                    onChange({
+                      ...active,
+                      settings: {
+                        ...active.settings,
+                        weather: e.target.value as Settings['weather'],
+                        weatherForecast: undefined,
+                      },
+                    })
+                  }
+                >
+                  {Object.entries({
+                    unknown: '미확인',
+                    clear: '맑음',
+                    rain: '비',
+                    wind: '강풍',
+                    snow: '눈·결빙',
+                  }).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {live.score.issues
+                .filter((x) => /날씨|기상|예보|눈|결빙/.test(x))
+                .map((text) => (
+                  <p className="helper" key={text}>
+                    {text}
+                  </p>
+                ))}
               <ol className="outing-timeline">
                 {live.mission.stops.map((s, i) => (
                   <li
@@ -265,6 +301,14 @@ export default function OutingPanel({
                     companion: settings.companion,
                     walkLimit: settings.walkLimit,
                     extraBuffer: settings.extraBuffer,
+                    weather:
+                      settings.region === candidate!.region
+                        ? settings.weather
+                        : 'unknown',
+                    weatherForecast:
+                      settings.region === candidate!.region
+                        ? settings.weatherForecast
+                        : undefined,
                   },
                 });
                 onCandidate(null);

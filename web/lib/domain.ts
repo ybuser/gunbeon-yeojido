@@ -932,7 +932,8 @@ export type ActiveOuting = {
   settings: Pick<
     Settings,
     'transport' | 'companion' | 'walkLimit' | 'extraBuffer'
-  >;
+  > &
+    Partial<Pick<Settings, 'weather' | 'weatherForecast'>>;
 };
 export function validOuting(v: unknown): v is ActiveOuting {
   if (!v || typeof v !== 'object') return false;
