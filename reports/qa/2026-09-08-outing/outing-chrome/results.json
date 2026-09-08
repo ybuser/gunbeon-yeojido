@@ -1,0 +1,87 @@
+{
+  "startedAt": "2026-09-08T00:43:38.533Z",
+  "base": "http://localhost:3000",
+  "live": true,
+  "deviceMode": "Desktop browser viewport/touch emulation, not physical mobile devices",
+  "cases": [
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "name": "small",
+        "width": 360,
+        "height": 740
+      },
+      "checks": [
+        "Planning margin remains fixed after 30 minutes; five navigation tabs fit",
+        "Blank course saves and restores; completion disabled until places exist",
+        "Meeting picker only offers favorites/map; favorite-first stop selection and personal place declaration removed",
+        "Favorite deletion leaves saved meeting snapshot and future plan time intact",
+        "Explicit outing start; live clock ticks, progress restores/undoes, cancel preserves current outing",
+        "Confirmed completion alone adds selected stamps and ends the clock"
+      ],
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "name": "large",
+        "width": 430,
+        "height": 932
+      },
+      "checks": [
+        "Planning margin remains fixed after 30 minutes; five navigation tabs fit",
+        "Blank course saves and restores; completion disabled until places exist",
+        "Meeting picker only offers favorites/map; favorite-first stop selection and personal place declaration removed",
+        "Favorite deletion leaves saved meeting snapshot and future plan time intact",
+        "Explicit outing start; live clock ticks, progress restores/undoes, cancel preserves current outing",
+        "Confirmed completion alone adds selected stamps and ends the clock"
+      ],
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "checks": [
+        "Planning margin remains fixed after 30 minutes; five navigation tabs fit",
+        "Blank course saves and restores; completion disabled until places exist",
+        "Meeting picker only offers favorites/map; favorite-first stop selection and personal place declaration removed",
+        "Favorite deletion leaves saved meeting snapshot and future plan time intact",
+        "Explicit outing start; live clock ticks, progress restores/undoes, cancel preserves current outing",
+        "Confirmed completion alone adds selected stamps and ends the clock"
+      ],
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "name": "wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "checks": [
+        "Planning margin remains fixed after 30 minutes; five navigation tabs fit",
+        "Blank course saves and restores; completion disabled until places exist",
+        "Meeting picker only offers favorites/map; favorite-first stop selection and personal place declaration removed",
+        "Favorite deletion leaves saved meeting snapshot and future plan time intact",
+        "Explicit outing start; live clock ticks, progress restores/undoes, cancel preserves current outing",
+        "Confirmed completion alone adds selected stamps and ends the clock"
+      ],
+      "pageErrors": [],
+      "status": "passed"
+    }
+  ],
+  "completedAt": "2026-09-08T00:44:21.834Z",
+  "passed": 4,
+  "failed": 0
+}
