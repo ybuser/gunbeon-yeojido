@@ -29,6 +29,8 @@
 - 저장한 일반 추천 미션에서 날짜·수단을 바꿔도 과거 계획 조건이 덮어쓰던 문제를 수정했다.
 - 내 여행 목록에서는 막았던 진행 중 코스 편집이 상단 진입점으로 가능했던 문제를 중앙 가드로 보완했다.
 - 현재 출타에 날씨 조건이 전달되지 않던 문제를 수정했다. 직접 적용한 눈·비·강풍과 예보 만료를 현재 계산에 반영한다.
+- 새로고침 직후 코스를 열 때 공공 장소 목록이 도착하기 전에 조회 실패로 보이던 상태를 `ede91d3`에서 로딩 안내로 수정했다. 목록 응답을 의도적으로 지연하는 브라우저 회귀 검사를 추가했고 장소 복원이 끝난 뒤 증빙 화면을 촬영하도록 보완했다.
+- 버전8 공개 검사에서 Edge360px 지도 초기화가 25초 대기를 넘겼고 동일 환경 재검사도 실패했다. 지도 키보다 기준 장소 좌표가 늦게 도착할 때 초기화 effect가 재실행되지 않는 결함을 확인했다. `c075e13`에서 좌표 변경을 초기화 의존성에 추가하고, 키 조회는 정상으로 둔 채 장소 목록 두 응답을 늦추는 실제 지도 검사를 추가했다.
 - 개인 즐겨찾기보다 저장 코스의 장소 스냅샷을 우선하고, 계획 시각과 예보의 실제 유효기간을 구분했다.
 
 ## 검증 결과
@@ -41,7 +43,11 @@
 | 키 없는 장애 환경 | Chromium, 360/1440px, API 미연결·샘플 즐겨찾기 사전 설정 | 2개 통과. 실제 지도 등록 성공으로 해석하지 않음. [결과](qa/2026-09-08-outing/outing-keyless/results.json) |
 | 최종 보완 출타 흐름 | `78ab63d`, Chrome 360/1440px, 실제 API·지도 | 2개 통과. 진행 중 편집 우회 차단·날씨 보정을 추가 확인. [결과](qa/2026-09-08-outing/outing-final/results.json) |
 | 기존 가족·공유 및 직접 코스 회귀 | `78ab63d`, Chrome 360/1440px | 각 2개 통과. [가족·공유](qa/2026-09-08-outing/outing-regression/results.json), [직접 코스](qa/2026-09-08-outing/outing-custom-regression/results.json) |
+| 목록 지연 보완 | `ede91d3`, Chrome 360/1440px, 실제 API·지도 | 2개 통과. [결과](qa/2026-09-08-outing/outing-loading/results.json) |
+| 지도 좌표 지연 보완 | `c075e13`, Chrome·Edge 각각360/1440px, 지도 키보다 좌표가 늦게 도착하도록 응답 제어 | 4개 통과. [결과](qa/2026-09-08-outing/outing-map-late/results.json) |
 | 공개 배포 출타 흐름 | 버전7, Chrome·Edge 각각 360/1440px, ChatGPT 인증 없는 새 브라우저 세션·서비스 비밀번호 입장 | 4개 통과, 페이지 예외 0. [결과](qa/2026-09-08-outing/outing-public/results.json) |
+| 버전8 공개 재검사 | Chrome360/1440·Edge360/1440px | 3개 통과·Edge360 지도 준비 시간 초과 1개. [원래 결과](qa/2026-09-08-outing/outing-public-final/results.json), [동일 실패 재현](qa/2026-09-08-outing/outing-public-edge-recheck/results.json). 이후 좌표 도착 시 초기화 보완 대상으로 처리. |
+| 최종 버전9 공개 검사 | `c075e13`, Chrome·Edge 각각360/1440px, 실제 API·지도·좌표/목록 응답 지연 포함 | 4개 통과·페이지 예외 0. 버전8에서 실패한 Edge360도 통과. [결과](qa/2026-09-08-outing/outing-public-v9/results.json) |
 | 공개 배포 기존 흐름 | 버전7, Chrome 360px, 실 API | 1개 통과. TourAPI 응답·카카오 타일/핀·무장애 상세·부모 제안·권한 회수·SVG 공유·API 실패 시 저장 참조 보존. [결과](qa/2026-09-08-outing/outing-public-regression/results.json) |
 
 브라우저 시계를 제어해 계획 상태에서 30분, 출타 상태에서 10분을 진행하고 값의 고정·감소를 비교했다. 실제 이동·복귀를 측정한 결과가 아니다. 별도 테스트 프로필에서 가상의 개인 장소·여행 날짜를 사용했으며 사용자의 실제 여행 기록을 수정하지 않았다.
@@ -52,7 +58,7 @@
 
 ## 공개 버전과 재현
 
-[외부 테스트 사이트](https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site/)의 기존 임시 비밀번호 입장을 유지한다. 버전7, 배포 소스 `1a9dd5c02c422424aeaf182195c2c98f65c4e09b`, 배포 `appgdep_6a9f5cec46c08191bc0ed8d4c3fe2ff6`, 2026-09-08 09:55(KST) succeeded. 런타임 secret revision2 유지. [배포 기록](deployment.md).
+[외부 테스트 사이트](https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site/)의 기존 임시 비밀번호 입장을 유지한다. 현재 버전9, 배포 소스 `e6c6fcf094c21ea443dce7b4d736522f43ef2764`, 배포 `appgdep_6a9f60b48c3481919b0ce39044941b41`, 2026-09-08 10:11(KST) succeeded. 앞선 버전7의 배포 소스는 `1a9dd5c02c422424aeaf182195c2c98f65c4e09b`이며 검사 결과를 버전별로 구분했다. 런타임 secret revision2 유지. [배포 기록](deployment.md).
 
 ```sh
 cd web
