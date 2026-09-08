@@ -1,0 +1,90 @@
+{
+  "status": "illustrative planning assumptions; not observed traffic or approved quota",
+  "asOf": "2026-09-08",
+  "inputs": {
+    "sessionsPerDay": 500,
+    "regionLoadsPerSession": 2,
+    "detailOpensPerSession": 3,
+    "searchPagesPerSession": 2,
+    "unresolvedSavedPlacesPerSession": 4,
+    "accessibilityRegionLoadsPerSession": 0.5,
+    "accessibilityPreviewDetailsPerLoad": 4,
+    "reserveMultiplier": 1.5
+  },
+  "operations": [
+    {
+      "service": "KorService2",
+      "operation": "ldongCode2",
+      "callsPerSession": 8,
+      "expectedCallsPerDay": 4000,
+      "proposedRequestPerDay": 6000
+    },
+    {
+      "service": "KorService2",
+      "operation": "areaBasedList2",
+      "callsPerSession": 10,
+      "expectedCallsPerDay": 5000,
+      "proposedRequestPerDay": 8000
+    },
+    {
+      "service": "KorService2",
+      "operation": "searchKeyword2",
+      "callsPerSession": 2,
+      "expectedCallsPerDay": 1000,
+      "proposedRequestPerDay": 2000
+    },
+    {
+      "service": "KorService2",
+      "operation": "detailCommon2",
+      "callsPerSession": 7,
+      "expectedCallsPerDay": 3500,
+      "proposedRequestPerDay": 6000
+    },
+    {
+      "service": "KorService2",
+      "operation": "detailIntro2",
+      "callsPerSession": 3,
+      "expectedCallsPerDay": 1500,
+      "proposedRequestPerDay": 3000
+    },
+    {
+      "service": "KorWithService2",
+      "operation": "ldongCode2",
+      "callsPerSession": 1,
+      "expectedCallsPerDay": 500,
+      "proposedRequestPerDay": 1000
+    },
+    {
+      "service": "KorWithService2",
+      "operation": "areaBasedList2",
+      "callsPerSession": 0.5,
+      "expectedCallsPerDay": 250,
+      "proposedRequestPerDay": 1000
+    },
+    {
+      "service": "KorWithService2",
+      "operation": "detailWithTour2",
+      "callsPerSession": 5,
+      "expectedCallsPerDay": 2500,
+      "proposedRequestPerDay": 4000
+    }
+  ],
+  "totals": {
+    "KorService2": 15000,
+    "KorWithService2": 3250
+  },
+  "optimizedKorScenarios": {
+    "onDemandOneTypePerRegionLoad": 11000,
+    "withValidatedReferenceCodesIfPermitted": 7000,
+    "notes": "Same R/D/Q/P workload. Assumes only one category is needed per regional load. More categories/pages add requests. Reference-code policy and mappings require confirmation."
+  },
+  "exclusions": [
+    "retries",
+    "pagination beyond input Q",
+    "optional APIs",
+    "weather",
+    "manual QA",
+    "sync jobs"
+  ],
+  "approvalNote": "Confirm whether each service or each operation has its own cap. Round-up values are proposed application amounts, not automatic entitlements."
+}
