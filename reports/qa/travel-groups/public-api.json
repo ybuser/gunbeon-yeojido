@@ -1,0 +1,78 @@
+{
+  "startedAt": "2026-09-08T04:09:45.396Z",
+  "base": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
+  "mode": "Playwright APIRequestContext; three isolated cookie jars, no browser UI or device claim",
+  "scope": "Group API only; no tourism/weather/map API calls",
+  "runId": "fc47a0b5",
+  "status": "passed",
+  "cases": [
+    {
+      "name": "test gate and three isolated sessions",
+      "status": "passed",
+      "durationMs": 4746
+    },
+    {
+      "name": "create family and friends groups under distinct profiles",
+      "status": "passed",
+      "durationMs": 3452
+    },
+    {
+      "name": "cross-context invitation preview, join, and idempotent membership",
+      "status": "passed",
+      "durationMs": 4110
+    },
+    {
+      "name": "outsider and ordinary-member permission denials",
+      "status": "passed",
+      "durationMs": 4444
+    },
+    {
+      "name": "explicit manual sharing and server field whitelist",
+      "status": "passed",
+      "durationMs": 2633
+    },
+    {
+      "name": "member saves public-only and empty group plans",
+      "status": "passed",
+      "durationMs": 4469
+    },
+    {
+      "name": "stale revision and simultaneous edits return 409 without overwrite",
+      "status": "passed",
+      "durationMs": 7545
+    },
+    {
+      "name": "malformed bodies and malformed shared plans return 400",
+      "status": "passed",
+      "durationMs": 5082
+    },
+    {
+      "name": "removed member denied old invitation but accepts a new one",
+      "status": "passed",
+      "durationMs": 4665
+    },
+    {
+      "name": "leave requires a newer invitation and revocation preserves joined members",
+      "status": "passed",
+      "durationMs": 6493
+    },
+    {
+      "name": "group deletion removes API access and invitations, retaining unrelated group",
+      "status": "passed",
+      "durationMs": 10343
+    }
+  ],
+  "cleanup": [
+    {
+      "actor": "owner",
+      "status": "deleted"
+    },
+    {
+      "actor": "outsider",
+      "status": "deleted"
+    }
+  ],
+  "finishedAt": "2026-09-08T04:10:44.740Z",
+  "requestCount": 94,
+  "profileCleanup": "No profile deletion API; fresh test profile rows may remain. No existing profiles or groups were modified."
+}
