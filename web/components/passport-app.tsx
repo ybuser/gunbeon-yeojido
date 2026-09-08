@@ -278,6 +278,7 @@ function PlacePhoto({
 }
 export default function PassportApp() {
   const [basePlaces, setBasePlaces] = useState<Place[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(true);
   const [extraPlaces, setExtraPlaces] = useState<Place[]>([]);
   const [composer, setComposer] = useState<{
     key: string;
@@ -366,7 +367,8 @@ export default function PassportApp() {
         setNotice(
           '공개 장소 목록을 불러오지 못했습니다. 연결 상태를 확인해 주세요.',
         ),
-      );
+      )
+      .finally(() => setCatalogLoading(false));
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE) || 'null');
       if (
@@ -2536,6 +2538,7 @@ export default function PassportApp() {
           initial={composer.entry}
           mode={composer.mode}
           places={places}
+          placesLoading={catalogLoading || live.mode === 'loading'}
           initialOrigin={origin}
           settings={settings}
           mapKey={mapKey}

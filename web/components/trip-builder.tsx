@@ -123,6 +123,7 @@ type Props = {
   initial: Entry | null;
   mode: 'new' | 'edit' | 'copy';
   places: Place[];
+  placesLoading?: boolean;
   initialOrigin?: Place;
   settings: Settings;
   mapKey: string;
@@ -135,6 +136,7 @@ export default function TripBuilder({
   initial,
   mode,
   places,
+  placesLoading = false,
   initialOrigin,
   settings,
   mapKey,
@@ -614,17 +616,19 @@ export default function TripBuilder({
                       변경
                     </Button>
                   </div>
-                  {missing.length > 0 && !referencesLoading && (
-                    <div className="warning">
-                      저장한 장소 정보를 연결하지 못했습니다.
-                      <Button
-                        variant="outline"
-                        onClick={() => setReferenceRetry((v) => v + 1)}
-                      >
-                        장소 정보 다시 확인
-                      </Button>
-                    </div>
-                  )}
+                  {missing.length > 0 &&
+                    !referencesLoading &&
+                    !placesLoading && (
+                      <div className="warning">
+                        저장한 장소 정보를 연결하지 못했습니다.
+                        <Button
+                          variant="outline"
+                          onClick={() => setReferenceRetry((v) => v + 1)}
+                        >
+                          장소 정보 다시 확인
+                        </Button>
+                      </div>
+                    )}
                   <ol className="builder-stops">
                     {stops.map((stop, i) => {
                       const p = allPlaces.find((p) => p.id === stop.placeId);
@@ -642,7 +646,7 @@ export default function TripBuilder({
                             <div>
                               <strong>
                                 {p?.title ||
-                                  (referencesLoading
+                                  (referencesLoading || placesLoading
                                     ? '장소 정보를 확인하고 있어요'
                                     : '장소를 다시 조회하지 못했어요')}
                               </strong>

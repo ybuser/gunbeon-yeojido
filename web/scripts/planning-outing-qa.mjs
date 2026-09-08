@@ -220,6 +220,17 @@ for (const channel of (
         .click();
       await p.getByRole('button', { name: '닫기', exact: true }).click();
       assert.equal((await state()).favorites.length, 0);
+      let releaseCatalog, finishCatalog;
+      const catalogHandled = new Promise(
+        (resolve) => (finishCatalog = resolve),
+      );
+      const catalogReady = new Promise((resolve) => (releaseCatalog = resolve));
+      const delayedCatalog = async (route) => {
+        await catalogReady;
+        await route.continue();
+        finishCatalog();
+      };
+      await ctx.route('**/api/catalog', delayedCatalog);
       await p.reload();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
       await p.getByRole('button', { name: '코스 수정', exact: true }).click();
@@ -230,6 +241,24 @@ for (const channel of (
       assert.equal(
         await p.getByLabel('출발 날짜·시간', { exact: true }).inputValue(),
         plannedTime,
+      );
+      assert.equal(
+        await p
+          .getByText('저장한 장소 정보를 연결하지 못했습니다.', {
+            exact: false,
+          })
+          .count(),
+        0,
+      );
+      releaseCatalog();
+      await catalogHandled;
+      await ctx.unroute('**/api/catalog', delayedCatalog);
+      await p
+        .locator('.course-builder button:not([disabled])')
+        .filter({ hasText: '변경사항 저장' })
+        .waitFor();
+      result.checks.push(
+        'Delayed catalog shows loading instead of a premature failure; saved places finish restoring',
       );
       await shot('plan');
       await p
