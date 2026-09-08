@@ -1,7 +1,10 @@
 import type { Place } from './domain';
 export type RecordRow = Record<string, string | number>;
 export class TourError extends Error {
-  constructor(public code: string) {
+  constructor(
+    public code: string,
+    public details: unknown = undefined,
+  ) {
     super(code);
   }
 }
@@ -28,6 +31,16 @@ export async function tourRequest(
     pageNo: '1',
     ...params,
   }).forEach(([k, v]) => url.searchParams.set(k, v));
+  // Only a rate-limit code and retry timestamp are persisted, never tourism content.
+  const limits =
+    fetcher === fetch
+      ? await import('./provider-limit').catch(() => null)
+      : null;
+  const limitId = limits
+    ? await limits.providerLimitId(service, method, decoded)
+    : '';
+  const blocked = limits ? await limits.readProviderLimit(limitId) : null;
+  if (blocked) throw new TourError(blocked.error, { retryAt: blocked.retryAt });
   let response: Response;
   try {
     response = await fetcher(url, {
@@ -37,7 +50,26 @@ export async function tourRequest(
   } catch {
     throw new TourError('NETWORK_OR_TIMEOUT');
   }
-  if (!response.ok) throw new TourError('HTTP_' + response.status);
+  if (!response.ok) {
+    let providerCode = '';
+    try {
+      const body = (await response.json()) as {
+        OpenAPI_ServiceResponse?: {
+          cmmMsgHeader?: { returnReasonCode?: string };
+        };
+      };
+      providerCode = String(
+        body.OpenAPI_ServiceResponse?.cmmMsgHeader?.returnReasonCode || '',
+      );
+    } catch {}
+    if (response.status === 429 || providerCode === '22') {
+      const code =
+        providerCode === '22' ? 'DAILY_QUOTA_EXCEEDED' : 'RATE_LIMITED';
+      if (limits) await limits.saveProviderLimit(limitId, code);
+      throw new TourError(code);
+    }
+    throw new TourError('HTTP_' + response.status);
+  }
   let json;
   try {
     json = await response.json();
@@ -186,7 +218,14 @@ export async function fetchRegion(
     }),
   );
   if (results.every((x) => x.error))
-    throw new TourError('ALL_CATEGORIES_FAILED');
+    throw new TourError(
+      results.some((x) => x.error === 'DAILY_QUOTA_EXCEEDED')
+        ? 'DAILY_QUOTA_EXCEEDED'
+        : results.some((x) => x.error === 'RATE_LIMITED')
+          ? 'RATE_LIMITED'
+          : 'ALL_CATEGORIES_FAILED',
+      results.map(({ contentTypeId, error }) => ({ contentTypeId, error })),
+    );
   return {
     ...codes,
     places: results.flatMap((x) =>

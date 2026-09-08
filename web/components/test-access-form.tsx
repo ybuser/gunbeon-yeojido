@@ -1,4 +1,5 @@
 'use client';
+import Brand from './brand';
 import { useEffect, useState } from 'react';
 import { ArrowRight, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,10 +13,7 @@ export default function TestAccessForm() {
   return (
     <main className="test-entry" data-ready={ready} inert={!ready}>
       <div className="test-entry-brand">
-        <Navigation size={25} />
-        <strong>
-          군번여지도 <span>강원</span>
-        </strong>
+        <Brand/>
       </div>
       <section className="test-entry-panel">
         <p className="test-entry-eyebrow">테스트 입장</p>
@@ -47,7 +45,8 @@ export default function TestAccessForm() {
                 );
                 return;
               }
-              window.location.assign('/');
+              const join = new URLSearchParams(window.location.search).get('join');
+              window.location.assign(join && /^[a-f0-9]{48}$/.test(join) ? '/?join='+join+'#groups' : '/');
             } catch {
               setMessage('연결이 원활하지 않습니다. 다시 시도해 주세요.');
             } finally {
@@ -77,9 +76,7 @@ export default function TestAccessForm() {
           </Button>
         </form>
         <p className="test-entry-note">
-          내 여행은 이 브라우저에 저장됩니다.
-          <br />
-          부대 정보와 군번은 입력하지 마세요.
+          개인 여행은 이 브라우저에, 그룹에 공유한 일정은 그룹에 저장됩니다.
         </p>
       </section>
       <p className="test-entry-footer">휴전선 밖 첫 하루</p>

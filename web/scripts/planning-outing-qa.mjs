@@ -89,6 +89,7 @@ for (const channel of (
         .getByRole('button', { name: '여행 시작하기', exact: true })
         .click();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
+      await tab(p, '둘러보기').click();
       await p.locator('.journey-card').first().waitFor();
       await p.clock.install({ time: new Date() });
       assert.equal(await p.locator('.main-nav [role=tab]').count(), 5);
@@ -119,6 +120,7 @@ for (const channel of (
       );
       await p.reload();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
+      await tab(p, '둘러보기').click();
       await p.locator('.saved-mission').waitFor();
       await p.getByRole('button', { name: '코스 수정', exact: true }).click();
       assert.equal(await p.locator('.builder-stop').count(), 0);
@@ -141,6 +143,7 @@ for (const channel of (
         await ctx.route('**/api/places?*', delayedLocation);
         await p.reload();
         await p.locator('.app-shell[data-ready="true"]').waitFor();
+        await tab(p, '둘러보기').click();
         await p
           .getByRole('button', { name: '즐겨찾는 장소', exact: true })
           .click();
@@ -196,6 +199,7 @@ for (const channel of (
         });
         await p.reload();
         await p.locator('.app-shell[data-ready="true"]').waitFor();
+        await tab(p, '둘러보기').click();
       }
       assert.equal((await state()).favorites.length, 1);
       await p.getByRole('button', { name: '코스 수정', exact: true }).click();
@@ -257,6 +261,7 @@ for (const channel of (
       await ctx.route('**/api/catalog', delayedCatalog);
       await p.reload();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
+      await tab(p, '둘러보기').click();
       await p.getByRole('button', { name: '코스 수정', exact: true }).click();
       await p
         .locator('.builder-origin strong')
@@ -343,6 +348,7 @@ for (const channel of (
       assert.equal((await state()).activeOuting.completedStops, 1);
       await p.reload();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
+      await tab(p, '둘러보기').click();
       await p.locator('.outing-clock').waitFor();
       assert.equal((await state()).activeOuting.completedStops, 1);
       await p

@@ -120,6 +120,7 @@ for (const channel of (
         .getByRole('button', { name: '여행 시작하기', exact: true })
         .click();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
+      await tab(p, '둘러보기').click();
       await p.locator('.journey-card').first().waitFor();
       r.checks.push(
         'Anonymous API denied; wrong password rejected; correct password admits without ChatGPT',
@@ -255,6 +256,7 @@ for (const channel of (
       );
       await p.reload();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
+      await tab(p, '둘러보기').click();
       await p.locator('.saved-mission').first().waitFor();
       await p.getByRole('button', { name: '코스 수정', exact: true }).click();
       await p.waitForFunction(

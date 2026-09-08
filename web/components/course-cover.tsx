@@ -1,4 +1,5 @@
 'use client';
+import MemoryImage from './memory-image';
 import { useState } from 'react';
 import { MapPin } from 'lucide-react';
 import type { Place } from '@/lib/domain';
@@ -15,7 +16,7 @@ function Tile({
   return (
     <span className="course-cover-tile">
       {place.image_url && !failed ? (
-        <img
+        <MemoryImage
           src={place.image_url}
           alt={`${index + 1}. ${place.title}`}
           loading={eager ? 'eager' : 'lazy'}

@@ -1,4 +1,6 @@
 'use client';
+import MemoryImage from './memory-image';
+import { pageFetch, clearPageCache } from '@/lib/page-cache';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowDown,
@@ -124,6 +126,7 @@ type Props = {
   mode: 'new' | 'edit' | 'copy';
   places: Place[];
   placesLoading?: boolean;
+  initialDirty?: boolean;
   initialOrigin?: Place;
   settings: Settings;
   mapKey: string;
@@ -137,6 +140,7 @@ export default function TripBuilder({
   mode,
   places,
   placesLoading = false,
+  initialDirty = false,
   initialOrigin,
   settings,
   mapKey,
@@ -191,7 +195,7 @@ export default function TripBuilder({
   const [category, setCategory] = useState('all');
   const searchSerial = useRef(0);
   const [notice, setNotice] = useState('');
-  const [dirty, setDirty] = useState(false),
+  const [dirty, setDirty] = useState(initialDirty),
     [confirmClose, setConfirmClose] = useState(false);
   const [manual, setManual] = useState<ManualPlace>({
     id: 'manual:' + crypto.randomUUID(),
@@ -288,7 +292,7 @@ export default function TripBuilder({
     );
     setReferencesLoading(ids.length > 0);
     if (ids.length)
-      fetch('/api/places/resolve', {
+      pageFetch('/api/places/resolve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids }),
@@ -373,13 +377,15 @@ export default function TripBuilder({
     setSearchState('loading');
     const serial = ++searchSerial.current;
     try {
-      const r = await fetch(
+      const r = await pageFetch(
         '/api/places/search?' +
           new URLSearchParams({
             region: searchRegion,
             q: query.trim(),
             page: String(nextPage),
           }),
+        {},
+        { refresh: searchState === 'error' },
       );
       const data = (await r.json()) as {
         places?: Place[];
@@ -623,7 +629,10 @@ export default function TripBuilder({
                         저장한 장소 정보를 연결하지 못했습니다.
                         <Button
                           variant="outline"
-                          onClick={() => setReferenceRetry((v) => v + 1)}
+                          onClick={() => {
+                            clearPageCache('/api/places/resolve');
+                            setReferenceRetry((v) => v + 1);
+                          }}
                         >
                           장소 정보 다시 확인
                         </Button>
@@ -659,7 +668,11 @@ export default function TripBuilder({
                               </small>
                             </div>
                             {p?.image_url && (
-                              <img src={p.image_url} alt="" loading="lazy" />
+                              <MemoryImage
+                                src={p.image_url}
+                                alt=""
+                                loading="lazy"
+                              />
                             )}
                           </div>
                           <p className="builder-arrival">
@@ -1185,7 +1198,7 @@ function PlaceResult({
   return (
     <article className="finder-result">
       {place.image_url ? (
-        <img src={place.image_url} alt="" loading="lazy" />
+        <MemoryImage src={place.image_url} alt="" loading="lazy" />
       ) : (
         <span className="finder-result-icon">
           <MapPin size={22} />
