@@ -71,6 +71,7 @@ export default function GroupShare({
             <label className="field">
               가져올 내 여행
               <select
+                aria-label="가져올 내 여행"
                 value={selected}
                 onChange={(v) => setSelected(v.target.value)}
               >
@@ -89,6 +90,7 @@ export default function GroupShare({
           <label className="field">
             공유할 그룹
             <select
+              aria-label="공유할 그룹"
               value={group}
               onChange={(v) => setGroup(v.target.value)}
               disabled={!!record}

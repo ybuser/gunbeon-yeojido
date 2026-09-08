@@ -9,7 +9,6 @@ import {
   Check,
   CalendarDays,
   RefreshCw,
-  MoreHorizontal,
   UserPlus,
 } from 'lucide-react';
 import { Button } from './ui/button';
@@ -23,7 +22,7 @@ import {
   AlertDialogCancel,
 } from './ui/alert-dialog';
 import { pageFetch, clearPageCache } from '@/lib/page-cache';
-import { groupKinds, groupEntry } from '@/lib/group-model';
+import { groupKinds } from '@/lib/group-model';
 import type { GroupSummary, GroupDetail, GroupPlan } from '@/lib/group-model';
 import type { Entry, ActiveOuting } from '@/lib/domain';
 import { entryKey, hasVisitRecord } from '@/lib/domain';
@@ -37,6 +36,7 @@ type GroupReply = {
   expiresAt?: string;
 };
 export function useTravelGroups() {
+  const generation = useRef(0);
   const [groups, setGroups] = useState<GroupSummary[]>([]),
     [profile, setProfile] = useState<{ id: string; nickname: string } | null>(
       null,
@@ -44,18 +44,21 @@ export function useTravelGroups() {
   const [loading, setLoading] = useState(true),
     [error, setError] = useState('');
   const load = useCallback(async (refresh = false) => {
+    const request = ++generation.current;
     setLoading(true);
     setError('');
     try {
       const r = await pageFetch('/api/groups', {}, { refresh, maxAge: 60000 });
       const d = (await r.json()) as GroupReply;
+      if (request !== generation.current) return;
       if (!r.ok) throw new Error(d.message);
       setGroups(d.groups || []);
       setProfile(d.profile || null);
     } catch (e) {
+      if (request !== generation.current) return;
       setError(e instanceof Error ? e.message : '그룹을 불러오지 못했어요.');
     } finally {
-      setLoading(false);
+      if (request === generation.current) setLoading(false);
     }
   }, []);
   useEffect(() => {
@@ -523,6 +526,7 @@ export default function TravelGroups({
                   <label className="field">
                     함께하는 사람
                     <select
+                      aria-label="함께하는 사람"
                       value={kind}
                       onChange={(e) => setKind(e.target.value)}
                     >
@@ -559,7 +563,7 @@ export default function TravelGroups({
                   </p>
                 </div>
               )}
-              <Button disabled={busy}>
+              <Button type="submit" disabled={busy}>
                 {busy
                   ? '확인 중…'
                   : form === 'create'

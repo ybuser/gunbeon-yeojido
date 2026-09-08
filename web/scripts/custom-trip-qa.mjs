@@ -256,7 +256,6 @@ for (const channel of (
       );
       await p.reload();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
-      await tab(p, '둘러보기').click();
       await p.locator('.saved-mission').first().waitFor();
       await p.getByRole('button', { name: '코스 수정', exact: true }).click();
       await p.waitForFunction(

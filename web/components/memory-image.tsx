@@ -27,6 +27,7 @@ function loadImage(src: string) {
 }
 export default function MemoryImage({
   src,
+  alt = '',
   loading,
   ...props
 }: ImgHTMLAttributes<HTMLImageElement>) {
@@ -61,6 +62,7 @@ export default function MemoryImage({
   return (
     <img
       {...props}
+      alt={alt}
       ref={node}
       src={url}
       loading={loading}

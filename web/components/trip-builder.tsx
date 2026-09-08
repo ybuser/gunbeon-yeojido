@@ -48,7 +48,6 @@ import MeetingPicker, { FavoritePlaces } from './meeting-picker';
 import {
   assessPlan,
   planSchedule,
-  planningSettings,
   createEntry,
   distance,
   hasVisitRecord,

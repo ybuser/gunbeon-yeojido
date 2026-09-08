@@ -76,6 +76,19 @@ export async function tourRequest(
   } catch {
     throw new TourError('NON_JSON_RESPONSE');
   }
+  const envelopeCode = String(
+    (
+      json as {
+        OpenAPI_ServiceResponse?: {
+          cmmMsgHeader?: { returnReasonCode?: string };
+        };
+      }
+    )?.OpenAPI_ServiceResponse?.cmmMsgHeader?.returnReasonCode || '',
+  );
+  if (envelopeCode === '22') {
+    if (limits) await limits.saveProviderLimit(limitId, 'DAILY_QUOTA_EXCEEDED');
+    throw new TourError('DAILY_QUOTA_EXCEEDED');
+  }
   const r = (
     json as {
       response?: {
@@ -191,32 +204,39 @@ export async function fetchRegion(
   fetcher: typeof fetch = fetch,
 ) {
   const codes = await discoverDistrict(key, region, fetcher);
-  const results = await Promise.all(
-    ['12', '14', '15', '32', '39'].map(async (contentTypeId) => {
-      try {
-        const r = await tourRequest(
-          'KorService2',
-          'areaBasedList2',
-          key,
-          {
-            ...codes,
-            contentTypeId,
-            arrange: 'C',
-            numOfRows: '100',
-          },
-          fetcher,
-        );
-        return { contentTypeId, ...r, error: null };
-      } catch (e) {
-        return {
+  const requestCategory = async (contentTypeId: string) => {
+    try {
+      const r = await tourRequest(
+        'KorService2',
+        'areaBasedList2',
+        key,
+        { ...codes, contentTypeId, arrange: 'C', numOfRows: '100' },
+        fetcher,
+      );
+      return { contentTypeId, ...r, error: null as string | null };
+    } catch (e) {
+      return {
+        contentTypeId,
+        items: [] as RecordRow[],
+        total: 0,
+        error: e instanceof TourError ? e.code : 'UNKNOWN',
+      };
+    }
+  };
+  // Probe one category before fan-out so a known daily quota does not spend five requests.
+  const first = await requestCategory('12');
+  const rest = ['14', '15', '32', '39'];
+  const results = [
+    first,
+    ...(first.error === 'DAILY_QUOTA_EXCEEDED' || first.error === 'RATE_LIMITED'
+      ? rest.map((contentTypeId) => ({
           contentTypeId,
-          items: [],
+          items: [] as RecordRow[],
           total: 0,
-          error: e instanceof TourError ? e.code : 'UNKNOWN',
-        };
-      }
-    }),
-  );
+          error: first.error,
+        }))
+      : await Promise.all(rest.map(requestCategory))),
+  ];
   if (results.every((x) => x.error))
     throw new TourError(
       results.some((x) => x.error === 'DAILY_QUOTA_EXCEEDED')

@@ -1,7 +1,7 @@
 'use client';
 import Brand from './brand';
 import { useEffect, useState } from 'react';
-import { ArrowRight, Navigation } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 export default function TestAccessForm() {
@@ -13,7 +13,7 @@ export default function TestAccessForm() {
   return (
     <main className="test-entry" data-ready={ready} inert={!ready}>
       <div className="test-entry-brand">
-        <Brand/>
+        <Brand />
       </div>
       <section className="test-entry-panel">
         <p className="test-entry-eyebrow">테스트 입장</p>
@@ -38,15 +38,21 @@ export default function TestAccessForm() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ password }),
               });
-              const data = await r.json() as { message?: string };
+              const data = (await r.json()) as { message?: string };
               if (!r.ok) {
                 setMessage(
                   data.message || '입장하지 못했습니다. 다시 시도해 주세요.',
                 );
                 return;
               }
-              const join = new URLSearchParams(window.location.search).get('join');
-              window.location.assign(join && /^[a-f0-9]{48}$/.test(join) ? '/?join='+join+'#groups' : '/');
+              const join = new URLSearchParams(window.location.search).get(
+                'join',
+              );
+              window.location.assign(
+                join && /^[a-f0-9]{48}$/.test(join)
+                  ? '/?join=' + join + '#groups'
+                  : '/',
+              );
             } catch {
               setMessage('연결이 원활하지 않습니다. 다시 시도해 주세요.');
             } finally {

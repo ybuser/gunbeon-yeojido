@@ -32,7 +32,6 @@ import {
   Leaf,
   Navigation,
   RefreshCw,
-  Stamp,
   Users,
   Database,
   ExternalLink,
@@ -76,7 +75,6 @@ import {
   regionPlaces,
   assessPlan,
   planSchedule,
-  planningSettings,
   withPlan,
   validManualPlace,
   manualToPlace,
@@ -85,8 +83,6 @@ import {
   completeTrip,
   localInputDate,
   parseKoreaInput,
-  scopeLabels,
-  createCode,
   familyProjection,
   publicCard,
   kakaoLink,
@@ -103,10 +99,8 @@ import type {
   ManualPlace,
   ActiveOuting,
   Settings,
-  Mission,
   Entry,
   Family,
-  Scopes,
 } from '@/lib/domain';
 const LABELS = {
   dashboard: '홈',
@@ -335,10 +329,9 @@ export default function PassportApp() {
     'draft' | 'favorites' | null
   >(null);
   const [family, setFamily] = useState<Family | null>(null);
-  const [invite, setInvite] = useState('');
-  const [joined, setJoined] = useState('');
+  const joined = '';
   const [loaded, setLoaded] = useState(false);
-  const [proposal, setProposal] = useState<{
+  const [proposal] = useState<{
     entry: Entry;
     walkLimit: number;
     transport: Settings['transport'];
@@ -775,7 +768,7 @@ export default function PassportApp() {
       window.history.pushState(
         null,
         '',
-        v === 'home'
+        v === 'dashboard'
           ? window.location.pathname + window.location.search
           : '#' + v,
       );
@@ -858,39 +851,6 @@ export default function PassportApp() {
     }
     setStartCandidate(entry);
     go('outing');
-  }
-  function createInvite() {
-    setFamily({
-      code: createCode(),
-      expiresAt: Date.now() + 86400000,
-      scopes: {
-        passport: true,
-        schedule: true,
-        meal: false,
-        propose: true,
-        stamp: true,
-      },
-    });
-    setJoined('');
-    setNotice(
-      '이 브라우저에서 24시간 유효한 체험 코드가 생성됐습니다. 다른 기기에는 연결되지 않습니다.',
-    );
-  }
-  function join() {
-    if (
-      !familyProjection(
-        family,
-        invite.trim().toUpperCase(),
-        entries,
-        selected || null,
-        settings.meal,
-      )
-    ) {
-      setNotice('이 브라우저에서 만든 유효한 코드인지 확인해 주세요.');
-      return;
-    }
-    setJoined(invite.trim().toUpperCase());
-    setNotice('허용된 공유범위로 연결했습니다.');
   }
   useEffect(() => {
     const p = placeOpen;
@@ -1109,7 +1069,16 @@ export default function PassportApp() {
                 <small>출발 예정 날짜·시간</small>
                 <strong>
                   {loaded
-                    ? scheduleTime(Date.parse(settings.startedAt))
+                    ? new Date(settings.startedAt).toLocaleString('ko-KR', {
+                        timeZone: 'Asia/Seoul',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                      })
                     : '불러오는 중'}
                 </strong>
                 <span>

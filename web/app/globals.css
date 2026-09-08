@@ -4251,3 +4251,42 @@ input {
     width: 100%;
   }
 }
+
+.group-detail-toolbar .segmented-control {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #f2f4f7;
+  border-radius: 12px;
+  width: fit-content;
+}
+.group-detail-toolbar .segmented-control button {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 9px;
+  font-size: 15px;
+  color: #5c6877;
+  white-space: nowrap;
+}
+.group-detail-toolbar .segmented-control button.active {
+  background: #fff;
+  color: #203343;
+  box-shadow: 0 1px 4px #162a4012;
+  font-weight: 700;
+}
+.saved-page .content-heading .text-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+}
+@media (max-width: 600px) {
+  .saved-page .content-heading {
+    align-items: start;
+    gap: 12px;
+  }
+  .saved-page .content-heading .text-action {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}

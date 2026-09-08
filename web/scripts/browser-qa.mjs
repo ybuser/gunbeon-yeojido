@@ -68,6 +68,7 @@ async function shot(p, file) {
   });
 }
 async function readyPlaces(p) {
+  await tab(p, '둘러보기').click();
   await p.locator('.journey-card').first().waitFor();
 }
 for (const channel of channels) {
@@ -272,7 +273,6 @@ for (const channel of channels) {
       assert(!JSON.stringify(saved).includes('returnAt'));
       await p.reload();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
-      await tab(p, '둘러보기').click();
       await readyPlaces(p);
       await tab(p, '내 여행').click();
       await p
@@ -359,7 +359,6 @@ for (const channel of channels) {
         );
         await p.reload();
         await p.locator('.app-shell[data-ready="true"]').waitFor();
-        await tab(p, '둘러보기').click();
         await tab(p, '둘러보기').click();
         await readyPlaces(p);
         await tab(p, '내 여행').click();
