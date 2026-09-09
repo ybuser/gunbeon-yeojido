@@ -600,6 +600,8 @@ export function manualToPlace(p: ManualPlace): Place {
 }
 export type Entry = {
   recordId?: string;
+  adviceShareId?: string;
+  adviceReceipt?: { shareId: string; suggestionId: string };
   plan?: {
     originId: string;
     variant: string;

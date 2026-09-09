@@ -48,13 +48,19 @@ export default function TestAccessForm() {
               const join = new URLSearchParams(window.location.search).get(
                 'join',
               );
+              const advice = new URLSearchParams(window.location.search).get(
+                'advice',
+              );
               window.location.assign(
-                join && /^[a-f0-9]{48}$/.test(join)
-                  ? '/?join=' + join + '#groups'
-                  : new URLSearchParams(window.location.search).get('next') ===
-                      'guide'
-                    ? '/guide'
-                    : '/',
+                advice && /^[a-f0-9]{32}$/.test(advice)
+                  ? '/?advice=' + advice
+                  : join && /^[a-f0-9]{48}$/.test(join)
+                    ? '/?join=' + join + '#groups'
+                    : new URLSearchParams(window.location.search).get(
+                          'next',
+                        ) === 'guide'
+                      ? '/guide'
+                      : '/',
               );
             } catch {
               setMessage('연결이 원활하지 않습니다. 다시 시도해 주세요.');

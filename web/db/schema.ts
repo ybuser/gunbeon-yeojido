@@ -4,6 +4,7 @@ import {
   integer,
   primaryKey,
   index,
+  uniqueIndex,
 } from 'drizzle-orm/sqlite-core';
 export const profiles = sqliteTable('profiles', {
   id: text('id').primaryKey(),
@@ -66,3 +67,51 @@ export const formerMembers = sqliteTable(
   },
   (t) => [primaryKey({ columns: [t.groupId, t.userId] })],
 );
+
+// User-published place references and suggestions only, never provider payloads.
+export const adviceShares = sqliteTable(
+  'advice_shares',
+  {
+    id: text('id').primaryKey(),
+    ownerHash: text('owner_hash').notNull(),
+    payload: text('payload').notNull(),
+    status: text('status').notNull().default('open'),
+    createdAt: text('created_at').notNull(),
+    expiresAt: text('expires_at').notNull(),
+  },
+  (t) => [
+    index('advice_owner').on(t.ownerHash),
+    index('advice_expiry').on(t.expiresAt),
+  ],
+);
+export const adviceSuggestions = sqliteTable(
+  'advice_suggestions',
+  {
+    id: text('id').primaryKey(),
+    shareId: text('share_id').notNull(),
+    visitorHash: text('visitor_hash').notNull(),
+    kind: text('kind').notNull(),
+    targetId: text('target_id').notNull(),
+    placeId: text('place_id'),
+    reason: text('reason').notNull(),
+    status: text('status').notNull().default('pending'),
+    createdAt: text('created_at').notNull(),
+  },
+  (t) => [
+    index('advice_share').on(t.shareId),
+    uniqueIndex('advice_visitor_share').on(t.shareId, t.visitorHash),
+  ],
+);
+export const adviceReports = sqliteTable(
+  'advice_reports',
+  {
+    suggestionId: text('suggestion_id').notNull(),
+    visitorHash: text('visitor_hash').notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.suggestionId, t.visitorHash] })],
+);
+export const adviceRate = sqliteTable('advice_rate', {
+  id: text('id').primaryKey(),
+  count: integer('count').notNull(),
+  expiresAt: integer('expires_at').notNull(),
+});

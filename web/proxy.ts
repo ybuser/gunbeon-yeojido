@@ -8,6 +8,13 @@ export async function proxy(request: Request) {
     '/login',
     '/api/test-access',
     '/icon.svg',
+    '/icon-512.png',
+    '/photos/goseong-observatory.jpg',
+    '/photos/cheorwon-memorial.jpg',
+    '/photos/cheorwon-labor.jpg',
+    '/photos/hwacheon-dam.jpg',
+    '/photos/goseong-wanggok.jpg',
+    '/photos/yanggu-dutayeon.jpg',
     '/manifest.webmanifest',
     '/sw.js',
     '/offline.html',
@@ -15,6 +22,8 @@ export async function proxy(request: Request) {
   ];
   if (
     publicPaths.includes(url.pathname) ||
+    /^\/p\/[a-f0-9]{32}$/.test(url.pathname) ||
+    /^\/api\/public-advice\/[a-f0-9]{32}$/.test(url.pathname) ||
     url.pathname.startsWith('/assets/') ||
     url.pathname.startsWith('/_next/') ||
     url.pathname.startsWith('/@') ||
@@ -42,6 +51,9 @@ export async function proxy(request: Request) {
     );
   const login = new URL('/login', url);
   if (url.pathname === '/guide') login.searchParams.set('next', 'guide');
+  const advice = url.searchParams.get('advice');
+  if (advice && /^[a-f0-9]{32}$/.test(advice))
+    login.searchParams.set('advice', advice);
   const join = url.searchParams.get('join');
   if (join && /^[a-f0-9]{48}$/.test(join)) login.searchParams.set('join', join);
   return NextResponse.redirect(login, 307);
