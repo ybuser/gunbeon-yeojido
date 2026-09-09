@@ -14,6 +14,7 @@ import type { GroupDetail, GroupPlan } from '@/lib/group-model';
 import { useEffect, useMemo, useState, type ComponentProps } from 'react';
 import {
   X,
+  EllipsisVertical,
   Home,
   CalendarDays,
   Star,
@@ -43,6 +44,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu';
 import {
   Sheet,
   SheetContent as BaseSheetContent,
@@ -1919,6 +1921,79 @@ export default function PassportApp() {
                         </div>
                       )}
                       <div className="saved-mission-heading">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger className="record-more-trigger" aria-label={`${e.title} 더보기`}>
+                            <EllipsisVertical size={22} />
+                          </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="record-more-menu">
+                        {!hasVisitRecord(e) && (
+                          <DropdownMenuItem
+                            disabled={!e.plan?.stops.length}
+                            onClick={() => setAdviceManaging(e)}
+                          >
+                            {e.adviceShareId
+                              ? '받은 한 수 보기'
+                              : '한 수 부탁하기'}
+                          </DropdownMenuItem>
+                        )}
+                        {hasVisitRecord(e) && e.adviceShareId && (
+                          <DropdownMenuItem onClick={() => setAdviceManaging(e)}>
+                            공유한 여행 관리
+                          </DropdownMenuItem>
+                        )}
+                        {hasVisitRecord(e) && (
+                          <>
+                            <DropdownMenuItem onClick={() => setRecordEditing(e)}>
+                              기록 수정
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={
+                                !e.plan ||
+                                (!!activeOuting &&
+                                  entryKey(activeOuting.entry) === entryKey(e))
+                              }
+                              onClick={() => setRecordRestoring(e)}
+                            >
+                              계획으로 되돌리기
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        <DropdownMenuItem
+                          disabled={
+                            !e.plan ||
+                            (activeOuting !== null &&
+                              entryKey(activeOuting.entry) === entryKey(e))
+                          }
+                          onClick={() =>
+                            openBuilder(e, hasVisitRecord(e) ? 'copy' : 'edit')
+                          }
+                        >
+                          {hasVisitRecord(e)
+                            ? '새 여행으로 가져오기'
+                            : '코스 수정'}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={!e.plan}
+                          onClick={() => {
+                            openEntry(e);
+                          }}
+                        >
+                          저장한 장소 다시 보기
+                          <ChevronRight size={14} />
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={!e.plan}
+                          onClick={() =>
+                            groupStore.groups.length
+                              ? setGroupSharing({ entry: e })
+                              : go('groups')
+                          }
+                        >
+                          그룹에 공유
+                        </DropdownMenuItem>
+
+                      </DropdownMenuContent>
+                        </DropdownMenu>
                         <span>{e.region}</span>
                         <h2>{e.title}</h2>
                         {e.plan?.departureAt && (
@@ -1975,77 +2050,9 @@ export default function PassportApp() {
                           빈 코스를 저장했어요. 준비되면 장소를 담아보세요.
                         </p>
                       )}
-                      <div className="saved-mission-actions">
-                        {!hasVisitRecord(e) && (
-                          <button
-                            disabled={!e.plan?.stops.length}
-                            onClick={() => setAdviceManaging(e)}
-                          >
-                            {e.adviceShareId
-                              ? '받은 한 수 보기'
-                              : '한 수 부탁하기'}
-                          </button>
-                        )}
-                        {hasVisitRecord(e) && e.adviceShareId && (
-                          <button onClick={() => setAdviceManaging(e)}>
-                            공유한 여행 관리
-                          </button>
-                        )}
-                        {hasVisitRecord(e) && (
-                          <>
-                            <button onClick={() => setRecordEditing(e)}>
-                              기록 수정
-                            </button>
-                            <button
-                              disabled={
-                                !e.plan ||
-                                (!!activeOuting &&
-                                  entryKey(activeOuting.entry) === entryKey(e))
-                              }
-                              onClick={() => setRecordRestoring(e)}
-                            >
-                              계획으로 되돌리기
-                            </button>
-                          </>
-                        )}
-                        <button
-                          disabled={
-                            !e.plan ||
-                            (activeOuting !== null &&
-                              entryKey(activeOuting.entry) === entryKey(e))
-                          }
-                          onClick={() =>
-                            openBuilder(e, hasVisitRecord(e) ? 'copy' : 'edit')
-                          }
-                        >
-                          {hasVisitRecord(e)
-                            ? '새 여행으로 가져오기'
-                            : '코스 수정'}
-                        </button>
-                        <button
-                          disabled={!e.plan}
-                          onClick={() => {
-                            openEntry(e);
-                          }}
-                        >
-                          저장한 장소 다시 보기
-                          <ChevronRight size={14} />
-                        </button>
-                        <button
-                          disabled={!e.plan}
-                          onClick={() =>
-                            groupStore.groups.length
-                              ? setGroupSharing({ entry: e })
-                              : go('groups')
-                          }
-                        >
-                          그룹에 공유
-                        </button>
-                        <button onClick={() => setShared(e)}>
-                          <ArrowUpRight size={14} />
-                          공유 카드
-                        </button>
-                      </div>
+                      <Button variant="outline" className="record-share-card" onClick={() => setShared(e)}>
+                        <ArrowUpRight size={18} /> 공유 카드
+                      </Button>
                     </article>
                   ))}
                 {!entries.filter((e) =>
