@@ -44,6 +44,8 @@ jobs:
           }
           if(!ready) process.exit(1);
           JS
+          QA_OUT_DIR=test-results/browser/accounts-api npm run test:accounts
+          QA_OUT_DIR=test-results/browser/accounts-ui npm run test:accounts-ui
           QA_OUT_FILE=test-results/browser/groups-api.json npm run test:groups
           QA_OUT_DIR=test-results/browser/groups npm run test:groups-ui
           npm run test:browser

@@ -72,7 +72,7 @@ for (const channel of (process.env.QA_BROWSER_CHANNELS || 'chrome').split(
         .click();
       await p.locator('.usage-guide').waitFor();
       assert.equal(new URL(p.url()).pathname, '/guide');
-      assert.equal(await p.locator('.guide-steps section').count(), 19);
+      assert.equal(await p.locator('.guide-steps section').count(), 22);
       for (const img of await p.locator('.guide-steps img').all()) {
         await img.scrollIntoViewIfNeeded();
         await img.evaluate((i) => i.decode());

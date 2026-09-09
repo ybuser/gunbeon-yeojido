@@ -3,59 +3,294 @@ import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-const base=process.env.QA_BASE_URL||'http://localhost:3000',out=path.resolve(process.env.QA_OUT_DIR||'../tmp/qa/accounts-api');await fs.mkdir(out,{recursive:true});
-const contexts=[];const make=async()=>{const c=await request.newContext({baseURL:base,extraHTTPHeaders:{Origin:base}});contexts.push(c);return c;};
-const a=await make(),b=await make(),other=await make(),anonymous=await make();
-const checks=[],created=[],password=randomBytes(24).toString('hex'),tag='qa_'+Date.now().toString(36),report={base,checkedAt:new Date().toISOString(),checks};
-const post=(c,url,data,headers={})=>c.post(url,{data,headers});
-const ok=async r=>{const d=await r.json();assert(r.ok(),JSON.stringify({status:r.status(),message:d.message}));return d;};
-let groupId,shareId;
+const base = process.env.QA_BASE_URL || 'http://localhost:3000',
+  out = path.resolve(process.env.QA_OUT_DIR || '../tmp/qa/accounts-api');
+await fs.mkdir(out, { recursive: true });
+const contexts = [];
+const make = async () => {
+  const c = await request.newContext({
+    baseURL: base,
+    extraHTTPHeaders: { Origin: base },
+  });
+  contexts.push(c);
+  return c;
+};
+const a = await make(),
+  b = await make(),
+  other = await make(),
+  anonymous = await make();
+const checks = [],
+  created = [],
+  password = randomBytes(24).toString('hex'),
+  tag = 'qa_' + Date.now().toString(36),
+  report = { base, checkedAt: new Date().toISOString(), checks };
+const post = (c, url, data, headers = {}) => c.post(url, { data, headers });
+const ok = async (r) => {
+  const d = await r.json();
+  assert(r.ok(), JSON.stringify({ status: r.status(), message: d.message }));
+  return d;
+};
+let groupId, shareId;
 try {
- assert.equal((await anonymous.get('/api/account/state')).status(),401);
- for(const route of ['/about','/privacy','/brand/google-g.png','/brand/naver-n.png'])assert((await anonymous.get(route)).ok());
- await ok(await post(a,'/api/test-access',{password:'1234'}));
- const group=await ok(await post(a,'/api/groups',{action:'create',name:'QA 계정 연결',kind:'friends',nickname:'기기 별명'}));groupId=group.group.id;
- const catalog=JSON.parse(await fs.readFile(new URL('../lib/data/places.json',import.meta.url),'utf8'));
- const places=catalog.filter(p=>p.sigungu==='고성군'&&p.source!=='manual').slice(0,2);
- const share=await ok(await post(a,'/api/advice',{action:'create',snapshot:{region:'고성군',question:'change',placeIds:places.map(p=>p.id)}}));shareId=share.id;
- const legacyCookies=await a.storageState();
- const account=(await ok(await post(a,'/api/account',{action:'register',handle:tag+'_a',nickname:'계정 A',password}))).account;created.push(account.id);
- const headers={'X-Gunbeon-Account':account.id};
- assert.deepEqual((await ok(await a.get('/api/groups'))).groups,[]);
- await ok(await post(a,'/api/account/import',{},headers));
- assert.equal((await ok(await a.get('/api/groups'))).groups[0].id,groupId);
- const stale=await request.newContext({baseURL:base,storageState:legacyCookies,extraHTTPHeaders:{Origin:base}});contexts.push(stale);
- assert.deepEqual((await ok(await stale.get('/api/groups'))).groups,[]);assert.equal((await stale.get('/api/advice?id='+shareId)).status(),403);
- checks.push('Explicit migration preserves group/share ownership and consumes old-cookie authority');
- const seed={version:3,entries:[{recordId:'qa-record',missionId:'철원군-회복',title:'서버에 보관할 여행',region:'철원군',stamps:['입경'],recordStatus:'completed',plan:{originId:'',variant:'내 코스',stops:[],kind:'custom'}}],favorites:[],activeOuting:null,rawTourApi:'MUST_NOT_PERSIST'};
- assert.equal((await post(a,'/api/account/state',{revision:0,state:seed},{Origin:'https://foreign.example'})).status(),403);
- await ok(await post(a,'/api/account/state',{revision:0,state:seed},headers));
- const stored=await ok(await a.get('/api/account/state',{headers}));assert.equal(stored.revision,1);assert(!JSON.stringify(stored).includes('MUST_NOT_PERSIST'));
- await ok(await post(b,'/api/account',{action:'login',handle:tag+'_a',password}));
- assert.equal((await ok(await b.get('/api/account/state'))).state.entries[0].title,seed.entries[0].title);
- assert.equal((await ok(await b.get('/api/groups'))).groups[0].id,groupId);
- assert.equal((await ok(await b.get('/api/advice?id='+shareId))).owner,true);
- checks.push('Second browser restores travel, groups and public-share management');
- const accountB=(await ok(await post(other,'/api/account',{action:'register',handle:tag+'_b',nickname:'계정 B',password,testPassword:'1234'}))).account;created.push(accountB.id);
- assert.equal((await ok(await other.get('/api/account/state'))).state,null);
- for(const [url,body] of [['/api/account/state',{revision:0,state:seed}],['/api/account/import',{}],['/api/account',{action:'nickname',nickname:'오염'}],['/api/account',{action:'logout'}]])assert.equal((await post(other,url,body,headers)).status(),409);
- assert.equal((await other.get('/api/account/state',{headers})).status(),409);
- checks.push('Old A tab cannot read/write/import/rename/logout through B cookies');
- const writes=await Promise.all([post(a,'/api/account/state',{revision:1,state:seed},headers),post(b,'/api/account/state',{revision:1,state:{...seed,entries:[]}},headers)]);
- assert.deepEqual(writes.map(r=>r.status()).sort(),[200,409]);
- assert.equal((await post(a,'/api/account/state',{revision:2,state:{...seed,entries:[{...seed.entries[0],stamps:['UNKNOWN']}]}})).status(),400);
- assert.equal((await post(anonymous,'/api/account',{action:'login',handle:tag+'_a',password:'wrong-password'})).status(),401);
- checks.push('Revision conflicts, malformed data, CSRF and invalid passwords fail safely');
- const providers=(await ok(await a.get('/api/account'))).providers;
- if(!providers.google)assert.equal((await post(anonymous,'/api/auth/start',{provider:'google'})).status(),503);
- const cb=await anonymous.get('/api/auth/callback/google?state='+randomBytes(32).toString('hex')+'&code=invalid',{maxRedirects:0});assert.equal(cb.status(),303);assert.match(cb.headers().location,/authError/);assert.equal((await ok(await anonymous.get('/api/account'))).account,null);
- const cookie=(await a.storageState()).cookies.find(c=>c.name==='gunbeon_account');assert(cookie?.httpOnly);assert.equal(cookie.sameSite,'Lax');if(base.startsWith('https'))assert(cookie.secure);
- await ok(await post(a,'/api/account',{action:'logout'},headers));assert.equal((await a.get('/api/account/state')).status(),401);assert((await b.get('/api/account/state')).ok());
- checks.push('HttpOnly session and per-device logout; disabled/corrupt social login never authenticates');report.status='passed';
-}catch(e){report.status='failed';report.error=e.stack;process.exitCode=1;}
-finally {
- if(shareId)await post(b,'/api/advice',{action:'delete',id:shareId}).catch(()=>{});
- if(groupId)await post(b,'/api/groups',{action:'deleteGroup',groupId}).catch(()=>{});
- report.syntheticAccountIds=created;report.providerAuthentication='Not configured; actual Google/Naver consent unverified';
- await fs.writeFile(path.join(out,'result.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));for(const c of contexts)await c.dispose();
+  assert.equal((await anonymous.get('/api/account/state')).status(), 401);
+  for (const route of [
+    '/about',
+    '/privacy',
+    '/brand/google-g.png',
+    '/brand/naver-n.png',
+  ])
+    assert((await anonymous.get(route)).ok());
+  await ok(await post(a, '/api/test-access', { password: '1234' }));
+  const group = await ok(
+    await post(a, '/api/groups', {
+      action: 'create',
+      name: 'QA 계정 연결',
+      kind: 'friends',
+      nickname: '기기 별명',
+    }),
+  );
+  groupId = group.group.id;
+  const catalog = JSON.parse(
+    await fs.readFile(
+      new URL('../lib/data/places.json', import.meta.url),
+      'utf8',
+    ),
+  );
+  const places = catalog
+    .filter((p) => p.sigungu === '고성군' && p.source !== 'manual')
+    .slice(0, 2);
+  const share = await ok(
+    await post(a, '/api/advice', {
+      action: 'create',
+      snapshot: {
+        region: '고성군',
+        question: 'change',
+        placeIds: places.map((p) => p.id),
+      },
+    }),
+  );
+  shareId = share.id;
+  const legacyCookies = await a.storageState();
+  const account = (
+    await ok(
+      await post(a, '/api/account', {
+        action: 'register',
+        handle: tag + '_a',
+        nickname: '계정 A',
+        password,
+      }),
+    )
+  ).account;
+  created.push(account.id);
+  const headers = { 'X-Gunbeon-Account': account.id };
+  assert.deepEqual((await ok(await a.get('/api/groups'))).groups, []);
+  await ok(await post(a, '/api/account/import', {}, headers));
+  assert.equal((await ok(await a.get('/api/groups'))).groups[0].id, groupId);
+  const stale = await request.newContext({
+    baseURL: base,
+    storageState: legacyCookies,
+    extraHTTPHeaders: { Origin: base },
+  });
+  contexts.push(stale);
+  assert.deepEqual((await ok(await stale.get('/api/groups'))).groups, []);
+  assert.equal((await stale.get('/api/advice?id=' + shareId)).status(), 403);
+  checks.push(
+    'Explicit migration preserves group/share ownership and consumes old-cookie authority',
+  );
+  const seed = {
+    version: 3,
+    entries: [
+      {
+        recordId: 'qa-record',
+        missionId: '철원군-회복',
+        title: '서버에 보관할 여행',
+        region: '철원군',
+        stamps: ['입경'],
+        recordStatus: 'completed',
+        plan: { originId: '', variant: '내 코스', stops: [], kind: 'custom' },
+      },
+    ],
+    favorites: [],
+    activeOuting: null,
+    rawTourApi: 'MUST_NOT_PERSIST',
+  };
+  assert.equal(
+    (
+      await post(
+        a,
+        '/api/account/state',
+        { revision: 0, state: seed },
+        { Origin: 'https://foreign.example' },
+      )
+    ).status(),
+    403,
+  );
+  await ok(
+    await post(a, '/api/account/state', { revision: 0, state: seed }, headers),
+  );
+  const stored = await ok(await a.get('/api/account/state', { headers }));
+  assert.equal(stored.revision, 1);
+  assert(!JSON.stringify(stored).includes('MUST_NOT_PERSIST'));
+  await ok(
+    await post(b, '/api/account', {
+      action: 'login',
+      handle: tag + '_a',
+      password,
+    }),
+  );
+  assert.equal(
+    (await ok(await b.get('/api/account/state'))).state.entries[0].title,
+    seed.entries[0].title,
+  );
+  assert.equal((await ok(await b.get('/api/groups'))).groups[0].id, groupId);
+  assert.equal(
+    (await ok(await b.get('/api/advice?id=' + shareId))).owner,
+    true,
+  );
+  checks.push(
+    'Second browser restores travel, groups and public-share management',
+  );
+  await ok(await other.get('/api/public-advice/' + shareId));
+  const visitorProposal = await ok(
+    await post(other, '/api/public-advice/' + shareId, {
+      action: 'suggest',
+      suggestion: {
+        kind: 'remove',
+        targetId: places[0].id,
+        placeId: null,
+        reason: '제가 좋아하는 곳이에요',
+      },
+    }),
+  );
+  const accountB = (
+    await ok(
+      await post(other, '/api/account', {
+        action: 'register',
+        handle: tag + '_b',
+        nickname: '계정 B',
+        password,
+        testPassword: '1234',
+      }),
+    )
+  ).account;
+  created.push(accountB.id);
+  assert.equal((await ok(await other.get('/api/account/state'))).state, null);
+  await ok(await post(other, '/api/account/import', {}));
+  const visitorDetail = await ok(
+    await other.get('/api/public-advice/' + shareId),
+  );
+  assert(
+    visitorDetail.suggestions.find((s) => s.id === visitorProposal.id)?.own,
+  );
+  await ok(
+    await post(other, '/api/public-advice/' + shareId, {
+      action: 'withdraw',
+      suggestionId: visitorProposal.id,
+    }),
+  );
+  checks.push(
+    'Imported anonymous suggestion remains owned and withdrawable after account migration',
+  );
+
+  for (const [url, body] of [
+    ['/api/account/state', { revision: 0, state: seed }],
+    ['/api/account/import', {}],
+    ['/api/account', { action: 'nickname', nickname: '오염' }],
+    ['/api/account', { action: 'logout' }],
+  ])
+    assert.equal((await post(other, url, body, headers)).status(), 409);
+  assert.equal(
+    (await other.get('/api/account/state', { headers })).status(),
+    409,
+  );
+  checks.push(
+    'Old A tab cannot read/write/import/rename/logout through B cookies',
+  );
+  const writes = await Promise.all([
+    post(a, '/api/account/state', { revision: 1, state: seed }, headers),
+    post(
+      b,
+      '/api/account/state',
+      { revision: 1, state: { ...seed, entries: [] } },
+      headers,
+    ),
+  ]);
+  assert.deepEqual(writes.map((r) => r.status()).sort(), [200, 409]);
+  assert.equal(
+    (
+      await post(a, '/api/account/state', {
+        revision: 2,
+        state: {
+          ...seed,
+          entries: [{ ...seed.entries[0], stamps: ['UNKNOWN'] }],
+        },
+      })
+    ).status(),
+    400,
+  );
+  assert.equal(
+    (
+      await post(anonymous, '/api/account', {
+        action: 'login',
+        handle: tag + '_a',
+        password: 'wrong-password',
+      })
+    ).status(),
+    401,
+  );
+  checks.push(
+    'Revision conflicts, malformed data, CSRF and invalid passwords fail safely',
+  );
+  const providers = (await ok(await a.get('/api/account'))).providers;
+  if (!providers.google)
+    assert.equal(
+      (
+        await post(anonymous, '/api/auth/start', { provider: 'google' })
+      ).status(),
+      503,
+    );
+  const cb = await anonymous.get(
+    '/api/auth/callback/google?state=' +
+      randomBytes(32).toString('hex') +
+      '&code=invalid',
+    { maxRedirects: 0 },
+  );
+  assert.equal(cb.status(), 303);
+  assert.match(cb.headers().location, /authError/);
+  assert.equal((await ok(await anonymous.get('/api/account'))).account, null);
+  const cookie = (await a.storageState()).cookies.find(
+    (c) => c.name === 'gunbeon_account',
+  );
+  assert(cookie?.httpOnly);
+  assert.equal(cookie.sameSite, 'Lax');
+  if (base.startsWith('https')) assert(cookie.secure);
+  await ok(await post(a, '/api/account', { action: 'logout' }, headers));
+  assert.equal((await a.get('/api/account/state')).status(), 401);
+  assert((await b.get('/api/account/state')).ok());
+  checks.push(
+    'HttpOnly session and per-device logout; disabled/corrupt social login never authenticates',
+  );
+  report.status = 'passed';
+} catch (e) {
+  report.status = 'failed';
+  report.error = e.stack;
+  process.exitCode = 1;
+} finally {
+  if (shareId)
+    await post(b, '/api/advice', { action: 'delete', id: shareId }).catch(
+      () => {},
+    );
+  if (groupId)
+    await post(b, '/api/groups', { action: 'deleteGroup', groupId }).catch(
+      () => {},
+    );
+  report.syntheticAccountIds = created;
+  report.providerAuthentication =
+    'Not configured; actual Google/Naver consent unverified';
+  await fs.writeFile(
+    path.join(out, 'result.json'),
+    JSON.stringify(report, null, 2),
+  );
+  console.log(JSON.stringify(report, null, 2));
+  for (const c of contexts) await c.dispose();
 }

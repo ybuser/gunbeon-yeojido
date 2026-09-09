@@ -1,5 +1,6 @@
 'use client';
 import {
+  accountRequest,
   initializeTravelStorage,
   saveTravelStorage,
   saveTravelEntries,
@@ -2669,14 +2670,23 @@ export default function PassportApp() {
         </button>
         <button
           onClick={async () => {
-            const response = await fetch('/api/test-access', {
-              method: 'DELETE',
-            });
-            if (response.ok) window.location.assign('/login');
-            else setNotice('테스트를 종료하지 못했습니다. 다시 시도해 주세요.');
+            try {
+              if (account)
+                await accountRequest('/api/account', { action: 'logout' });
+              else {
+                const response = await fetch('/api/test-access', {
+                  method: 'DELETE',
+                });
+                if (!response.ok)
+                  throw new Error('체험 입장을 종료하지 못했어요.');
+              }
+              window.location.assign('/login');
+            } catch (e) {
+              setNotice((e as Error).message);
+            }
           }}
         >
-          테스트 입장 종료
+          {account ? '로그아웃' : '테스트 입장 종료'}
         </button>
       </footer>
       {groupSharing && (

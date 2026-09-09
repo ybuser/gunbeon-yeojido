@@ -100,3 +100,11 @@ QA_BROWSER_CHANNELS=chromium QA_CASES=small,desktop node scripts/advice-ui-qa.mj
 API 검사는 쿠키가 분리된 작성자/방문자/외부인 3개 HTTP 세션, UI 검사는 작성자/방문자 2개 브라우저 컨텍스트를 사용한다. UI 회귀는 정상 TourAPI를 실제로 소진하지 않도록 지역 목록을 오류 응답으로 격리하고, 기본 공개 관광지와 실제 D1을 이용한다. 실제 관광 API 검색 검증은 별도로 기록한다. 명령을 빠르게 반복하면 익명 공개 기능의 속도 제한에 걸릴 수 있으므로 실패 원인을 확인하고 해당 시간 창 뒤에 재실행한다.
 
 공개 ID는 관리 자격증명이 아니다. 공유 작성·수정 권한 쿠키는 Git/로그/보고서에 저장하지 않는다. 다른 PC에서 기존 공개 링크는 열리지만 관리 권한은 자동 이동하지 않는다.
+
+## 개인 계정과 소셜 로그인
+
+- migration0004를 추가 적용한다. 일반 아이디 로그인에는 기존 TEST_SESSION_SECRET/TEST_ACCESS_PASSWORD와 D1이면 충분하다.
+- Google/Naver를 연결할 때는 [단계별 안내](social-login-setup.md)를 따른다. 로컬과 운영 각각 AUTH_BASE_URL, GOOGLE_CLIENT_ID/SECRET, NAVER_CLIENT_ID/SECRET을 설정한다. 소셜 키 없이도 개인 계정 QA는 실행된다.
+- `cd web` 후 `npm run test:accounts`, `QA_BROWSER_CHANNELS=chromium QA_CASES=small,desktop npm run test:accounts-ui`를 실행한다.
+- 운영에서 같은 계정으로 로그인하면 개인 여행·그룹을 이어갈 수 있다. 로컬 D1과 운영 D1은 별도이므로 운영 계정이 로컬에도 자동 존재하는 것은 아니다.
+- 게스트의 기기 기록은 내 계정의 가져오기로 명시적으로 연결한다. Git clone이 localStorage/쿠키를 옮겨주지는 않는다.
