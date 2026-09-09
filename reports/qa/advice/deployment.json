@@ -1,0 +1,23 @@
+{
+  "projectId": "appgprj_6a9e5a33eaa08191a72a52abf77522cc",
+  "version": 13,
+  "versionId": "appgprj_6a9e5a33eaa08191a72a52abf77522cc~appgver_5fc0e8ab1d60819183951b6150788f41",
+  "deploymentId": "appgdep_6aa0e91e08c88191b465b15d4ddd304d",
+  "status": "succeeded",
+  "updatedAt": "2026-09-09T05:06:04.855364+00:00",
+  "url": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
+  "sourceCommit": "4c2c98f178e1130c626c25d067f28b4fb8fbb83e",
+  "githubMergeCommit": "a2fa7f79501aad2af8dee659813bce36e162ecd5",
+  "matchingAppTree": "0349cee1f1a77402cdda29c0f6dcaa06847033fe",
+  "envRevision": 2,
+  "newMigrations": [
+    "0002_robust_rafael_vega.sql",
+    "0003_lush_marrow.sql"
+  ],
+  "publicChecks": [
+    "API ten scenarios passed",
+    "Chrome 430px owner/guest complete scenario passed",
+    "TourAPI real cafe search: 3; detail validated; missing: 0",
+    "Guide 19 images and 360/1440px passed"
+  ]
+}

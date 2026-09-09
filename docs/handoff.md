@@ -1,33 +1,37 @@
 # 개발 인수인계
 
-**2026-09-09 · 하루 여권 구현·공개 배포 완료.** 먼저 `AGENTS.md`와 이 문서, `local-setup.md`, `roadmap.md`를 읽는다. 과거 제안서는 최신 사용자 지시·이 기록·실제 코드보다 우선하지 않는다.
+**2026-09-09 · 여행 기록 수정과 한 수 보태기 공개 배포 완료.** `AGENTS.md` → 이 문서 → `local-setup.md` → `roadmap.md` 순서로 읽는다. 최신 사용자 지시와 실제 코드가 과거 기획·검토안보다 우선한다.
 
 ## 현재 기준선
 
 | 항목 | 확인값 |
 |---|---|
-| 저장소 / 브랜치 | https://github.com/ybuser/gunbeon-yeojido / `master` |
-| 제품 PR | [#18](https://github.com/ybuser/gunbeon-yeojido/pull/18), 2026-09-09 11:40 KST 병합 |
-| 제품 병합 SHA | `36a01d34b5b4fe66b777f2b8baaa9f671c7ad828` |
-| 구현 커밋 | `3a04e92` → `4d63e983212584a85d3ca012a0a07e3ed6ec008f` 모두 push 완료 |
-| 문서 후속 | 이 기록과 검증 JSON은 제품 병합 뒤 문서 커밋으로 `master`에 추가. 현재 최종 SHA는 `git rev-parse HEAD` / `git log -1`로 확인 |
-| Sites | 기존 프로젝트 `appgprj_6a9e5a33eaa08191a72a52abf77522cc`, **v12** |
-| Sites 앱 소스 SHA | `906b8f4ec7e6eab6d78d652e0c450bf8c82f5ad8` |
-| 공개 배포 | `appgdep_6aa0c70a66188191b4dd892925e1dc28`, **succeeded**, 2026-09-09 02:40:40 UTC |
-| 접속 | https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site/ · `/guide` · 임시 비밀번호1234 |
-| 서버 D1 / secret | 기존 `DB` binding 유지. 이번 배포에 스키마·secret 변경 없음. env revision2 유지 |
+| GitHub / 기본 브랜치 | https://github.com/ybuser/gunbeon-yeojido / `master` |
+| 제품 PR | [#19](https://github.com/ybuser/gunbeon-yeojido/pull/19), 2026-09-09 05:05:19 UTC 병합 |
+| 제품 병합 SHA | `a2fa7f79501aad2af8dee659813bce36e162ecd5` |
+| 구현 커밋 | `6d4b9f8` → `906d9a4` → `04f68d96dcf2a8ab381344d4d9b923198c5b3b67` 모두 push/병합 |
+| 문서 후속 | 이 인수인계·최종 검사 JSON은 제품 병합 뒤 문서 커밋. 최종 문서 SHA는 `git log -1`로 확인 |
+| Sites | 기존 프로젝트 `appgprj_6a9e5a33eaa08191a72a52abf77522cc`, **v13** |
+| Sites 앱 소스 SHA | `4c2c98f178e1130c626c25d067f28b4fb8fbb83e` |
+| 앱 소스 tree | `0349cee1f1a77402cdda29c0f6dcaa06847033fe` — GitHub `HEAD:web`와 동일 |
+| 공개 배포 | `appgdep_6aa0e91e08c88191b465b15d4ddd304d`, **succeeded**, 2026-09-09 05:06:04 UTC |
+| 주소 | https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site/ · `/guide` · 임시 비밀번호1234 |
+| 익명 공개 | 사용자가 발행한 `/p/{32자리 공개 ID}`와 전용 공개 API만 비밀번호 예외 |
+| D1 / secret | DB binding 유지, migration0002/0003 추가 적용. secret 변경 없음, env revision2 |
 
-## 완료한 기능과 검사
+## 이번 기능과 검사
 
-- 홈의 하루 여권, 출발 전 여유 조정 비교·적용·되돌리기, 실제 방문 선택 후 ‘하루의 한 장’, 선택형16초·4장면 안내. AI 추상 영상·진행 중 출타 편집은 후속 선택 범위.
-- 정상 TourAPI5유형·검색·상세·무장애 유지. JSON/XML22·23·인증 오류 구분, 제공자 Retry-After 우선. SDK 공유와 같은 화면 지도 객체 재사용.
-- 타입·77개 단위·빌드 통과. Chrome152/Edge152의360/430/1440/1920px8조건 통과. 실제 Kakao SDK360/430px 통과. 실제 휴대기기 검증은 아님.
-- 기존 계획·현재출타·그룹·가이드 회귀 통과. GitHub CI의 품질/키 없는 브라우저 흐름 통과 후 병합.
-- TourAPI 9/9 고성5유형 실제 조회149개 성공. 과거9/8 한도 오류와 구분. 실제 승인량이 증가했다는 증거는 아님.
-- 공개 사이트 새 세션: 하루 여권 흐름/실제 Kakao430px·가이드360/1440px 통과. 공개 서버 실제 TourAPI149개 성공.
-- 상세·스크린샷·공개 검증: `reports/day_passport_delivery.md`, `reports/qa/day-passport/`, `/guide`.
+- 기록 이름·실제 방문 장소·스탬프 수정, 원래 완료 날짜 보존. 확인 후 같은 계획으로 복원하거나 기록을 유지한 새 여행 복사. 현재 출타 자동 시작 없음.
+- 질문+관광지 단위 공개 제안, 작성자 개인 일정 검토·저장 후 반영 표시, 중단 시 `adviceReceipt` 복구, 공개안으로 새 여행 만들기.
+- PNG/링크·X 작성창 공유, 제안 마감·신고·숨김·삭제, 만료 후 본인 제안 삭제. 관리 쿠키를 잃었을 때의 정식 계정 복구는 아직 없다.
+- D1에는 공개 장소 참조·질문·선택형 제안·상태만 저장한다. TourAPI 원문/이미지 적재, 개인 날짜/만남/복귀 정보 자동 공개는 없음.
+- 타입·85단위·빌드 통과. 실제 D1 API10시나리오 통과. Chrome153/Edge152 각360·430·1440·1920px 통과. 최종 만료화면 회귀와19장 가이드도 통과. 실제 휴대폰이 아닌 데스크톱 viewport/touch 모의다.
+- GitHub 품질/기존+신규 전체 키 없는 브라우저 CI 통과 후 병합. `reports/qa/advice/ci.json` 참조.
+- 실제 서버 TourAPI 고성 카페3개 검색, 선택 장소 상세 검증201, 공개 제안 재조회 결측0. 로컬·운영 결과 분리. 자동 UI의 목록 오류 격리를 실제 API 성공으로 쓰지 않는다.
+- 공개 v13에서 별도 쿠키 API10시나리오, Chrome430px 전체 흐름, 실제 TourAPI, 가이드 검사. `reports/qa/advice/public-*.json` 참조.
+- 설계·제한·화면: `reports/advice_implementation.md`, `reports/advice_benchmark.md`, `reports/usage_guide.md`, `/guide`. 초안 리뷰 문서는 발견 당시 기록이며 최종 미해결 목록이 아니다.
 
-## 다른 PC에서 바로 이어가기
+## 다른 PC에서 재개
 
 ```sh
 git clone https://github.com/ybuser/gunbeon-yeojido.git
@@ -36,26 +40,27 @@ git status --short
 git log -5 --oneline
 ```
 
-새 clone은 `master`를 사용한다. 기존 작업 폴더는 변경사항을 먼저 보존한 뒤 `git fetch origin --prune`과 `git pull --ff-only`로 최신 상태를 확인한다. 이전 임시 checkout·브라우저 바이너리 경로를 복사하지 않는다.
+기존 폴더는 미커밋 변경을 먼저 보존하고 `git fetch origin --prune` / `git pull --ff-only`로 최신 상태를 확인한다. Node22/npm 설치·환경 파일·D1 migration·키 없는 QA는 `local-setup.md`를 따른다. 이전 PC의 `/tmp` checkout이나 브라우저 바이너리 경로를 복사하지 않는다.
 
-`local-setup.md`의 Node22/npm 설치 → 기존 파일을 덮어쓰지 않는 키 없는 환경 생성 → 로컬 D1 migration → 개발 서버 → QA 순서를 따른다. **같은 Mac의 별도 원격 fresh clone에서 npm ci·타입·77개 단위·로컬 D12개 migration·개발 서버·그룹 API11시나리오를 재현했다.** 다른 OS 실제 실행을 검증한 것은 아니다. 검사 증빙은 `fresh-clone-groups.json`과 `fresh-clone.md`다.
+앱 루트는 `web/`다. 새 D1 schema0002/0003은 추가 적용하고 기존 SQL/스냅샷을 수정하지 않는다. `npm run test:advice`는 격리된3개 HTTP쿠키 세션, `npm run test:advice-ui`는 작성자/방문자 브라우저를 나눠 검증한다. 테스트가 만든 공유만 정리하고 운영 DB를 초기화하지 않는다.
 
-Git으로 개인 localStorage·참여 쿠키·로컬 DB·실제 키·Playwright 바이너리·빌드 결과는 옮겨지지 않는다. 그룹은 운영 D1에 남아 있지만 새 브라우저에서는 새 초대가 필요할 수 있다. 복구 가능한 본인 인증은 아직 없다.
+Git clone은 개인 localStorage·참여/관리 쿠키·로컬 DB·실제 키·Playwright 바이너리를 옮기지 않는다. 그룹은 운영 D1, 개인 계획은 해당 브라우저에 남아 있다. 공개 링크는 새 기기에서도 열리지만 관리 권한은 자동 이동하지 않는다. 정식 계정·복구 정책은 후속 결정이다.
 
-## GitHub / Sites / D1을 구분
+## GitHub / Sites / D1
 
-- GitHub는 전체 저장소, Sites 소스 Git은 `web/` 앱 루트다. SHA가 다르며 둘을 혼용하지 않는다.
-- 배포는 이 환경의 Sites building·hosting 지침을 읽고 **기존** `web/.openai/hosting.json` 프로젝트를 사용한다. 새 프로젝트/Worker를 만들지 않는다.
-- 새 PC는 기존 Sites 프로젝트에서 최신 연결 정보와 단기 소스 credential을 조회하고 앱 루트 소스를 새로 clone/bootstrap한다. 이전 `/tmp` checkout에 의존하지 않는다. 토큰은 파일·Git config/URL에 넣지 않고 명령별 인증으로만 사용한다.
-- GitHub의 `web/` 변경을 정확하게 반영한다. `.git`, `.env*`, `.wrangler`, `node_modules`, `dist`를 무차별 복사하지 않는다. 검증한 앱 소스 push → 해당 소스 빌드/패키지 → 버전 저장 → 기존 공개 접근에 배포 → 성공 상태 확인 순서다.
-- 연결을 복구하지 못하면 로컬 개발은 계속하고 배포 미반영 상태를 기록한다.
-- `wrangler.local.jsonc`의 placeholder DB ID는 `--local` 전용이다. 여기에 `--remote`를 붙이지 않는다. 운영 DB를 테스트용으로 초기화하지 않는다.
+- GitHub는 전체 저장소, Sites source Git은 `web/` 앱 루트다. SHA를 혼용하지 않는다. `HEAD:web` tree를 비교해 같은 앱인지 확인한다.
+- 이 환경의 Sites building·hosting 지침과 기존 `.openai/hosting.json`을 사용한다. 새 Site/Worker를 만들지 않는다.
+- 새 PC는 기존 Sites 프로젝트에서 현재 연결과 단기 credential을 조회해 앱 소스를 새로 준비한다. 토큰은 파일·Git config/URL·로그에 저장하지 않고 명령별 인증으로만 쓴다.
+- 검증한 앱 소스 push → 같은 소스의 build/package → 버전 저장 → 기존 공개 접근 배포 → 성공 상태 → 새 세션 검사를 잇는다. 사용자 승인 범위를 중복 질문하지 않는다.
+- 로컬 `wrangler.local.jsonc`의 DB ID는 placeholder이며 `--local` 전용이다. 여기에 `--remote`를 붙이지 않는다. 운영 D1은 Sites 배포 migration으로 관리한다.
+- `.env.local`과 배포 secret은 독립이다. 키를 Git/문서에 남기지 않는다. 연결 장애 시 로컬 진행과 배포 미반영 상태를 구분해 기록한다.
 
 ## 다음 첫 작업
 
-1. **정상 기능 유지 + API 트래픽 확대:** 현재 계정 승인량/집계 단위/사용량을 확인해 `reports/api_capacity_requests.md`의 칸을 채운다. 공식 운영 기본 일10만과 운영팀 추가 증설, 공모전 지원 문의를 준비했다. 대표 API1개/팀1회 안내를 지킨다. 문의·신청·증설 승인은 아직 없으며 [#15](https://github.com/ybuser/gunbeon-yeojido/issues/15)는 열린 상태다.
-2. Kakao 무료 배지와 일·월 사용량을 확인한다. 계정별 추가 쿼터/결제가 필요한지 실제 수치로 판단한다. 결제 설정은 변경하지 않았다.
-3. 대표 코스 운영 조건, 실제 장병/동행자 사용성, 실제 Android/iPhone·Safari/PWA, 최종 제출 PDF/이미지·심사 접근을 `roadmap.md` 순서로 마무리한다.
-4. TourAPI 서버 저장·동기화는 별도 양식·범위·시작 조건 답변 후 적용한다. 현재 운영 DB에 관광 응답 적재 없음.
+1. [#20](https://github.com/ybuser/gunbeon-yeojido/issues/20): 실제 장병·가족·연인·친구5–10쌍이 공개 질문→제안→검토→새 여행을 이해하는지 관찰. Android Chrome / iPhone Safari의 PNG저장·인스타 링크 스티커·X 작성창 확인. 전환율 수치를 꾸미지 않는다.
+2. [#15](https://github.com/ybuser/gunbeon-yeojido/issues/15): 정상 TourAPI 기능 유지+승인량/집계 단위 확인·운영계정/공모전 증설. 문의 초안은 `api_capacity_requests.md`. 실제 문의 발송·증설 승인은 아직 없음.
+3. Kakao 무료 배지·일/월 사용량을 실제 계정 수치로 확인한다. 결제 설정은 변경하지 않았다.
+4. 대표 코스 운영/예약/접근 조건, 실제 사용자, 실기기·PWA, 최종 기능설명서/이미지/심사 접근을 `roadmap.md` 순서로 마무리한다. 기존 확인 마감9/21 16:00 KST는 제출 직전 공식 안내를 재확인한다.
+5. TourAPI 원문 서버 저장/동기화는 별도 저장 조건 답변 후 적용한다. 현재 D1 관광 응답 적재 없음.
 
-과거 `reports/deployment.md`의 v9, ‘그룹은 같은 브라우저만 가능’, 날짜가 있는 둘러보기는 당시 기록이다. 최신 그룹은 서버 D1, 둘러보기는 날짜 없음. `api/status`의 고정 문자열을 배포 SHA 근거로 쓰지 않는다. 최종 제출 마감은 기존 확인 기준 **9/21 16:00 KST**, 제출 직전 공식 안내를 재확인한다.
+직전 v12의 하루 여권/여유 조정/16초 안내와 fresh clone 재현 기록은 `reports/day_passport_delivery.md`, `reports/qa/day-passport/`에 있다. 과거 v9 문서·그룹 브라우저 한정 설명·날짜가 있는 둘러보기는 현행 사양이 아니다.

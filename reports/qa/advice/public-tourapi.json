@@ -1,0 +1,19 @@
+{
+  "at": "2026-09-09T05:07:12.739Z",
+  "base": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
+  "mode": "actual server TourAPI search and detail validation, no route mocks; no provider payload persisted",
+  "search": {
+    "status": 200,
+    "received": 3,
+    "total": 3,
+    "error": null
+  },
+  "detailValidation": {
+    "status": 201
+  },
+  "publicHydration": {
+    "suggestions": 1,
+    "missing": 0
+  },
+  "status": "passed"
+}

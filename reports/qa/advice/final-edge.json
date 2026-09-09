@@ -1,0 +1,22 @@
+[
+  {
+    "channel": "msedge",
+    "version": "152.0.4191.66",
+    "viewport": {
+      "name": "small",
+      "width": 360,
+      "height": 740
+    },
+    "status": "passed",
+    "checks": [
+      "Publish safe snapshot and export real PNG without private meeting, time or title",
+      "Anonymous guest submits a concrete replacement without test password",
+      "Cancel keeps original; save applies exact replacement and only then marks it adopted",
+      "Record edit preserves completion date; new copy preserves record; restoration keeps original itinerary and does not start outing",
+      "Public import survives password gate and opens a fresh private editor",
+      "Expired-screen simulation allows cookie-bound withdrawal with real D1 deletion"
+    ],
+    "errors": [],
+    "providers": "TourAPI regional endpoint isolated as unavailable; real base catalog and D1; Kakao disabled in this workflow check"
+  }
+]

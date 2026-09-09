@@ -1,7 +1,7 @@
 {
   "status": "passed",
-  "at": "2026-09-09T04:59:14.663Z",
-  "base": "http://localhost:3000",
+  "at": "2026-09-09T05:06:50.235Z",
+  "base": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
   "cases": [
     "core API remains password protected",
     "publish whitelist rejects manual references",
