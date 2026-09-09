@@ -67,6 +67,14 @@ import CourseCover from './course-cover';
 import MeetingPicker from './meeting-picker';
 import OutingPanel from './outing-panel';
 import TripCompletion from './trip-completion';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from './ui/alert-dialog';
 import DayRecord from './day-record';
 import { dayRecord, dayRecordSvg, dayRecordText } from '@/lib/day-passport';
 import TripBuilder, { scheduleTime } from './trip-builder';
@@ -87,6 +95,8 @@ import {
   manualReference,
   validOuting,
   completeTrip,
+  reviseVisitRecord,
+  restoreTravelPlan,
   localInputDate,
   parseKoreaInput,
   familyProjection,
@@ -333,6 +343,8 @@ export default function PassportApp() {
   const [favorites, setFavorites] = useState<ManualPlace[]>([]);
   const [activeOuting, setActiveOuting] = useState<ActiveOuting | null>(null);
   const [startCandidate, setStartCandidate] = useState<Entry | null>(null);
+  const [recordEditing, setRecordEditing] = useState<Entry | null>(null);
+  const [recordRestoring, setRecordRestoring] = useState<Entry | null>(null);
   const [completion, setCompletion] = useState<Entry | null>(null);
   const [meetingContext, setMeetingContext] = useState<
     'draft' | 'favorites' | null
@@ -562,7 +574,9 @@ export default function PassportApp() {
   useEffect(() => {
     if (live.mode === 'loading') return;
     const candidates = [
-      ...[completion, shared].filter((entry): entry is Entry => !!entry),
+      ...[completion, shared, recordEditing].filter(
+        (entry): entry is Entry => !!entry,
+      ),
       ...(view === 'outing' && (startCandidate || activeOuting)
         ? [startCandidate || activeOuting!.entry]
         : []),
@@ -615,6 +629,7 @@ export default function PassportApp() {
   }, [
     reviewEntry,
     completion,
+    recordEditing,
     shared,
     view,
     entries,
@@ -1907,6 +1922,23 @@ export default function PassportApp() {
                         </p>
                       )}
                       <div className="saved-mission-actions">
+                        {hasVisitRecord(e) && (
+                          <>
+                            <button onClick={() => setRecordEditing(e)}>
+                              기록 수정
+                            </button>
+                            <button
+                              disabled={
+                                !e.plan ||
+                                (!!activeOuting &&
+                                  entryKey(activeOuting.entry) === entryKey(e))
+                              }
+                              onClick={() => setRecordRestoring(e)}
+                            >
+                              계획으로 되돌리기
+                            </button>
+                          </>
+                        )}
                         <button
                           disabled={
                             !e.plan ||
@@ -1918,7 +1950,7 @@ export default function PassportApp() {
                           }
                         >
                           {hasVisitRecord(e)
-                            ? '복사해서 새 코스 만들기'
+                            ? '새 여행으로 가져오기'
                             : '코스 수정'}
                         </button>
                         <button
@@ -2549,6 +2581,61 @@ export default function PassportApp() {
           }}
         />
       )}
+      {recordEditing && (
+        <TripCompletion
+          key={entryKey(recordEditing)}
+          editing
+          entry={recordEditing}
+          places={places}
+          onClose={() => setRecordEditing(null)}
+          onConfirm={(stamps, visited, title) => {
+            setEntries((v) =>
+              v.map((e) =>
+                entryKey(e) === entryKey(recordEditing)
+                  ? reviseVisitRecord(e, title, stamps, visited)
+                  : e,
+              ),
+            );
+            setRecordEditing(null);
+            setNotice(
+              '여행 기록을 수정했어요. 이미 저장한 공유 이미지는 새로 저장해 주세요.',
+            );
+          }}
+        />
+      )}
+      {recordRestoring && (
+        <AlertDialog open onOpenChange={(v) => !v && setRecordRestoring(null)}>
+          <AlertDialogContent>
+            <AlertDialogTitle>여행 계획으로 되돌릴까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              이 여행의 완료 표시와 방문 스탬프를 지우고 준비 중인 계획으로
+              옮겨요. 장소와 일정은 유지되고, 현재 출타는 시작되지 않습니다.
+              원래 기록도 남기려면 ‘새 여행으로 가져오기’를 선택하세요.
+            </AlertDialogDescription>
+            <AlertDialogFooter>
+              <AlertDialogCancel>기록 유지</AlertDialogCancel>
+              <Button
+                onClick={() => {
+                  setEntries((v) =>
+                    v.map((e) =>
+                      entryKey(e) === entryKey(recordRestoring)
+                        ? restoreTravelPlan(e)
+                        : e,
+                    ),
+                  );
+                  setRecordRestoring(null);
+                  setRecordTab('plans');
+                  setNotice(
+                    '계획으로 되돌렸어요. 날짜와 장소를 확인하고 이어서 준비하세요.',
+                  );
+                }}
+              >
+                계획으로 되돌리기 확인
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
       {completion && (
         <TripCompletion
           key={entryKey(completion)}
@@ -2558,6 +2645,7 @@ export default function PassportApp() {
           onConfirm={(stamps, visitedPlaceIds) => {
             const finished = completeTrip(
               completion,
+              recordEditing,
               stamps,
               new Date(),
               visitedPlaceIds,
@@ -2917,6 +3005,8 @@ export default function PassportApp() {
         !shared &&
         !composer &&
         !completion &&
+        !recordEditing &&
+        !recordRestoring &&
         !startCandidate &&
         !photoOpen &&
         !groupSharing &&

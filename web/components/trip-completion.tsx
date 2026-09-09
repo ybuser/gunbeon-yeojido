@@ -10,21 +10,35 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { sensitivePlaceText, type Entry, type Place } from '@/lib/domain';
 export default function TripCompletion({
   entry,
   places,
   onClose,
   onConfirm,
+  editing = false,
 }: {
   entry: Entry;
   places: Place[];
   onClose: () => void;
-  onConfirm: (stamps: string[], visitedPlaceIds: string[]) => void;
+  onConfirm: (
+    stamps: string[],
+    visitedPlaceIds: string[],
+    title: string,
+  ) => void;
+  editing?: boolean;
 }) {
-  const [stamps, setStamps] = useState<string[]>(['입경', '복귀']);
-  const [visited, setVisited] = useState<string[]>([]);
-  const [withoutPlaces, setWithoutPlaces] = useState(false);
+  const [title, setTitle] = useState(entry.title);
+  const [stamps, setStamps] = useState<string[]>(
+    editing ? entry.stamps : ['입경', '복귀'],
+  );
+  const [visited, setVisited] = useState<string[]>(
+    editing ? entry.visitedPlaceIds || [] : [],
+  );
+  const [withoutPlaces, setWithoutPlaces] = useState(
+    editing && entry.visitedPlaceIds?.length === 0,
+  );
   const candidates = (entry.plan?.stops || []).flatMap((stop) => {
     const place = places.find(
       (p) =>
@@ -38,12 +52,26 @@ export default function TripCompletion({
   return (
     <AlertDialog open onOpenChange={(v) => !v && onClose()}>
       <AlertDialogContent className="trip-completion">
-        <AlertDialogTitle>여행, 잘 다녀오셨나요?</AlertDialogTitle>
+        <AlertDialogTitle>
+          {editing ? '여행 기록 수정' : '여행, 잘 다녀오셨나요?'}
+        </AlertDialogTitle>
         <AlertDialogDescription>
-          다녀온 여행이라면 기록으로 남겨요. 아래 스탬프는 직접 남기는 여행
-          기록입니다.
+          {editing
+            ? '여행 이름과 다녀온 장소, 스탬프를 고칠 수 있어요. 원래 기록한 날짜는 유지됩니다.'
+            : '다녀온 여행이라면 기록으로 남겨요. 아래 스탬프는 직접 남기는 여행 기록입니다.'}
         </AlertDialogDescription>
-        <strong>{entry.title}</strong>
+        {editing ? (
+          <label>
+            기록 이름
+            <Input
+              maxLength={80}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </label>
+        ) : (
+          <strong>{entry.title}</strong>
+        )}
         <fieldset className="completion-places">
           <legend>실제로 다녀온 관광지를 골라주세요</legend>
           {candidates.map((place) => (
@@ -62,6 +90,23 @@ export default function TripCompletion({
               <span>{place.title}</span>
             </label>
           ))}
+          {editing &&
+            visited
+              .filter((id) => !candidates.some((p) => p.id === id))
+              .map((id, index) => (
+                <label key={id}>
+                  <Checkbox
+                    checked
+                    onCheckedChange={() =>
+                      setVisited((v) => v.filter((x) => x !== id))
+                    }
+                  />
+                  <span>
+                    조회 대기 중인 기존 장소 {index + 1}
+                    <small>선택을 유지하면 기존 방문 기록을 보존해요.</small>
+                  </span>
+                </label>
+              ))}
           <p>
             직접 지정한 만남 장소는 공개 기록에 넣지 않아요. 조회되지 않은
             관광지는 이번 카드에서 제외합니다.
@@ -101,12 +146,14 @@ export default function TripCompletion({
           ))}
         </div>
         <AlertDialogFooter>
-          <AlertDialogCancel>아직 다녀오기 전이에요</AlertDialogCancel>
+          <AlertDialogCancel>
+            {editing ? '취소' : '아직 다녀오기 전이에요'}
+          </AlertDialogCancel>
           <Button
-            disabled={!visited.length && !withoutPlaces}
-            onClick={() => onConfirm(stamps, visited)}
+            disabled={!title.trim() || (!visited.length && !withoutPlaces)}
+            onClick={() => onConfirm(stamps, visited, title)}
           >
-            여행 완료로 기록
+            {editing ? '기록 수정 저장' : '여행 완료로 기록'}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
