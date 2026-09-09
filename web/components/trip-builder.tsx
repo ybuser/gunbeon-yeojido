@@ -135,7 +135,11 @@ type Props = {
   favorites: ManualPlace[];
   onFavoritesChange: (places: ManualPlace[]) => void;
   onClose: () => void;
-  onSave: (entry: Entry, places: Place[], returnAt: string) => void;
+  onSave: (
+    entry: Entry,
+    places: Place[],
+    returnAt: string,
+  ) => void | Promise<void>;
 };
 export default function TripBuilder({
   initial,
@@ -411,7 +415,9 @@ export default function TripBuilder({
       setNotice(e instanceof Error ? e.message : '검색을 연결하지 못했습니다.');
     }
   }
-  function save() {
+  const [saving, setSaving] = useState(false);
+  async function save() {
+    if (saving) return;
     if (
       title.trim().length < 2 ||
       title.length > 60 ||
@@ -469,11 +475,20 @@ export default function TripBuilder({
       recordId,
     );
     if (canUpdate) entry.stamps = initial.stamps;
-    onSave(
-      entry,
-      allPlaces.filter((p) => p.source !== 'manual'),
-      previewSettings.returnAt,
-    );
+    setSaving(true);
+    try {
+      await onSave(
+        entry,
+        allPlaces.filter((p) => p.source !== 'manual'),
+        previewSettings.returnAt,
+      );
+    } catch (e) {
+      setNotice(
+        (e as Error).message || '저장하지 못했어요. 다시 시도해 주세요.',
+      );
+    } finally {
+      setSaving(false);
+    }
   }
   function manualForm(p?: Place) {
     setManual(
@@ -507,7 +522,7 @@ export default function TripBuilder({
       <Sheet
         open
         onOpenChange={(open) => {
-          if (!open) {
+          if (!open && !saving) {
             if (dirty) setConfirmClose(true);
             else onClose();
           }
@@ -516,6 +531,8 @@ export default function TripBuilder({
         <SheetContent
           side="bottom"
           className="course-builder"
+          inert={saving}
+          aria-busy={saving}
           showCloseButton={false}
         >
           <SheetHeader className="builder-heading">

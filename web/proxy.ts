@@ -1,3 +1,4 @@
+import { currentAccount, accountError } from './lib/account-server';
 import { NextResponse } from 'next/server';
 import { env } from 'cloudflare:workers';
 import { cookieValue, validTestSession } from './lib/test-access';
@@ -6,8 +7,15 @@ export async function proxy(request: Request) {
   const url = new URL(request.url);
   const publicPaths = [
     '/login',
+    '/account',
+    '/privacy',
+    '/about',
+    '/api/account',
+    '/api/auth/start',
     '/api/test-access',
     '/icon.svg',
+    '/brand/google-g.png',
+    '/brand/naver-n.png',
     '/icon-512.png',
     '/photos/goseong-observatory.jpg',
     '/photos/cheorwon-memorial.jpg',
@@ -22,6 +30,7 @@ export async function proxy(request: Request) {
   ];
   if (
     publicPaths.includes(url.pathname) ||
+    /^\/api\/auth\/callback\/(google|naver)$/.test(url.pathname) ||
     /^\/p\/[a-f0-9]{32}$/.test(url.pathname) ||
     /^\/api\/public-advice\/[a-f0-9]{32}$/.test(url.pathname) ||
     url.pathname.startsWith('/assets/') ||
@@ -33,8 +42,15 @@ export async function proxy(request: Request) {
   const secret = String(
     (env as Record<string, unknown>).TEST_SESSION_SECRET || '',
   );
+  let account;
+  try {
+    account = await currentAccount(request);
+  } catch (e) {
+    return accountError(e);
+  }
   if (
-    await validTestSession(cookieValue(request.headers.get('cookie')), secret)
+    account ||
+    (await validTestSession(cookieValue(request.headers.get('cookie')), secret))
   ) {
     const response = NextResponse.next();
     response.headers.set('Cache-Control', 'private, no-store');

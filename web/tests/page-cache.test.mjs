@@ -56,7 +56,7 @@ test('unmounting one consumer does not abort another consumer of the shared requ
   const [, options] = network.mock.calls[0].arguments;
   assert.equal(options.signal, undefined);
   assert.equal(options.cache, 'no-store');
-  assert.deepEqual(options.headers, { Accept: 'application/json' });
+  assert.equal(new Headers(options.headers).get('Accept'), 'application/json');
   finish(response({ ok: true }));
   assert.deepEqual(await (await first).json(), { ok: true });
   assert.deepEqual(await (await second).json(), { ok: true });

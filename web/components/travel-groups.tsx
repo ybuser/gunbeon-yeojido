@@ -1,4 +1,6 @@
 'use client';
+import { accountContextHeaders } from '@/lib/account-client';
+
 import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   Users,
@@ -76,7 +78,10 @@ export function useTravelGroups() {
     async (body: Record<string, unknown>) => {
       const r = await fetch('/api/groups', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          ...accountContextHeaders(),
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(body),
       });
       const d = (await r.json()) as GroupReply;

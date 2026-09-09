@@ -1,5 +1,5 @@
 import AccountPage from "@/components/account-page";
 export const dynamic = "force-dynamic";
-export default function Login() {
+export default function Page() {
   return <AccountPage />;
 }

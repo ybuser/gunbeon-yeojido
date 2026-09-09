@@ -1,8 +1,9 @@
-import { database } from '@/lib/db';
-import { validSuggestion } from '@/lib/advice-model';
-import type { AdviceSnapshot } from '@/lib/advice-model';
-import { GET as tourismSearch } from '@/app/api/places/search/route';
+import { database } from "@/lib/db";
+import { validSuggestion } from "@/lib/advice-model";
+import type { AdviceSnapshot } from "@/lib/advice-model";
+import { GET as tourismSearch } from "@/app/api/places/search/route";
 import {
+  visitorPredicate,
   randomId,
   adviceSession,
   adviceBody,
@@ -14,23 +15,22 @@ import {
   findShare,
   shareDetail,
   publicPlace,
-} from '@/lib/advice-server';
-import type { Place } from '@/lib/domain';
-const idFrom = (r: Request) => new URL(r.url).pathname.split('/').pop();
+} from "@/lib/advice-server";
+import type { Place } from "@/lib/domain";
+const idFrom = (r: Request) => new URL(r.url).pathname.split("/").pop();
 export async function GET(r: Request) {
   try {
     const row = await findShare(idFrom(r)),
       session = await adviceSession(r, true),
       url = new URL(r.url);
-    if (url.searchParams.has('q')) {
-      if (row.status !== 'open')
-        throw new AdviceProblem(409, '이 여행의 제안은 마감됐어요.');
-      await adviceRateLimit(r, 'search', 45);
+    if (url.searchParams.has("q")) {
+      if (row.status !== "open") throw new AdviceProblem(409, "이 여행의 제안은 마감됐어요.");
+      await adviceRateLimit(r, "search", 45);
       const snapshot = JSON.parse(row.payload) as AdviceSnapshot;
-      const query = new URL('/api/places/search', url);
-      query.searchParams.set('region', snapshot.region);
-      query.searchParams.set('q', url.searchParams.get('q') || '');
-      query.searchParams.set('page', url.searchParams.get('page') || '1');
+      const query = new URL("/api/places/search", url);
+      query.searchParams.set("region", snapshot.region);
+      query.searchParams.set("q", url.searchParams.get("q") || "");
+      query.searchParams.set("page", url.searchParams.get("page") || "1");
       const response = await tourismSearch(new Request(query)),
         data = (await response.json()) as {
           places?: Place[];
@@ -45,7 +45,7 @@ export async function GET(r: Request) {
           ...(!response.ok
             ? {
                 message:
-                  '관광정보 검색을 연결하지 못했어요. 잠시 후 다시 검색하거나 지역 장소 후보에서 골라주세요.',
+                  "관광정보 검색을 연결하지 못했어요. 잠시 후 다시 검색하거나 지역 장소 후보에서 골라주세요.",
               }
             : {}),
           places: (data.places || []).map(publicPlace),
@@ -54,12 +54,13 @@ export async function GET(r: Request) {
         session.cookie,
       );
     }
-    await adviceRateLimit(r, 'public-read', 60);
+    await adviceRateLimit(r, "public-read", 60);
     return adviceReply(
       await shareDetail(
         row,
         session.hash,
-        Math.max(1, Math.min(5, Number(url.searchParams.get('page')) || 1)),
+        Math.max(1, Math.min(5, Number(url.searchParams.get("page")) || 1)),
+        session.accountId,
       ),
       200,
       session.cookie,
@@ -71,49 +72,37 @@ export async function GET(r: Request) {
 export async function POST(r: Request) {
   try {
     const b = await adviceBody(r),
-      row = await findShare(
-        idFrom(r),
-        b.action === 'withdraw' || b.action === 'withdrawMine',
-      ),
+      row = await findShare(idFrom(r), b.action === "withdraw" || b.action === "withdrawMine"),
       session = await adviceSession(r),
       db = database();
-    if (!session.hash)
-      throw new AdviceProblem(401, '페이지를 새로 열고 다시 제안해 주세요.');
-    if (row.owner_hash === session.hash && b.action === 'suggest')
-      throw new AdviceProblem(
-        400,
-        '내 여행은 직접 수정하고, 다른 사람의 한 수를 기다려보세요.',
-      );
-    if (b.action === 'withdrawMine') {
+    if (!session.hash) throw new AdviceProblem(401, "페이지를 새로 열고 다시 제안해 주세요.");
+    if (row.owner_hash === session.hash && b.action === "suggest")
+      throw new AdviceProblem(400, "내 여행은 직접 수정하고, 다른 사람의 한 수를 기다려보세요.");
+    if (b.action === "withdrawMine") {
       await db.batch([
         db
           .prepare(
-            'DELETE FROM advice_reports WHERE suggestion_id IN (SELECT id FROM advice_suggestions WHERE share_id=? AND visitor_hash=?)',
+            `DELETE FROM advice_reports WHERE suggestion_id IN (SELECT id FROM advice_suggestions WHERE share_id=? AND ${visitorPredicate})`,
           )
-          .bind(row.id, session.hash),
+          .bind(row.id, session.hash, session.accountId),
         db
-          .prepare(
-            'DELETE FROM advice_suggestions WHERE share_id=? AND visitor_hash=?',
-          )
-          .bind(row.id, session.hash),
+          .prepare(`DELETE FROM advice_suggestions WHERE share_id=? AND ${visitorPredicate}`)
+          .bind(row.id, session.hash, session.accountId),
       ]);
       return adviceReply({ ok: true });
     }
-    if (b.action === 'suggest') {
-      if (row.status !== 'open')
-        throw new AdviceProblem(409, '이 여행의 제안은 마감됐어요.');
-      await adviceRateLimit(r, 'suggest', 20, 10);
+    if (b.action === "suggest") {
+      if (row.status !== "open") throw new AdviceProblem(409, "이 여행의 제안은 마감됐어요.");
+      await adviceRateLimit(r, "suggest", 20, 10);
       const snapshot = JSON.parse(row.payload) as AdviceSnapshot;
       if (!validSuggestion(b.suggestion, snapshot))
-        throw new AdviceProblem(400, '대상 장소와 제안 이유를 확인해 주세요.');
+        throw new AdviceProblem(400, "대상 장소와 제안 이유를 확인해 주세요.");
       const s = b.suggestion,
         id = randomId();
       // One active proposal per visitor/share; a new proposal after withdrawal gets a fresh ID.
       const existing = await db
-        .prepare(
-          'SELECT id FROM advice_suggestions WHERE share_id=? AND visitor_hash=?',
-        )
-        .bind(row.id, session.hash)
+        .prepare(`SELECT id FROM advice_suggestions WHERE share_id=? AND ${visitorPredicate}`)
+        .bind(row.id, session.hash, session.accountId)
         .first();
       if (existing)
         return adviceReply({
@@ -141,53 +130,56 @@ export async function POST(r: Request) {
         .run();
       if (!result.meta.changes) {
         const retried = await db
-          .prepare(
-            'SELECT id FROM advice_suggestions WHERE share_id=? AND visitor_hash=?',
-          )
-          .bind(row.id, session.hash)
+          .prepare(`SELECT id FROM advice_suggestions WHERE share_id=? AND ${visitorPredicate}`)
+          .bind(row.id, session.hash, session.accountId)
           .first<{ id: string }>();
         if (retried) return adviceReply({ id: retried.id, existing: true });
         throw new AdviceProblem(
           409,
-          '제안이 마감되었거나 충분히 모였어요. 페이지를 새로 확인해 주세요.',
+          "제안이 마감되었거나 충분히 모였어요. 페이지를 새로 확인해 주세요.",
         );
       }
       return adviceReply({ id }, 201);
     }
-    const suggestionId = String(b.suggestionId || '');
+    const suggestionId = String(b.suggestionId || "");
     const s = await db
       .prepare(
-        'SELECT id,visitor_hash AS visitorHash,status FROM advice_suggestions WHERE id=? AND share_id=?',
+        "SELECT id,visitor_hash AS visitorHash,status FROM advice_suggestions WHERE id=? AND share_id=?",
       )
       .bind(suggestionId, row.id)
       .first<{ id: string; visitorHash: string; status: string }>();
-    if (!s) throw new AdviceProblem(404, '제안을 찾을 수 없어요.');
-    if (b.action === 'withdraw') {
-      if (s.visitorHash !== session.hash)
-        throw new AdviceProblem(403, '내가 남긴 제안만 지울 수 있어요.');
+    if (!s) throw new AdviceProblem(404, "제안을 찾을 수 없어요.");
+    if (b.action === "withdraw") {
+      if (
+        s.visitorHash !== session.hash &&
+        !(
+          session.accountId &&
+          (await db
+            .prepare(
+              "SELECT account_id FROM claimed_identities WHERE kind='advice' AND legacy_hash=? AND account_id=?",
+            )
+            .bind(s.visitorHash, session.accountId)
+            .first())
+        )
+      )
+        throw new AdviceProblem(403, "내가 남긴 제안만 지울 수 있어요.");
       await db.batch([
+        db.prepare("DELETE FROM advice_reports WHERE suggestion_id=?").bind(s.id),
         db
-          .prepare('DELETE FROM advice_reports WHERE suggestion_id=?')
-          .bind(s.id),
-        db
-          .prepare(
-            'DELETE FROM advice_suggestions WHERE id=? AND visitor_hash=?',
-          )
-          .bind(s.id, session.hash),
+          .prepare("DELETE FROM advice_suggestions WHERE id=? AND visitor_hash=?")
+          .bind(s.id, s.visitorHash),
       ]);
       return adviceReply({ ok: true });
     }
-    if (b.action === 'report') {
-      await adviceRateLimit(r, 'report', 20, 10);
+    if (b.action === "report") {
+      await adviceRateLimit(r, "report", 20, 10);
       await db
-        .prepare(
-          'INSERT OR IGNORE INTO advice_reports(suggestion_id,visitor_hash) VALUES(?,?)',
-        )
+        .prepare("INSERT OR IGNORE INTO advice_reports(suggestion_id,visitor_hash) VALUES(?,?)")
         .bind(s.id, session.hash)
         .run();
       return adviceReply({ ok: true });
     }
-    throw new AdviceProblem(400, '요청을 확인해 주세요.');
+    throw new AdviceProblem(400, "요청을 확인해 주세요.");
   } catch (e) {
     return adviceError(e);
   }

@@ -1,3 +1,4 @@
+import { enterGuest, recordMenu } from './qa-navigation.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -83,7 +84,9 @@ for (const channel of (
     }
     try {
       await p.goto(base);
+      await enterGuest(p);
       await p.locator('.test-entry[data-ready="true"]').waitFor();
+      await enterGuest(p);
       await p.getByLabel('테스트 비밀번호', { exact: true }).fill('1234');
       await p
         .getByRole('button', { name: '여행 시작하기', exact: true })
@@ -121,7 +124,7 @@ for (const channel of (
       await p.reload();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
       await p.locator('.saved-mission').waitFor();
-      await p.getByRole('button', { name: '코스 수정', exact: true }).click();
+      await (await recordMenu(p, '코스 수정')).click();
       assert.equal(await p.locator('.builder-stop').count(), 0);
       await p
         .getByRole('button', { name: '코스 편집 닫기', exact: true })
@@ -199,7 +202,7 @@ for (const channel of (
         await p.locator('.app-shell[data-ready="true"]').waitFor();
       }
       assert.equal((await state()).favorites.length, 1);
-      await p.getByRole('button', { name: '코스 수정', exact: true }).click();
+      await (await recordMenu(p, '코스 수정')).click();
       await p.locator('.builder-origin button').click();
       await p
         .getByRole('heading', { name: '즐겨찾는 장소', exact: true })
@@ -258,7 +261,7 @@ for (const channel of (
       await ctx.route('**/api/catalog', delayedCatalog);
       await p.reload();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
-      await p.getByRole('button', { name: '코스 수정', exact: true }).click();
+      await (await recordMenu(p, '코스 수정')).click();
       await p
         .locator('.builder-origin strong')
         .filter({ hasText: '정문 앞' })
@@ -320,8 +323,7 @@ for (const channel of (
         saved.plan.departureAt,
       );
       await tab(p, '내 여행').click();
-      await p
-        .getByRole('button', { name: '저장한 장소 다시 보기', exact: true })
+      await (await recordMenu(p, '저장한 장소 다시 보기'))
         .click();
       await p.locator('.place-row').first().waitFor();
       await p.locator('.edit-summary').click();

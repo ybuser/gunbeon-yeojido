@@ -1,3 +1,4 @@
+import { enterGuest, recordMenu } from './qa-navigation.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -131,8 +132,7 @@ for (const channel of (process.env.QA_BROWSER_CHANNELS || 'chrome').split(
         .getByRole('button', { name: 'Close', exact: true })
         .click();
     const manage = async () => {
-      await p
-        .getByRole('button', { name: '받은 한 수 보기', exact: true })
+      await (await recordMenu(p, '받은 한 수 보기'))
         .click();
       await p.locator('.advice-response').first().waitFor();
     };
@@ -156,8 +156,7 @@ for (const channel of (process.env.QA_BROWSER_CHANNELS || 'chrome').split(
       await p.reload();
       await p.locator('.app-shell[data-ready=true]').waitFor();
       await p.getByRole('tab', { name: '내 여행', exact: true }).click();
-      await p
-        .getByRole('button', { name: '한 수 부탁하기', exact: true })
+      await (await recordMenu(p, '한 수 부탁하기'))
         .click();
       await p.locator('.advice-publish-places').waitFor();
       await shot(p, '01-preview');
@@ -267,9 +266,9 @@ for (const channel of (process.env.QA_BROWSER_CHANNELS || 'chrome').split(
       await p
         .getByRole('button', { name: '여행 완료로 기록', exact: true })
         .click();
-      await p.getByRole('button', { name: '기록 수정', exact: true }).waitFor();
+      await (await recordMenu(p, '기록 수정')).waitFor();
       const completionDate = (await state()).entries[0].completedAt;
-      await p.getByRole('button', { name: '기록 수정', exact: true }).click();
+      await (await recordMenu(p, '기록 수정')).click();
       await p
         .getByLabel('기록 이름', { exact: true })
         .fill('다시 꺼내 보는 고성의 하루');
@@ -288,8 +287,7 @@ for (const channel of (process.env.QA_BROWSER_CHANNELS || 'chrome').split(
       assert.equal(corrected.completedAt, completionDate);
       assert.deepEqual(corrected.visitedPlaceIds, [stops[0].id]);
       assert(!corrected.stamps.includes('복귀'));
-      await p
-        .getByRole('button', { name: '새 여행으로 가져오기', exact: true })
+      await (await recordMenu(p, '새 여행으로 가져오기'))
         .click();
       await p.getByLabel('코스 이름', { exact: true }).waitFor();
       await p
@@ -304,16 +302,14 @@ for (const channel of (process.env.QA_BROWSER_CHANNELS || 'chrome').split(
       assert.equal(copied.completedAt, undefined);
       assert.equal(copied.adviceShareId, undefined);
       await p.locator('.record-tabs button').nth(1).click();
-      await p
-        .getByRole('button', { name: '계획으로 되돌리기', exact: true })
+      await (await recordMenu(p, '계획으로 되돌리기'))
         .click();
       await shot(p, '07-restore');
       await p.getByRole('button', { name: '계획 유지', exact: true }).count();
       await p
         .getByRole('button', { name: '계획으로 되돌리기 확인', exact: true })
         .click();
-      await p
-        .getByRole('button', { name: '받은 한 수 보기', exact: true })
+      await (await recordMenu(p, '받은 한 수 보기'))
         .waitFor();
       const restored = (await state()).entries.find(
         (e) => e.recordId === fixture.recordId,
@@ -331,8 +327,10 @@ for (const channel of (process.env.QA_BROWSER_CHANNELS || 'chrome').split(
           exact: true,
         })
         .click();
+      await enterGuest(g);
       await g.locator('.test-entry[data-ready=true]').waitFor();
       assert(new URL(g.url()).searchParams.get('advice') === id);
+      await enterGuest(g);
       await g
         .getByLabel('테스트 비밀번호', { exact: true })
         .fill(process.env.QA_PASSWORD || '1234');

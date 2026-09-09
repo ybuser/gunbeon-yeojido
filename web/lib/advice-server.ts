@@ -1,3 +1,4 @@
+import { currentAccount, accountAdviceHash } from './account-server';
 import { env } from 'cloudflare:workers';
 import { database, hashSecret } from './db';
 import { equalText } from './test-access';
@@ -41,6 +42,16 @@ async function sign(value: string) {
 }
 export const randomId = () => crypto.randomUUID().replaceAll('-', '');
 export async function adviceSession(r: Request, create = false) {
+  const a = await currentAccount(r);
+  if (a)
+    return {
+      hash: await accountAdviceHash(a.id),
+      cookie: undefined,
+      accountId: a.id,
+    };
+  return { ...(await legacyAdviceSession(r, create)), accountId: null };
+}
+export async function legacyAdviceSession(r: Request, create = false) {
   const raw =
     r.headers
       .get('cookie')
@@ -50,8 +61,16 @@ export async function adviceSession(r: Request, create = false) {
       ?.slice(COOKIE.length + 1) || '';
   if (/^[a-f0-9]{32}\.[a-f0-9]{64}$/.test(raw)) {
     const [id, mac] = raw.split('.');
-    if (equalText(mac, await sign(id)))
-      return { hash: await hashSecret(raw), cookie: undefined };
+    if (equalText(mac, await sign(id))) {
+      const hash = await hashSecret(raw);
+      const claimed = await database()
+        .prepare(
+          "SELECT account_id FROM claimed_identities WHERE kind='advice' AND legacy_hash=?",
+        )
+        .bind(hash)
+        .first();
+      if (!claimed) return { hash, cookie: undefined };
+    }
   }
   if (!create) return { hash: '', cookie: undefined };
   const id = randomId(),
@@ -213,16 +232,23 @@ export async function findShare(id: unknown, includeExpired = false) {
     );
   return row;
 }
-export async function shareDetail(row: ShareRow, hash: string, page = 1) {
+export const visitorPredicate =
+  "(visitor_hash=? OR visitor_hash IN (SELECT legacy_hash FROM claimed_identities WHERE kind='advice' AND account_id=?))";
+export async function shareDetail(
+  row: ShareRow,
+  hash: string,
+  page = 1,
+  accountId: string | null = null,
+) {
   const snapshot = JSON.parse(row.payload) as AdviceSnapshot,
     owner = row.owner_hash === hash;
   const db = database(),
     offset = (Math.max(1, Math.min(5, page)) - 1) * 12;
   const suggestions = await db
     .prepare(
-      "SELECT id,kind,target_id AS targetId,place_id AS placeId,reason,status,visitor_hash AS visitorHash FROM advice_suggestions WHERE share_id=? AND (status<>'hidden' OR ?=1 OR visitor_hash=?) ORDER BY created_at DESC LIMIT 13 OFFSET ?",
+      `SELECT id,kind,target_id AS targetId,place_id AS placeId,reason,status,visitor_hash AS visitorHash FROM advice_suggestions WHERE share_id=? AND (status<>'hidden' OR ?=1 OR ${visitorPredicate}) ORDER BY created_at DESC LIMIT 13 OFFSET ?`,
     )
-    .bind(row.id, owner ? 1 : 0, hash, offset)
+    .bind(row.id, owner ? 1 : 0, hash, accountId, offset)
     .all<AdviceSuggestion & { visitorHash: string }>();
   const reports = owner
     ? await db
@@ -234,21 +260,22 @@ export async function shareDetail(row: ShareRow, hash: string, page = 1) {
     : hash
       ? await db
           .prepare(
-            'SELECT suggestion_id FROM advice_reports WHERE visitor_hash=?',
+            `SELECT suggestion_id FROM advice_reports WHERE ${visitorPredicate}`,
           )
-          .bind(hash)
+          .bind(hash, accountId)
           .all<{ suggestion_id: string }>()
       : { results: [] };
   const visible = suggestions.results.slice(0, 12);
   const own = hash
     ? await db
         .prepare(
-          'SELECT id,kind,target_id AS targetId,place_id AS placeId,reason,status,visitor_hash AS visitorHash FROM advice_suggestions WHERE share_id=? AND visitor_hash=?',
+          `SELECT id,kind,target_id AS targetId,place_id AS placeId,reason,status,visitor_hash AS visitorHash FROM advice_suggestions WHERE share_id=? AND ${visitorPredicate}`,
         )
-        .bind(row.id, hash)
-        .first<AdviceSuggestion & { visitorHash: string }>()
-    : null;
-  if (own && !visible.some((s) => s.id === own.id)) visible.push(own);
+        .bind(row.id, hash, accountId)
+        .all<AdviceSuggestion & { visitorHash: string }>()
+    : { results: [] };
+  for (const item of own.results)
+    if (!visible.some((s) => s.id === item.id)) visible.push(item);
   const ids = [
     ...new Set([
       ...snapshot.placeIds,
@@ -275,7 +302,7 @@ export async function shareDetail(row: ShareRow, hash: string, page = 1) {
       .map(publicPlace),
     suggestions: visible.map(({ visitorHash, ...s }) => ({
       ...s,
-      own: visitorHash === hash,
+      own: own.results.some((item) => item.id === s.id),
       reported: reports.results.some((r) => r.suggestion_id === s.id),
     })),
   };

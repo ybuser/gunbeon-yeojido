@@ -1,3 +1,4 @@
+import { enterGuest, recordMenu } from './qa-navigation.mjs';
 /** Reproducible, isolated browser QA. No user profile, provider payload or credential logging. */
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
@@ -151,7 +152,9 @@ for (const channel of channels) {
     });
     try {
       await p.goto(new URL('/login', base).href);
+      await enterGuest(p);
       await p.locator('.test-entry[data-ready="true"]').waitFor();
+      await enterGuest(p);
       await p
         .getByLabel('테스트 비밀번호', { exact: true })
         .fill(process.env.QA_TEST_PASSWORD || '1234');
@@ -235,8 +238,7 @@ for (const channel of channels) {
         .getByRole('button', { name: '내 코스 저장', exact: true })
         .click();
       await p.locator('.course-builder').waitFor({ state: 'hidden' });
-      await p
-        .getByRole('button', { name: '저장한 장소 다시 보기', exact: true })
+      await (await recordMenu(p, '저장한 장소 다시 보기'))
         .click();
       await p.locator('.place-row').first().waitFor();
       await noOverflow(p, result.checks, 'Mission');
@@ -294,8 +296,7 @@ for (const channel of channels) {
       await p.locator('.app-shell[data-ready="true"]').waitFor();
       await readyPlaces(p);
       await tab(p, '내 여행').click();
-      await p
-        .getByRole('button', { name: '저장한 장소 다시 보기', exact: true })
+      await (await recordMenu(p, '저장한 장소 다시 보기'))
         .click();
       await p.locator('.place-row').first().waitFor();
       assert.deepEqual(
@@ -385,8 +386,7 @@ for (const channel of channels) {
         await readyPlaces(p);
         await tab(p, '내 여행').click();
         await p.getByRole('button', { name: /^여행 기록/ }).click();
-        await p
-          .getByRole('button', { name: '저장한 장소 다시 보기', exact: true })
+        await (await recordMenu(p, '저장한 장소 다시 보기'))
           .click();
         await p
           .getByText(

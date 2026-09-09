@@ -1,3 +1,4 @@
+import { enterGuest, recordMenu } from './qa-navigation.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -107,12 +108,15 @@ for (const channel of (
         401,
       );
       await p.goto(base);
+      await enterGuest(p);
       await p.locator('.test-entry[data-ready="true"]').waitFor();
+      await enterGuest(p);
       await p.getByLabel('테스트 비밀번호', { exact: true }).fill('wrong');
       await p
         .getByRole('button', { name: '여행 시작하기', exact: true })
         .click();
       await p.getByText('비밀번호가 맞지 않습니다.', { exact: true }).waitFor();
+      await enterGuest(p);
       await p
         .getByLabel('테스트 비밀번호', { exact: true })
         .fill(process.env.QA_TEST_PASSWORD || '1234');
@@ -257,7 +261,7 @@ for (const channel of (
       await p.reload();
       await p.locator('.app-shell[data-ready="true"]').waitFor();
       await p.locator('.saved-mission').first().waitFor();
-      await p.getByRole('button', { name: '코스 수정', exact: true }).click();
+      await (await recordMenu(p, '코스 수정')).click();
       await p.waitForFunction(
         (expected) =>
           JSON.stringify(
@@ -314,9 +318,7 @@ for (const channel of (
         .click();
       await p.locator('.course-builder').waitFor({ state: 'hidden' });
       assert.equal(await p.locator('.saved-mission').count(), 2);
-      await p
-        .getByRole('button', { name: '코스 수정', exact: true })
-        .first()
+      await (await recordMenu(p, '코스 수정'))
         .click();
       await p
         .getByLabel('코스 이름', { exact: true })
