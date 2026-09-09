@@ -1,4 +1,16 @@
 'use client';
+import {
+  accountRequest,
+  initializeTravelStorage,
+  saveTravelStorage,
+  saveTravelEntries,
+  subscribeTravelSave,
+  travelSaveStatus,
+  serverSaveStatus,
+  retryTravelSave,
+  downloadTravelBackup,
+  type AccountInfo,
+} from '@/lib/account-client';
 import MemoryImage from './memory-image';
 import PhotoCredits from './photo-credits';
 import { withPhoto } from '@/lib/place-photos';
@@ -11,9 +23,16 @@ import TravelGroups, { TravelHome, useTravelGroups } from './travel-groups';
 import GroupShare from './group-share';
 import { groupEntry } from '@/lib/group-model';
 import type { GroupDetail, GroupPlan } from '@/lib/group-model';
-import { useEffect, useMemo, useState, type ComponentProps } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type ComponentProps,
+} from 'react';
 import {
   X,
+  EllipsisVertical,
   Home,
   CalendarDays,
   Star,
@@ -43,6 +62,12 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from './ui/dropdown-menu';
 import {
   Sheet,
   SheetContent as BaseSheetContent,
@@ -367,6 +392,14 @@ export default function PassportApp() {
   const [family, setFamily] = useState<Family | null>(null);
   const joined = '';
   const [loaded, setLoaded] = useState(false);
+  const [account, setAccount] = useState<AccountInfo | null>(null);
+  const [loadError, setLoadError] = useState('');
+  const [deviceRecords, setDeviceRecords] = useState(0);
+  const saveStatus = useSyncExternalStore(
+    subscribeTravelSave,
+    travelSaveStatus,
+    serverSaveStatus,
+  );
   const [proposal] = useState<{
     entry: Entry;
     walkLimit: number;
@@ -431,63 +464,74 @@ export default function PassportApp() {
         ),
       )
       .finally(() => setCatalogLoading(false));
-    try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE) || 'null');
-      if (
-        saved?.version === 1 ||
-        saved?.version === 2 ||
-        saved?.version === 3
-      ) {
-        if (Array.isArray(saved.favorites))
-          setFavorites(saved.favorites.filter(validManualPlace).slice(0, 50));
-        if (validOuting(saved.activeOuting))
-          setActiveOuting(saved.activeOuting);
-        const defaults = saved.planning;
-        if (
-          defaults &&
-          regions.includes(defaults.region) &&
-          Number.isFinite(Date.parse(defaults.startedAt)) &&
-          defaults.duration > 0 &&
-          defaults.duration <= 10080
-        ) {
-          setSettings((v) => ({
-            ...v,
-            region: defaults.region,
-            startedAt: defaults.startedAt,
-            duration: defaults.duration,
-            returnAt: new Date(
-              Date.parse(defaults.startedAt) + defaults.duration * 60000,
-            ).toISOString(),
-            originId: defaults.originId || '',
-            transport: ['car', 'transit', 'taxi', 'unknown'].includes(
-              defaults.transport,
-            )
-              ? defaults.transport
-              : v.transport,
-          }));
-          if (validManualPlace(defaults.meeting))
-            setExtraPlaces((v) => [...v, manualToPlace(defaults.meeting)]);
+    void (async () => {
+      try {
+        const { saved, account: signedIn } = await initializeTravelStorage();
+        setAccount(signedIn);
+        if (signedIn) {
+          try {
+            const device = JSON.parse(localStorage.getItem(STORAGE) || '{}');
+            setDeviceRecords(
+              (device.entries?.length || 0) + (device.favorites?.length || 0),
+            );
+          } catch {}
         }
-        if (Array.isArray(saved.entries))
-          setEntries(
-            saved.entries.filter(
-              (x: Entry) =>
-                typeof x.title === 'string' &&
-                regions.includes(x.region as (typeof regions)[number]) &&
-                Array.isArray(x.stamps),
-            ),
-          );
         if (
-          saved.family &&
-          typeof saved.family.code === 'string' &&
-          saved.family.scopes
-        )
-          setFamily(saved.family);
+          saved?.version === 1 ||
+          saved?.version === 2 ||
+          saved?.version === 3
+        ) {
+          if (Array.isArray(saved.favorites))
+            setFavorites(saved.favorites.filter(validManualPlace).slice(0, 50));
+          if (validOuting(saved.activeOuting))
+            setActiveOuting(saved.activeOuting);
+          const defaults = saved.planning;
+          if (
+            defaults &&
+            regions.includes(defaults.region) &&
+            Number.isFinite(Date.parse(defaults.startedAt)) &&
+            defaults.duration > 0 &&
+            defaults.duration <= 10080
+          ) {
+            setSettings((v) => ({
+              ...v,
+              region: defaults.region,
+              startedAt: defaults.startedAt,
+              duration: defaults.duration,
+              returnAt: new Date(
+                Date.parse(defaults.startedAt) + defaults.duration * 60000,
+              ).toISOString(),
+              originId: defaults.originId || '',
+              transport: ['car', 'transit', 'taxi', 'unknown'].includes(
+                defaults.transport,
+              )
+                ? defaults.transport
+                : v.transport,
+            }));
+            if (validManualPlace(defaults.meeting))
+              setExtraPlaces((v) => [...v, manualToPlace(defaults.meeting)]);
+          }
+          if (Array.isArray(saved.entries))
+            setEntries(
+              saved.entries.filter(
+                (x: Entry) =>
+                  typeof x.title === 'string' &&
+                  regions.includes(x.region as (typeof regions)[number]) &&
+                  Array.isArray(x.stamps),
+              ),
+            );
+          if (
+            saved.family &&
+            typeof saved.family.code === 'string' &&
+            saved.family.scopes
+          )
+            setFamily(saved.family);
+        }
+        setLoaded(true);
+      } catch (e) {
+        setLoadError((e as Error).message);
       }
-    } catch {
-      setNotice('저장 기록을 읽지 못했습니다. 새 여권으로 시작합니다.');
-    }
-    setLoaded(true);
+    })();
     const tick = () => setNow(new Date());
     const timer = setInterval(tick, 30000);
     document.addEventListener('visibilitychange', tick);
@@ -511,38 +555,46 @@ export default function PassportApp() {
   useEffect(() => {
     if (!loaded) return;
     try {
-      localStorage.setItem(
-        STORAGE,
-        JSON.stringify({
-          version: 3,
-          entries,
-          family,
-          favorites,
-          activeOuting,
-          planning: {
-            region: settings.region,
-            startedAt: settings.startedAt,
-            duration: Math.round(
-              (Date.parse(settings.returnAt) - Date.parse(settings.startedAt)) /
-                60000,
-            ),
-            originId: settings.originId,
-            transport: settings.transport,
-            meeting: (() => {
-              const p = extraPlaces.find(
-                (p) => p.id === settings.originId && p.source === 'manual',
-              );
-              return p ? manualReference(p) : undefined;
-            })(),
-          },
-        }),
-      );
-    } catch {
-      setNotice(
-        '이 브라우저에서는 저장할 수 없습니다. 현재 화면에서만 기록이 유지됩니다.',
-      );
+      void saveTravelStorage({
+        version: 3,
+        entries,
+        family,
+        favorites,
+        activeOuting,
+        planning: {
+          region: settings.region,
+          startedAt: settings.startedAt,
+          duration: Math.round(
+            (Date.parse(settings.returnAt) - Date.parse(settings.startedAt)) /
+              60000,
+          ),
+          originId: settings.originId,
+          transport: settings.transport,
+          meeting: (() => {
+            const p = extraPlaces.find(
+              (p) => p.id === settings.originId && p.source === 'manual',
+            );
+            return p ? manualReference(p) : undefined;
+          })(),
+        },
+      }).catch((e) => setNotice((e as Error).message));
+    } catch (e) {
+      setNotice((e as Error).message);
     }
   }, [loaded, entries, family, favorites, activeOuting, settings, extraPlaces]);
+  useEffect(() => {
+    const warn = (e: BeforeUnloadEvent) => {
+      if (
+        account &&
+        ['saving', 'error', 'conflict'].includes(travelSaveStatus())
+      ) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [account]);
   useEffect(() => {
     let canceled = false;
     const controller = new AbortController();
@@ -1030,6 +1082,18 @@ export default function PassportApp() {
         : score?.band === 'avoid'
           ? '계획 조정 필요'
           : '계산 확인 필요';
+  if (loadError)
+    return (
+      <main className="account-page">
+        <section className="account-panel">
+          <h1>여행 기록을 불러오지 못했어요</h1>
+          <p role="alert">{loadError}</p>
+          <p>기존 기록을 보존하고 있습니다.</p>
+          <Button onClick={() => location.reload()}>다시 불러오기</Button>
+          <a href="/account">내 계정 확인</a>
+        </section>
+      </main>
+    );
   return (
     <div
       className="app-shell"
@@ -1046,10 +1110,65 @@ export default function PassportApp() {
           <Brand />
         </button>
         <span className="header-location">강원에서 함께 보내는 하루</span>
+        <a className="account-header-link" href="/account">
+          <Users size={17} />
+          <span>{account ? account.nickname : '로그인'}</span>
+        </a>
         <button className="top-link" onClick={() => go('data')}>
           <Layers3 size={17} /> 이용 안내
         </button>
       </header>
+      {account && (
+        <div className={`travel-save-status ${saveStatus}`} role="status">
+          <span>
+            {saveStatus === 'saving'
+              ? '서버에 저장 중…'
+              : saveStatus === 'saved'
+                ? '내 계정에 저장됨'
+                : saveStatus === 'conflict'
+                  ? '다른 기기에서 기록이 변경됐어요'
+                  : '서버 저장을 확인해 주세요'}
+          </span>
+          {['error', 'conflict'].includes(saveStatus) && (
+            <>
+              <button onClick={() => downloadTravelBackup()}>
+                현재 내용 백업
+              </button>
+              {saveStatus === 'error' && (
+                <button
+                  onClick={() =>
+                    void retryTravelSave().catch((e) => setNotice(e.message))
+                  }
+                >
+                  저장 재시도
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      '현재 내용을 백업했나요? 저장되지 않은 변경 대신 서버의 최신 기록을 불러옵니다.',
+                    )
+                  )
+                    location.reload();
+                }}
+              >
+                최신 기록 불러오기
+              </button>
+            </>
+          )}
+        </div>
+      )}
+      {account && deviceRecords > 0 && (
+        <div className="account-import-notice">
+          <span>
+            이 기기에서 만든 여행·즐겨찾기 {deviceRecords}개가 있어요.
+          </span>
+          <a href="/account">
+            내 계정으로 가져오기 <ArrowRight size={14} />
+          </a>
+        </div>
+      )}
       <Tabs value={view} onValueChange={(v) => go(String(v))}>
         <TabsList className="main-nav" variant="line">
           {Object.entries(LABELS)
@@ -1919,6 +2038,92 @@ export default function PassportApp() {
                         </div>
                       )}
                       <div className="saved-mission-heading">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            className="record-more-trigger"
+                            aria-label={`${e.title} 더보기`}
+                          >
+                            <EllipsisVertical size={22} />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align="end"
+                            className="record-more-menu"
+                          >
+                            {!hasVisitRecord(e) && (
+                              <DropdownMenuItem
+                                disabled={!e.plan?.stops.length}
+                                onClick={() => setAdviceManaging(e)}
+                              >
+                                {e.adviceShareId
+                                  ? '받은 한 수 보기'
+                                  : '한 수 부탁하기'}
+                              </DropdownMenuItem>
+                            )}
+                            {hasVisitRecord(e) && e.adviceShareId && (
+                              <DropdownMenuItem
+                                onClick={() => setAdviceManaging(e)}
+                              >
+                                공유한 여행 관리
+                              </DropdownMenuItem>
+                            )}
+                            {hasVisitRecord(e) && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={() => setRecordEditing(e)}
+                                >
+                                  기록 수정
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  disabled={
+                                    !e.plan ||
+                                    (!!activeOuting &&
+                                      entryKey(activeOuting.entry) ===
+                                        entryKey(e))
+                                  }
+                                  onClick={() => setRecordRestoring(e)}
+                                >
+                                  계획으로 되돌리기
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                            <DropdownMenuItem
+                              disabled={
+                                !e.plan ||
+                                (activeOuting !== null &&
+                                  entryKey(activeOuting.entry) === entryKey(e))
+                              }
+                              onClick={() =>
+                                openBuilder(
+                                  e,
+                                  hasVisitRecord(e) ? 'copy' : 'edit',
+                                )
+                              }
+                            >
+                              {hasVisitRecord(e)
+                                ? '새 여행으로 가져오기'
+                                : '코스 수정'}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={!e.plan}
+                              onClick={() => {
+                                openEntry(e);
+                              }}
+                            >
+                              저장한 장소 다시 보기
+                              <ChevronRight size={14} />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={!e.plan}
+                              onClick={() =>
+                                groupStore.groups.length
+                                  ? setGroupSharing({ entry: e })
+                                  : go('groups')
+                              }
+                            >
+                              그룹에 공유
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <span>{e.region}</span>
                         <h2>{e.title}</h2>
                         {e.plan?.departureAt && (
@@ -1975,77 +2180,13 @@ export default function PassportApp() {
                           빈 코스를 저장했어요. 준비되면 장소를 담아보세요.
                         </p>
                       )}
-                      <div className="saved-mission-actions">
-                        {!hasVisitRecord(e) && (
-                          <button
-                            disabled={!e.plan?.stops.length}
-                            onClick={() => setAdviceManaging(e)}
-                          >
-                            {e.adviceShareId
-                              ? '받은 한 수 보기'
-                              : '한 수 부탁하기'}
-                          </button>
-                        )}
-                        {hasVisitRecord(e) && e.adviceShareId && (
-                          <button onClick={() => setAdviceManaging(e)}>
-                            공유한 여행 관리
-                          </button>
-                        )}
-                        {hasVisitRecord(e) && (
-                          <>
-                            <button onClick={() => setRecordEditing(e)}>
-                              기록 수정
-                            </button>
-                            <button
-                              disabled={
-                                !e.plan ||
-                                (!!activeOuting &&
-                                  entryKey(activeOuting.entry) === entryKey(e))
-                              }
-                              onClick={() => setRecordRestoring(e)}
-                            >
-                              계획으로 되돌리기
-                            </button>
-                          </>
-                        )}
-                        <button
-                          disabled={
-                            !e.plan ||
-                            (activeOuting !== null &&
-                              entryKey(activeOuting.entry) === entryKey(e))
-                          }
-                          onClick={() =>
-                            openBuilder(e, hasVisitRecord(e) ? 'copy' : 'edit')
-                          }
-                        >
-                          {hasVisitRecord(e)
-                            ? '새 여행으로 가져오기'
-                            : '코스 수정'}
-                        </button>
-                        <button
-                          disabled={!e.plan}
-                          onClick={() => {
-                            openEntry(e);
-                          }}
-                        >
-                          저장한 장소 다시 보기
-                          <ChevronRight size={14} />
-                        </button>
-                        <button
-                          disabled={!e.plan}
-                          onClick={() =>
-                            groupStore.groups.length
-                              ? setGroupSharing({ entry: e })
-                              : go('groups')
-                          }
-                        >
-                          그룹에 공유
-                        </button>
-                        <button onClick={() => setShared(e)}>
-                          <ArrowUpRight size={14} />
-                          공유 카드
-                        </button>
-                      </div>
+                      <Button
+                        variant="outline"
+                        className="record-share-card"
+                        onClick={() => setShared(e)}
+                      >
+                        <ArrowUpRight size={18} /> 공유 카드
+                      </Button>
                     </article>
                   ))}
                 {!entries.filter((e) =>
@@ -2529,14 +2670,23 @@ export default function PassportApp() {
         </button>
         <button
           onClick={async () => {
-            const response = await fetch('/api/test-access', {
-              method: 'DELETE',
-            });
-            if (response.ok) window.location.assign('/login');
-            else setNotice('테스트를 종료하지 못했습니다. 다시 시도해 주세요.');
+            try {
+              if (account)
+                await accountRequest('/api/account', { action: 'logout' });
+              else {
+                const response = await fetch('/api/test-access', {
+                  method: 'DELETE',
+                });
+                if (!response.ok)
+                  throw new Error('체험 입장을 종료하지 못했어요.');
+              }
+              window.location.assign('/login');
+            } catch (e) {
+              setNotice((e as Error).message);
+            }
           }}
         >
-          테스트 입장 종료
+          {account ? '로그아웃' : '테스트 입장 종료'}
         </button>
       </footer>
       {groupSharing && (
@@ -2636,17 +2786,7 @@ export default function PassportApp() {
               : [entry, ...entries];
             let durable = false;
             try {
-              const previous = JSON.parse(
-                localStorage.getItem(STORAGE) || '{}',
-              );
-              localStorage.setItem(
-                STORAGE,
-                JSON.stringify({
-                  ...previous,
-                  version: 3,
-                  entries: nextEntries,
-                }),
-              );
+              await saveTravelEntries(nextEntries);
               durable = true;
             } catch {
               /* Never mark a suggestion applied until the itinerary is stored. */
@@ -2679,7 +2819,7 @@ export default function PassportApp() {
             setNotice(
               durable
                 ? '여행 계획을 저장했습니다. 내 여행에서 언제든 이어서 만들 수 있어요.'
-                : '브라우저 저장 공간을 확인해 주세요. 지금 변경은 현재 화면에만 남아 있습니다.',
+                : '저장을 완료하지 못했어요. 지금 변경은 현재 화면에 남아 있습니다. 상단 저장 상태를 확인해 주세요.',
             );
             if (adopted && durable) {
               try {
@@ -2746,7 +2886,7 @@ export default function PassportApp() {
             ) {
               setAdviceManaging(null);
               setNotice(
-                '이 브라우저에 준비 중인 원본 계획이 있어야 반영할 수 있어요. 완료한 기록과 현재 출타는 변경하지 않습니다.',
+                '내 여행에 준비 중인 원본 계획이 있어야 반영할 수 있어요. 완료한 기록과 현재 출타는 변경하지 않습니다.',
               );
               return;
             }

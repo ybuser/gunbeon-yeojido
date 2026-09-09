@@ -21,7 +21,9 @@
     "test:day": "node scripts/day-passport-qa.mjs",
     "test:guide": "node scripts/guide-page-qa.mjs",
     "test:advice": "node scripts/advice-api-qa.mjs",
-    "test:advice-ui": "node scripts/advice-ui-qa.mjs"
+    "test:advice-ui": "node scripts/advice-ui-qa.mjs",
+    "test:accounts": "node scripts/accounts-api-qa.mjs",
+    "test:accounts-ui": "node scripts/accounts-ui-qa.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",
@@ -33,6 +35,7 @@
     "drizzle-orm": "^0.45.2",
     "embla-carousel-react": "8.5.2",
     "input-otp": "1.4.2",
+    "jose": "6.1.3",
     "lucide-react": "1.31.0",
     "react": "^19.2.8",
     "react-day-picker": "9.8.1",

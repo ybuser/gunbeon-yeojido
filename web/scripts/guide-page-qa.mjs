@@ -1,3 +1,4 @@
+import { enterGuest, recordMenu } from './qa-navigation.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -62,14 +63,16 @@ for (const channel of (process.env.QA_BROWSER_CHANNELS || 'chrome').split(
     });
     try {
       await p.goto(base + '/guide');
+      await enterGuest(p);
       await p.locator('.test-entry[data-ready=true]').waitFor();
+      await enterGuest(p);
       await p.getByLabel('테스트 비밀번호').fill('1234');
       await p
         .getByRole('button', { name: '여행 시작하기', exact: true })
         .click();
       await p.locator('.usage-guide').waitFor();
       assert.equal(new URL(p.url()).pathname, '/guide');
-      assert.equal(await p.locator('.guide-steps section').count(), 19);
+      assert.equal(await p.locator('.guide-steps section').count(), 22);
       for (const img of await p.locator('.guide-steps img').all()) {
         await img.scrollIntoViewIfNeeded();
         await img.evaluate((i) => i.decode());
@@ -86,7 +89,7 @@ for (const channel of (process.env.QA_BROWSER_CHANNELS || 'chrome').split(
         animations: 'disabled',
       });
       result.checks.push(
-        'Guide login returns to requested page; all nineteen real screenshots load; responsive layout',
+        'Guide login returns to requested page; all twenty-two real screenshots load; responsive layout',
       );
       await p
         .getByRole('link', { name: '군번여지도로 돌아가기', exact: true })

@@ -1,3 +1,4 @@
+import { accountContextHeaders } from '@/lib/account-client';
 import {
   adviceQuestions,
   type AdviceDetail,
@@ -13,10 +14,13 @@ export async function adviceRequest<T = Record<string, unknown>>(
     body
       ? {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            ...accountContextHeaders(),
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify(body),
         }
-      : { cache: 'no-store' },
+      : { cache: 'no-store', headers: accountContextHeaders() },
   );
   const data = (await r.json()) as Record<string, unknown>;
   if (!r.ok)

@@ -1,4 +1,5 @@
 'use client';
+import { durableTravelEntry } from '@/lib/account-client';
 import { useEffect, useState } from 'react';
 import { ArrowUpRight, RefreshCw, X } from 'lucide-react';
 import { Button } from './ui/button';
@@ -108,18 +109,12 @@ export default function AdviceManager({
       if (action === 'adopt') {
         let saved: Entry | undefined;
         try {
-          saved = JSON.parse(
-            localStorage.getItem('gangwon-passport-v1') || '{}',
-          ).entries?.find(
-            (e: Entry) =>
-              (e.recordId || e.missionId) ===
-              (entry.recordId || entry.missionId),
-          );
+          saved = await durableTravelEntry(entry.recordId || entry.missionId);
         } catch {}
         const proposal = detail?.suggestions.find((s) => s.id === suggestionId);
         if (!saved || !proposal || !adviceIsApplied(saved, proposal))
           throw new Error(
-            '브라우저에 저장된 계획을 확인하지 못했어요. 먼저 계획을 다시 저장해 주세요.',
+            '저장된 계획을 확인하지 못했어요. 먼저 계획을 다시 저장해 주세요.',
           );
       }
       await adviceRequest('/api/advice', {
@@ -283,7 +278,7 @@ export default function AdviceManager({
               <div className="advice-empty">
                 <p>
                   {failed
-                    ? '공유를 확인할 수 없어요. 만든 브라우저인지 확인해 주세요.'
+                    ? '공유를 확인할 수 없어요. 만든 계정 또는 브라우저인지 확인해 주세요.'
                     : '공유한 여행을 확인하고 있어요.'}
                 </p>
                 {failed && (
@@ -355,7 +350,8 @@ export default function AdviceManager({
                 <strong>링크를 아는 누구나 보고 한 수를 보탤 수 있어요.</strong>
                 <p>
                   기존 서비스 입장 비밀번호는 유지돼요. 공유 관리 권한은 만든
-                  브라우저에 보관되며 쿠키를 지우면 복구할 수 없습니다.
+                  로그인 계정에 연결됩니다. 체험 중에는 브라우저 쿠키에
+                  보관되므로 내 계정에서 가져오기를 완료해 주세요.
                 </p>
               </div>
               <Button

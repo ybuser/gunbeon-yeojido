@@ -1,5 +1,5 @@
-import TestAccessForm from '@/components/test-access-form';
-export const dynamic = 'force-dynamic';
+import AccountPage from "@/components/account-page";
+export const dynamic = "force-dynamic";
 export default function Login() {
-  return <TestAccessForm />;
+  return <AccountPage />;
 }

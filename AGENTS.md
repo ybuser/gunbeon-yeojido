@@ -54,7 +54,7 @@ npm run build
 - GitHub 전체 저장소와 Sites 앱 소스 Git은 별개다. 새 PC에서는 기존 프로젝트의 현행 연결 정보를 조회하여 앱 소스를 새로 clone한다. 과거 임시 clone 경로에 의존하지 않는다.
 - `web/wrangler.local.jsonc`의 DB ID는 **로컬 placeholder**다. `--local`로만 사용한다. 운영 D1은 Sites의 서버 DB이며 배포 환경에서 migration 상태를 따로 확인한다.
 - `.env.local`, `.dev.vars`, 실제 키·쿠키·토큰을 Git·문서·채팅에 기록하지 않는다. 설정 확인은 변수명과 설정 유무를 우선한다. 로컬 환경 파일과 배포 secret은 독립이다.
-- 그룹·초대·공유 일정·공개 한 수 제안은 D1, 개인 여행·즐겨찾기·출타·스탬프는 브라우저 저장이다. Git clone으로 개인 localStorage·참여 쿠키·로컬 DB가 옮겨지지 않는다.
+- 로그인한 개인 여행·즐겨찾기·출타·스탬프와 그룹·초대·공유 일정·공개 한 수 제안은 D1이다. 체험 개인 여행은 브라우저 저장을 유지한다. Git clone으로 개인 localStorage·참여 쿠키·로컬 DB가 옮겨지지 않는다.
 - 운영 DB를 로컬 테스트 DB처럼 초기화하지 않는다. 자동 검사 데이터는 생성한 테스트 그룹만 정리한다.
 
 ## 제품 계약
@@ -80,3 +80,12 @@ npm run build
 - `docs/roadmap.md`의 완료 조건을 실제 증거에 따라 갱신한다. 새로운 실행 기록은 관련 `reports/`에 남긴다.
 - 다른 PC에서 필요한 소스·문서·스크립트가 commit/push됐는지 확인한다. 미커밋/미push 항목은 명시한다.
 - 문의 발송·계정 신청·결제·최종 접수는 사용자 지시와 기존 승인 범위에 맞춰 진행한다. 이미 승인된 범위를 다시 묻지 않는다.
+
+## 개인 계정 저장 계약
+
+- `docs/social-login-setup.md`, `reports/accounts_delivery.md`를 읽는다. Google/Naver 키·실동의가 없으면 소셜 로그인 완료로 보고하지 않는다. `.env.local`과 운영 Secret은 별개다.
+- 개인 상태는 계정 조회·서버 hydration 성공 후 저장. `account-client.ts`의 저장 큐/revision/실패 상태를 우회하지 않는다. 같은 계정의 다른 기기를 동기적으로 따라가는 실시간 편집이 아니라, 충돌을 감지하는 서버 저장이다.
+- `X-Gunbeon-Account`를 서버 쿠키와 대조한다. 다른 탭에서 계정이 바뀌었을 때 예전 화면을 새 계정으로 저장하지 않는다. 개인 API는 page cache에 넣지 않는다.
+- 기기 기록은 명시적으로 가져온다. 충돌 사본과 가져오는 현재 출타의 recordId는 같은 매핑을 사용한다. 기존 그룹/공유/제안은 검증한 이전 쿠키 권한만 연결하며 소비된 쿠키를 다시 익명 권한으로 쓰지 않는다.
+- 정상 TourAPI 응답/사진은 개인 DB에 저장하지 않는다. `cleanTravelState`의 user-authored/reference whitelist를 유지한다. 공개 DTO에 개인 계정 데이터가 섞이지 않게 한다.
+- `npm run test:accounts`, `npm run test:accounts-ui`와 기존 메뉴 회귀 검사를 유지한다. migration0004는 추가 적용하며 기존 SQL/스냅샷을 다시 쓰지 않는다.

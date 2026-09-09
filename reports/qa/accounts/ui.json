@@ -1,0 +1,182 @@
+{
+  "base": "http://localhost:3000",
+  "checkedAt": "2026-09-09T05:56:23.790Z",
+  "results": [
+    {
+      "channel": "chrome",
+      "version": "153.0.8010.36",
+      "viewport": {
+        "name": "small",
+        "width": 360,
+        "height": 740
+      },
+      "checks": [
+        "Real registration → explicit import → overflow record editing → server save; share card remains visible",
+        "Second browser signs in to same account and restores edited record without localStorage seed",
+        "Offline write remains in UI with retry; stale revision cannot overwrite another device"
+      ],
+      "screenshots": [
+        "chrome-small-01-login.png",
+        "chrome-small-02-import.png",
+        "chrome-small-03-record-menu.png",
+        "chrome-small-04-record-edit.png",
+        "chrome-small-05-save-conflict.png"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "chrome",
+      "version": "153.0.8010.36",
+      "viewport": {
+        "name": "large",
+        "width": 430,
+        "height": 932
+      },
+      "checks": [
+        "Real registration → explicit import → overflow record editing → server save; share card remains visible",
+        "Second browser signs in to same account and restores edited record without localStorage seed",
+        "Offline write remains in UI with retry; stale revision cannot overwrite another device"
+      ],
+      "screenshots": [
+        "chrome-large-01-login.png",
+        "chrome-large-02-import.png",
+        "chrome-large-03-record-menu.png",
+        "chrome-large-04-record-edit.png",
+        "chrome-large-05-save-conflict.png"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "chrome",
+      "version": "153.0.8010.36",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "checks": [
+        "Real registration → explicit import → overflow record editing → server save; share card remains visible",
+        "Second browser signs in to same account and restores edited record without localStorage seed",
+        "Offline write remains in UI with retry; stale revision cannot overwrite another device"
+      ],
+      "screenshots": [
+        "chrome-desktop-01-login.png",
+        "chrome-desktop-02-import.png",
+        "chrome-desktop-03-record-menu.png",
+        "chrome-desktop-04-record-edit.png",
+        "chrome-desktop-05-save-conflict.png"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "chrome",
+      "version": "153.0.8010.36",
+      "viewport": {
+        "name": "wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "checks": [
+        "Real registration → explicit import → overflow record editing → server save; share card remains visible",
+        "Second browser signs in to same account and restores edited record without localStorage seed",
+        "Offline write remains in UI with retry; stale revision cannot overwrite another device"
+      ],
+      "screenshots": [
+        "chrome-wide-01-login.png",
+        "chrome-wide-02-import.png",
+        "chrome-wide-03-record-menu.png",
+        "chrome-wide-04-record-edit.png",
+        "chrome-wide-05-save-conflict.png"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "name": "small",
+        "width": 360,
+        "height": 740
+      },
+      "checks": [
+        "Real registration → explicit import → overflow record editing → server save; share card remains visible",
+        "Second browser signs in to same account and restores edited record without localStorage seed",
+        "Offline write remains in UI with retry; stale revision cannot overwrite another device"
+      ],
+      "screenshots": [
+        "msedge-small-01-login.png",
+        "msedge-small-02-import.png",
+        "msedge-small-03-record-menu.png",
+        "msedge-small-04-record-edit.png",
+        "msedge-small-05-save-conflict.png"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "name": "large",
+        "width": 430,
+        "height": 932
+      },
+      "checks": [
+        "Real registration → explicit import → overflow record editing → server save; share card remains visible",
+        "Second browser signs in to same account and restores edited record without localStorage seed",
+        "Offline write remains in UI with retry; stale revision cannot overwrite another device"
+      ],
+      "screenshots": [
+        "msedge-large-01-login.png",
+        "msedge-large-02-import.png",
+        "msedge-large-03-record-menu.png",
+        "msedge-large-04-record-edit.png",
+        "msedge-large-05-save-conflict.png"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "checks": [
+        "Real registration → explicit import → overflow record editing → server save; share card remains visible",
+        "Second browser signs in to same account and restores edited record without localStorage seed",
+        "Offline write remains in UI with retry; stale revision cannot overwrite another device"
+      ],
+      "screenshots": [
+        "msedge-desktop-01-login.png",
+        "msedge-desktop-02-import.png",
+        "msedge-desktop-03-record-menu.png",
+        "msedge-desktop-04-record-edit.png",
+        "msedge-desktop-05-save-conflict.png"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "msedge",
+      "version": "152.0.4191.66",
+      "viewport": {
+        "name": "wide",
+        "width": 1920,
+        "height": 1080
+      },
+      "checks": [
+        "Real registration → explicit import → overflow record editing → server save; share card remains visible",
+        "Second browser signs in to same account and restores edited record without localStorage seed",
+        "Offline write remains in UI with retry; stale revision cannot overwrite another device"
+      ],
+      "screenshots": [
+        "msedge-wide-01-login.png",
+        "msedge-wide-02-import.png",
+        "msedge-wide-03-record-menu.png",
+        "msedge-wide-04-record-edit.png",
+        "msedge-wide-05-save-conflict.png"
+      ],
+      "status": "passed"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { enterGuest, recordMenu } from './qa-navigation.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -68,7 +69,9 @@ async function shot(name) {
 }
 try {
   await p.goto(base);
+  await enterGuest(p);
   await p.locator('.test-entry[data-ready=true]').waitFor();
+  await enterGuest(p);
   await p.getByLabel('테스트 비밀번호', { exact: true }).fill('1234');
   await p.getByRole('button', { name: '여행 시작하기', exact: true }).click();
   await p.locator('.app-shell[data-ready=true]').waitFor();
