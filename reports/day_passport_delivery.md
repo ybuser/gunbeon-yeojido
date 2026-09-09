@@ -1,6 +1,6 @@
 # 하루 여권 구현·검증 기록
 
-2026-09-09 · **① 웹·앱 개발 부문** · 현재 배포 준비 중. GitHub/Sites 최종 연결 정보는 [인수인계](../docs/handoff.md)에 갱신한다.
+2026-09-09 · **① 웹·앱 개발 부문** · [PR18](https://github.com/ybuser/gunbeon-yeojido/pull/18) 병합·Sitesv12 공개배포 완료. GitHub/Sites 연결 정보는 [인수인계](../docs/handoff.md)에 있다.
 
 ## 적용한 경험
 
@@ -27,7 +27,7 @@ JSON/XML 22(일일)와 23(순간), 일반429, 인증 오류를 분리한다. 제
 | 실제 Kakao | Chrome360/430에서 실제 SDK로 계획 편집·조정·기록 흐름 통과. TourAPI는 이 검사에서 모의 한도 응답. [결과](qa/day-passport/kakao-live.json) |
 | 별도 TourAPI | 서버의 실제 환경키로 정상5유형 조회 성공. 응답 원문·키를 저장하지 않고 건수/상태만 기록 |
 | 실제 화면 가이드 | [12장 안내](usage_guide.md), 새 표지·비교·선택 완료·기록·스토리 촬영 |
-| 기존 흐름 | 계획/출타/그룹 회귀와 CI 최종 결과는 배포 완료 시 추가 |
+| 기존 흐름 | Chrome360/1440 계획/출타·그룹·12장가이드 회귀 통과. PR18 품질·키 없는 Chromium 전체흐름 CI 통과 |
 
 화면 크기는 데스크톱 브라우저의 viewport/touch 모사다. 실제 Android/iPhone·Safari·현장 사용자 검증으로 확대하지 않는다. 반복 지도 시험은 별도 SDK 모형으로 생성 횟수/핀 갱신을 계측했다. 이 수치는 실제 Kakao 과금량 측정이 아니다.
 
@@ -43,3 +43,16 @@ JSON/XML 22(일일)와 23(순간), 일반429, 인증 오류를 분리한다. 제
 ## 다음 작업
 
 [목표·완료 조건](../docs/roadmap.md)을 따른다. 우선 계정 승인량/사용량 확인과 대표API 신청·운영팀 증설 요청, 실제 장병·동행자와 대표 코스 사용성 확인, 실제 모바일/PWA, 제출 PDF/이미지·심사 접근 조건을 마무리한다. 현재 출타 중 일정 변경과 AI 추상 영상은 후속 선택사항이다.
+
+## 인수인계·반영
+
+- [새 clone 재개 검사](qa/day-passport/fresh-clone.md): 같은 Mac의 독립 원격clone에서 설치·타입·77단위·로컬D1·그룹API11시나리오 통과.
+- [품질 CI](https://github.com/ybuser/gunbeon-yeojido/actions/runs/34303867468), [브라우저 CI](https://github.com/ybuser/gunbeon-yeojido/actions/runs/34303867523) 통과 후 병합.
+- 로컬 개발 중 가이드360/그룹1440 검사는 코드 갱신에 따른 페이지 reload로 각각 한 차례 중단됐다. 변경 종료 후 별도 실행에서 통과했고, CI 새 환경에서도 모두 통과했다.
+- 서버D1스키마·운영secret 변경 없이 v12반영. 개발·검사 중 생성한 운영 데이터는 없고 공개 브라우저 검사는 독립 테스트 세션의 개인 일정만 사용한다.
+
+## 공개 사이트 최종 확인
+
+9/9 v12 배포 성공 후 새 Chrome 세션에서 비밀번호1234 → 하루 표지 → 비교/적용/되돌리기 → 방문 선택 → 카드 저장 → 16초 안내 완료까지 통과했다. 지도는 실제 Kakao SDK, 관광공사 목록은 이 자동 흐름에서 분리된 모의 한도 응답이다. [공개 흐름](qa/day-passport/public-flow.json).
+
+별도 **공개 서버 실제 TourAPI 조회**는 11:41 KST 고성5유형 전부 성공·149개였다. [공개 API 결과](qa/day-passport/public-tourapi.json). 360/1440px의 공개 가이드12장·사진 재열기 메모리 재사용도 통과했다. [공개 가이드](qa/day-passport/public-guide.json). 배포 접근은 public이며 앱의 테스트 비밀번호 gate는 유지했다.

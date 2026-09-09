@@ -1,0 +1,89 @@
+{
+  "startedAt": "2026-09-09T02:33:21.610Z",
+  "base": "http://localhost:3000",
+  "liveApis": false,
+  "deviceMode": "Desktop browsers with viewport/touch emulation; not physical phones or mobile OS browsers",
+  "cases": [
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "width": 360,
+        "height": 740
+      },
+      "touchEmulated": true,
+      "name": "small",
+      "checks": [
+        "Explicit keyless fallback",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Explicit geographic fallback",
+        "Date-free course choice, explicit schedule editing, save/reload and exact place order restore",
+        "Family briefing has no horizontal page overflow",
+        "Independent parent briefing; server group invitation is covered in groups QA",
+        "Explicit preparation target; preparation/visit split; SVG share download"
+      ],
+      "screenshots": [
+        "chrome-small-home.png",
+        "chrome-small-course.png",
+        "chrome-small-editor.png",
+        "chrome-small-mission.png",
+        "chrome-small-family.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/groups": 3,
+        "/api/catalog": 3,
+        "/api/status": 3,
+        "/api/places": 3,
+        "/api/weather": 2,
+        "/api/accessibility": 1
+      },
+      "pageErrors": [],
+      "status": "passed"
+    },
+    {
+      "browser": "chrome",
+      "version": "152.0.7977.76",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "touchEmulated": false,
+      "name": "desktop",
+      "checks": [
+        "Explicit keyless fallback",
+        "Home has no horizontal page overflow",
+        "Browser Back returns to the previous app screen",
+        "Mission has no horizontal page overflow",
+        "Explicit geographic fallback",
+        "Date-free course choice, explicit schedule editing, save/reload and exact place order restore",
+        "Family briefing has no horizontal page overflow",
+        "Independent parent briefing; server group invitation is covered in groups QA",
+        "Explicit preparation target; preparation/visit split; SVG share download"
+      ],
+      "screenshots": [
+        "chrome-desktop-home.png",
+        "chrome-desktop-course.png",
+        "chrome-desktop-editor.png",
+        "chrome-desktop-mission.png",
+        "chrome-desktop-family.png"
+      ],
+      "apiRequests": {
+        "/api/test-access": 1,
+        "/api/groups": 3,
+        "/api/catalog": 3,
+        "/api/status": 3,
+        "/api/places": 3,
+        "/api/weather": 2,
+        "/api/accessibility": 1
+      },
+      "pageErrors": [],
+      "status": "passed"
+    }
+  ],
+  "completedAt": "2026-09-09T02:33:42.648Z",
+  "passed": 2,
+  "failed": 0
+}

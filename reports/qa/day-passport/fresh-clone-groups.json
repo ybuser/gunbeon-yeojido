@@ -1,0 +1,78 @@
+{
+  "startedAt": "2026-09-09T02:38:07.326Z",
+  "base": "http://localhost:3101",
+  "mode": "Playwright APIRequestContext; three isolated cookie jars, no browser UI or device claim",
+  "scope": "Group API only; no tourism/weather/map API calls",
+  "runId": "ed9035ab",
+  "status": "passed",
+  "cases": [
+    {
+      "name": "test gate and three isolated sessions",
+      "status": "passed",
+      "durationMs": 651
+    },
+    {
+      "name": "create family and friends groups under distinct profiles",
+      "status": "passed",
+      "durationMs": 91
+    },
+    {
+      "name": "cross-context invitation preview, join, and idempotent membership",
+      "status": "passed",
+      "durationMs": 88
+    },
+    {
+      "name": "outsider and ordinary-member permission denials",
+      "status": "passed",
+      "durationMs": 156
+    },
+    {
+      "name": "explicit manual sharing and server field whitelist",
+      "status": "passed",
+      "durationMs": 47
+    },
+    {
+      "name": "member saves public-only and empty group plans",
+      "status": "passed",
+      "durationMs": 57
+    },
+    {
+      "name": "stale revision and simultaneous edits return 409 without overwrite",
+      "status": "passed",
+      "durationMs": 436
+    },
+    {
+      "name": "malformed bodies and malformed shared plans return 400",
+      "status": "passed",
+      "durationMs": 442
+    },
+    {
+      "name": "removed member denied old invitation but accepts a new one",
+      "status": "passed",
+      "durationMs": 254
+    },
+    {
+      "name": "leave requires a newer invitation and revocation preserves joined members",
+      "status": "passed",
+      "durationMs": 142
+    },
+    {
+      "name": "group deletion removes API access and invitations, retaining unrelated group",
+      "status": "passed",
+      "durationMs": 169
+    }
+  ],
+  "cleanup": [
+    {
+      "actor": "owner",
+      "status": "deleted"
+    },
+    {
+      "actor": "outsider",
+      "status": "deleted"
+    }
+  ],
+  "finishedAt": "2026-09-09T02:38:09.938Z",
+  "requestCount": 94,
+  "profileCleanup": "No profile deletion API; fresh test profile rows may remain. No existing profiles or groups were modified."
+}
