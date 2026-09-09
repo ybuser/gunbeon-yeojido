@@ -239,7 +239,7 @@ export default function AccountPage() {
                   <p>
                     여행 {legacy?.entries.length || 0}개 · 즐겨찾기{' '}
                     {legacy?.favorites.length || 0}개와 이 기기의 그룹·공유 관리
-                    권한을 연결합니다. 같은 이름의 기록은 사본으로 보관하고,
+                    권한을 연결합니다. 기존 기록과 겹치면서 내용이 다른 여행은 사본으로 보관하고,
                     현재 출타가 이미 있으면 그대로 유지해요.
                   </p>
                   <div className="account-inline">

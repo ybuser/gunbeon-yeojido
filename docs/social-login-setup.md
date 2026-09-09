@@ -27,7 +27,7 @@ https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site
 ## 1. Google
 
 1. [Google Cloud Console](https://console.cloud.google.com/)에 로그인합니다. 프로젝트를 선택하거나 `군번여지도 강원` 프로젝트를 만듭니다.
-2. **Google Auth Platform → Branding**에서 앱 이름, 지원 이메일, 개발자 연락 이메일을 입력합니다. 앱 홈페이지는 `/about`, 개인정보 안내는 `/privacy` 주소를 사용합니다.
+2. **Google Auth Platform → Branding**에서 앱 이름, 지원 이메일, 개발자 연락 이메일을 입력합니다. 앱 홈페이지는 `https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site/about`, 개인정보 안내는 `https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site/privacy`를 입력합니다.
 3. **Audience**에서 일반 이용자용 **External**을 선택합니다. 조직 내부용 Internal은 일반 Google 사용자에게 적합하지 않습니다.
 4. **Data Access**에서는 현재 구현에 필요한 `openid`만 사용합니다. 이메일, Drive, Gmail, 생일 등의 권한은 필요 없습니다.
 5. **Clients → Create Client → Web application**을 선택합니다.
