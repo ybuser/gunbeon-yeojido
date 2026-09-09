@@ -600,6 +600,8 @@ export function manualToPlace(p: ManualPlace): Place {
 }
 export type Entry = {
   recordId?: string;
+  adviceShareId?: string;
+  adviceReceipt?: { shareId: string; suggestionId: string };
   plan?: {
     originId: string;
     variant: string;
@@ -615,6 +617,7 @@ export type Entry = {
   region: string;
   stamps: string[];
   completedAt?: string;
+  recordStatus?: 'completed';
   /** Explicitly chosen public stops. Missing on legacy entries; never infer all stops. */
   visitedPlaceIds?: string[];
 };
@@ -710,7 +713,8 @@ export function createEntry(
 export const entryKey = (entry: Entry) => entry.recordId || entry.missionId;
 export const hasVisitRecord = (entry: Entry) =>
   !(entry.plan && !entry.plan.stops.length) &&
-  (Boolean(entry.completedAt) ||
+  (entry.recordStatus === 'completed' ||
+    Boolean(entry.completedAt) ||
     entry.stamps.some((s) => ['입경', '전환', '복귀', '동행'].includes(s)));
 export const planSignature = (entry: Entry) =>
   entry.plan ? JSON.stringify([entry.missionId, entry.plan]) : '';
@@ -1019,4 +1023,40 @@ export function completeTrip(
         }
       : {}),
   };
+}
+
+// Corrections replace the selected visit stamps; they never re-complete a trip.
+export function reviseVisitRecord(
+  entry: Entry,
+  title: string,
+  stamps: string[],
+  visitedPlaceIds: string[],
+): Entry {
+  if (!hasVisitRecord(entry)) return entry;
+  return {
+    ...entry,
+    recordStatus: 'completed',
+    title: title.trim().slice(0, 80) || entry.title,
+    stamps: [
+      ...new Set([
+        ...entry.stamps.filter((s) => s === '휴가 씨앗'),
+        ...stamps.filter((s) => ['입경', '전환', '복귀', '동행'].includes(s)),
+      ]),
+    ],
+    visitedPlaceIds: [...new Set(visitedPlaceIds)].filter(
+      (id) =>
+        !id.startsWith('manual:') &&
+        (!entry.plan || entry.plan.stops.some((s) => s.placeId === id)),
+    ),
+  };
+}
+
+export function restoreTravelPlan(entry: Entry): Entry {
+  const {
+    completedAt: _completed,
+    visitedPlaceIds: _visited,
+    recordStatus: _status,
+    ...plan
+  } = entry;
+  return { ...plan, stamps: entry.stamps.filter((s) => s === '휴가 씨앗') };
 }

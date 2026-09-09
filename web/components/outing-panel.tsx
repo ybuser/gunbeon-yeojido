@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import {
   assessOuting,
+  hasVisitRecord,
   resolveEntry,
   entryKey,
   localInputDate,
@@ -91,7 +92,7 @@ export default function OutingPanel({
             </p>
           </section>
           {entries
-            .filter((e) => e.plan?.stops.length && !e.completedAt)
+            .filter((e) => e.plan?.stops.length && !hasVisitRecord(e))
             .map((e) => (
               <button
                 className="outing-plan"

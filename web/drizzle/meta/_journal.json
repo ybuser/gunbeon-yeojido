@@ -15,6 +15,20 @@
       "when": 1788839426821,
       "tag": "0001_magenta_wilson_fisk",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788928231999,
+      "tag": "0002_robust_rafael_vega",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1788928770358,
+      "tag": "0003_lush_marrow",
+      "breakpoints": true
     }
   ]
 }

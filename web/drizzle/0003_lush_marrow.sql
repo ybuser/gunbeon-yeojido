@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `advice_visitor_share` ON `advice_suggestions` (`share_id`,`visitor_hash`);

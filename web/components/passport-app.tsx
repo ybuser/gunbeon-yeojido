@@ -67,7 +67,26 @@ import CourseCover from './course-cover';
 import MeetingPicker from './meeting-picker';
 import OutingPanel from './outing-panel';
 import TripCompletion from './trip-completion';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from './ui/alert-dialog';
 import DayRecord from './day-record';
+import AdviceManager from './advice-manager';
+import { AdviceRoute } from './advice-shared';
+import {
+  adviceEntry,
+  adviceIdValid,
+  applyAdvice,
+  adviceIsApplied,
+  type AdviceDetail,
+  type AdviceSuggestion,
+} from '@/lib/advice-model';
+import { adviceRequest } from '@/lib/advice-client';
 import { dayRecord, dayRecordSvg, dayRecordText } from '@/lib/day-passport';
 import TripBuilder, { scheduleTime } from './trip-builder';
 import WeatherCard from './weather-card';
@@ -87,6 +106,8 @@ import {
   manualReference,
   validOuting,
   completeTrip,
+  reviseVisitRecord,
+  restoreTravelPlan,
   localInputDate,
   parseKoreaInput,
   familyProjection,
@@ -301,6 +322,7 @@ export default function PassportApp() {
     groupPlan?: GroupPlan;
     resumeOuting?: boolean;
     outingDeadline?: string;
+    advice?: { shareId: string; suggestion: AdviceSuggestion };
   } | null>(null);
   const [view, setView] = useState('dashboard');
   const groupStore = useTravelGroups();
@@ -333,6 +355,11 @@ export default function PassportApp() {
   const [favorites, setFavorites] = useState<ManualPlace[]>([]);
   const [activeOuting, setActiveOuting] = useState<ActiveOuting | null>(null);
   const [startCandidate, setStartCandidate] = useState<Entry | null>(null);
+  const [adviceManaging, setAdviceManaging] = useState<Entry | null>(null);
+  const [adviceImport, setAdviceImport] = useState<AdviceDetail | null>(null);
+  const [adviceLinkHandled, setAdviceLinkHandled] = useState(false);
+  const [recordEditing, setRecordEditing] = useState<Entry | null>(null);
+  const [recordRestoring, setRecordRestoring] = useState<Entry | null>(null);
   const [completion, setCompletion] = useState<Entry | null>(null);
   const [meetingContext, setMeetingContext] = useState<
     'draft' | 'favorites' | null
@@ -562,7 +589,13 @@ export default function PassportApp() {
   useEffect(() => {
     if (live.mode === 'loading') return;
     const candidates = [
-      ...[completion, shared].filter((entry): entry is Entry => !!entry),
+      ...[
+        completion,
+        shared,
+        recordEditing,
+        composer?.entry,
+        adviceManaging,
+      ].filter((entry): entry is Entry => !!entry),
       ...(view === 'outing' && (startCandidate || activeOuting)
         ? [startCandidate || activeOuting!.entry]
         : []),
@@ -615,6 +648,9 @@ export default function PassportApp() {
   }, [
     reviewEntry,
     completion,
+    recordEditing,
+    composer,
+    adviceManaging,
     shared,
     view,
     entries,
@@ -810,6 +846,39 @@ export default function PassportApp() {
     }
     setComposer({ key: crypto.randomUUID(), entry, mode });
   }
+  useEffect(() => {
+    if (!loaded || catalogLoading || adviceLinkHandled) return;
+    const id = new URLSearchParams(window.location.search).get('advice');
+    if (!adviceIdValid(id)) return;
+    setAdviceLinkHandled(true);
+    adviceRequest<AdviceDetail>('/api/public-advice/' + id)
+      .catch((e) => {
+        if (e.status === 410)
+          return adviceRequest<AdviceDetail>('/api/advice?id=' + id);
+        throw e;
+      })
+      .then((detail) => {
+        if (detail.owner) {
+          const original = entries.find((e) => e.adviceShareId === id);
+          setAdviceManaging(
+            original || {
+              ...adviceEntry(detail.snapshot),
+              recordId: 'shared-management:' + id,
+              adviceShareId: id,
+            },
+          );
+          go('passport');
+        } else setAdviceImport(detail);
+        window.history.replaceState(
+          null,
+          '',
+          window.location.pathname + window.location.hash,
+        );
+      })
+      .catch((e) => {
+        setNotice(e.message);
+      });
+  }, [loaded, catalogLoading, adviceLinkHandled, entries]);
   function saveMission() {
     if (!selected || !origin) return;
     const entry = createEntry(withPlan(selected, settings), origin);
@@ -1907,6 +1976,38 @@ export default function PassportApp() {
                         </p>
                       )}
                       <div className="saved-mission-actions">
+                        {!hasVisitRecord(e) && (
+                          <button
+                            disabled={!e.plan?.stops.length}
+                            onClick={() => setAdviceManaging(e)}
+                          >
+                            {e.adviceShareId
+                              ? '받은 한 수 보기'
+                              : '한 수 부탁하기'}
+                          </button>
+                        )}
+                        {hasVisitRecord(e) && e.adviceShareId && (
+                          <button onClick={() => setAdviceManaging(e)}>
+                            공유한 여행 관리
+                          </button>
+                        )}
+                        {hasVisitRecord(e) && (
+                          <>
+                            <button onClick={() => setRecordEditing(e)}>
+                              기록 수정
+                            </button>
+                            <button
+                              disabled={
+                                !e.plan ||
+                                (!!activeOuting &&
+                                  entryKey(activeOuting.entry) === entryKey(e))
+                              }
+                              onClick={() => setRecordRestoring(e)}
+                            >
+                              계획으로 되돌리기
+                            </button>
+                          </>
+                        )}
                         <button
                           disabled={
                             !e.plan ||
@@ -1918,7 +2019,7 @@ export default function PassportApp() {
                           }
                         >
                           {hasVisitRecord(e)
-                            ? '복사해서 새 코스 만들기'
+                            ? '새 여행으로 가져오기'
                             : '코스 수정'}
                         </button>
                         <button
@@ -2479,7 +2580,9 @@ export default function PassportApp() {
           key={composer.key}
           initial={composer.entry}
           mode={composer.mode}
-          initialDirty={!!composer.group && !!composer.entry}
+          initialDirty={
+            !!composer.advice || (!!composer.group && !!composer.entry)
+          }
           saveTarget={composer.group ? 'group' : 'personal'}
           places={places}
           placesLoading={catalogLoading || live.mode === 'loading'}
@@ -2495,7 +2598,7 @@ export default function PassportApp() {
             }
             setComposer(null);
           }}
-          onSave={(entry, memoryPlaces, returnAt) => {
+          onSave={async (entry, memoryPlaces, returnAt) => {
             if (composer.group) {
               setExtraPlaces((v) => [...v, ...memoryPlaces]);
               setGroupSharing({
@@ -2514,11 +2617,41 @@ export default function PassportApp() {
               !hasVisitRecord(composer.entry)
                 ? entryKey(composer.entry)
                 : null;
-            setEntries((v) =>
-              old
-                ? v.map((e) => (entryKey(e) === old ? entry : e))
-                : [entry, ...v],
-            );
+            if (old && composer.entry?.adviceShareId)
+              entry.adviceShareId = composer.entry.adviceShareId;
+            if (old && composer.entry?.adviceReceipt)
+              entry.adviceReceipt = composer.entry.adviceReceipt;
+            const adopted =
+              composer.advice &&
+              adviceIsApplied(entry, composer.advice.suggestion)
+                ? composer.advice
+                : null;
+            if (adopted)
+              entry.adviceReceipt = {
+                shareId: adopted.shareId,
+                suggestionId: adopted.suggestion.id,
+              };
+            const nextEntries = old
+              ? entries.map((e) => (entryKey(e) === old ? entry : e))
+              : [entry, ...entries];
+            let durable = false;
+            try {
+              const previous = JSON.parse(
+                localStorage.getItem(STORAGE) || '{}',
+              );
+              localStorage.setItem(
+                STORAGE,
+                JSON.stringify({
+                  ...previous,
+                  version: 3,
+                  entries: nextEntries,
+                }),
+              );
+              durable = true;
+            } catch {
+              /* Never mark a suggestion applied until the itinerary is stored. */
+            }
+            setEntries(nextEntries);
             setExtraPlaces((v) => [
               ...new Map(
                 [...v, ...memoryPlaces].map((p) => [p.id, p]),
@@ -2544,10 +2677,187 @@ export default function PassportApp() {
               go('outing');
             } else go('passport');
             setNotice(
-              '여행 계획을 저장했습니다. 내 여행에서 언제든 이어서 만들 수 있어요.',
+              durable
+                ? '여행 계획을 저장했습니다. 내 여행에서 언제든 이어서 만들 수 있어요.'
+                : '브라우저 저장 공간을 확인해 주세요. 지금 변경은 현재 화면에만 남아 있습니다.',
+            );
+            if (adopted && durable) {
+              try {
+                await adviceRequest('/api/advice', {
+                  action: 'adopt',
+                  id: adopted.shareId,
+                  suggestionId: adopted.suggestion.id,
+                });
+                setEntries((v) =>
+                  v.map((e) =>
+                    entryKey(e) === entryKey(entry)
+                      ? { ...e, adviceReceipt: undefined }
+                      : e,
+                  ),
+                );
+                setNotice(
+                  '한 수를 내 계획에 저장했어요. 공개 페이지에도 반영 표시를 남겼습니다.',
+                );
+              } catch {
+                setNotice(
+                  '계획은 저장했지만 공개 반영 표시는 연결되지 않았어요. 받은 한 수 보기에서 다시 마무리할 수 있습니다.',
+                );
+              }
+            }
+          }}
+        />
+      )}
+      {adviceManaging && (
+        <AdviceManager
+          entry={
+            entries.find((e) => entryKey(e) === entryKey(adviceManaging)) ||
+            adviceManaging
+          }
+          places={places}
+          onClose={() => setAdviceManaging(null)}
+          onPublish={(id) => {
+            setEntries((v) =>
+              v.map((e) =>
+                entryKey(e) === entryKey(adviceManaging)
+                  ? { ...e, adviceShareId: id }
+                  : e,
+              ),
+            );
+            setAdviceManaging((e) => (e ? { ...e, adviceShareId: id } : e));
+          }}
+          onReceiptCleared={() =>
+            setEntries((v) =>
+              v.map((e) =>
+                entryKey(e) === entryKey(adviceManaging)
+                  ? { ...e, adviceReceipt: undefined }
+                  : e,
+              ),
+            )
+          }
+          onReview={(suggestion, shareId) => {
+            const current = entries.find(
+              (e) => entryKey(e) === entryKey(adviceManaging),
+            );
+            if (
+              !current ||
+              hasVisitRecord(current) ||
+              (activeOuting &&
+                entryKey(activeOuting.entry) === entryKey(current))
+            ) {
+              setAdviceManaging(null);
+              setNotice(
+                '이 브라우저에 준비 중인 원본 계획이 있어야 반영할 수 있어요. 완료한 기록과 현재 출타는 변경하지 않습니다.',
+              );
+              return;
+            }
+            const adjusted = applyAdvice(current, suggestion);
+            if (!adjusted) {
+              setAdviceManaging(null);
+              setNotice(
+                '원래 계획이 달라졌거나 장소가 겹쳐요. 코스 수정에서 현재 장소를 확인해 주세요.',
+              );
+              return;
+            }
+            setAdviceManaging(null);
+            setComposer({
+              key: crypto.randomUUID(),
+              entry: adjusted,
+              mode: 'edit',
+              advice: { shareId, suggestion },
+            });
+            setNotice(
+              '한 수를 넣은 초안이에요. 시간과 장소를 확인하고 저장하면 반영됩니다. 취소하면 원래 계획을 유지해요.',
             );
           }}
         />
+      )}
+      {adviceImport && (
+        <Sheet open onOpenChange={(v) => !v && setAdviceImport(null)}>
+          <SheetContent side="bottom" className="advice-sheet">
+            <SheetHeader>
+              <SheetTitle>이 여행안에서 나의 하루 시작하기</SheetTitle>
+              <SheetDescription>
+                공개된 관광지 순서만 가져옵니다. 출발 날짜, 만남 장소와 복귀
+                기준은 직접 정해 주세요.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="advice-manager-body">
+              <AdviceRoute
+                snapshot={adviceImport.snapshot}
+                places={adviceImport.places}
+              />
+              <p className="advice-note">
+                원래 여행과 별개의 새 계획입니다. 받은 제안은 이 공개안에 자동
+                포함되지 않아요.
+              </p>
+              <Button
+                className="advice-submit"
+                onClick={() => {
+                  const imported = adviceEntry(adviceImport.snapshot);
+                  setAdviceImport(null);
+                  openBuilder(imported, 'copy');
+                }}
+              >
+                이 장소로 새 계획 편집
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+      {recordEditing && (
+        <TripCompletion
+          key={entryKey(recordEditing)}
+          editing
+          entry={recordEditing}
+          places={places}
+          onClose={() => setRecordEditing(null)}
+          onConfirm={(stamps, visited, title) => {
+            setEntries((v) =>
+              v.map((e) =>
+                entryKey(e) === entryKey(recordEditing)
+                  ? reviseVisitRecord(e, title, stamps, visited)
+                  : e,
+              ),
+            );
+            setRecordEditing(null);
+            setNotice(
+              '여행 기록을 수정했어요. 이미 저장한 공유 이미지는 새로 저장해 주세요.',
+            );
+          }}
+        />
+      )}
+      {recordRestoring && (
+        <AlertDialog open onOpenChange={(v) => !v && setRecordRestoring(null)}>
+          <AlertDialogContent>
+            <AlertDialogTitle>여행 계획으로 되돌릴까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              이 여행의 완료 표시와 방문 스탬프를 지우고 준비 중인 계획으로
+              옮겨요. 장소와 일정은 유지되고, 현재 출타는 시작되지 않습니다.
+              원래 기록도 남기려면 ‘새 여행으로 가져오기’를 선택하세요.
+            </AlertDialogDescription>
+            <AlertDialogFooter>
+              <AlertDialogCancel>기록 유지</AlertDialogCancel>
+              <Button
+                onClick={() => {
+                  setEntries((v) =>
+                    v.map((e) =>
+                      entryKey(e) === entryKey(recordRestoring)
+                        ? restoreTravelPlan(e)
+                        : e,
+                    ),
+                  );
+                  setRecordRestoring(null);
+                  setRecordTab('plans');
+                  setNotice(
+                    '계획으로 되돌렸어요. 날짜와 장소를 확인하고 이어서 준비하세요.',
+                  );
+                }}
+              >
+                계획으로 되돌리기 확인
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
       {completion && (
         <TripCompletion
@@ -2917,6 +3227,10 @@ export default function PassportApp() {
         !shared &&
         !composer &&
         !completion &&
+        !recordEditing &&
+        !adviceManaging &&
+        !adviceImport &&
+        !recordRestoring &&
         !startCandidate &&
         !photoOpen &&
         !groupSharing &&

@@ -19,7 +19,9 @@
     "test:groups": "node scripts/groups-api-qa.mjs",
     "test:groups-ui": "node scripts/groups-ui-qa.mjs",
     "test:day": "node scripts/day-passport-qa.mjs",
-    "test:guide": "node scripts/guide-page-qa.mjs"
+    "test:guide": "node scripts/guide-page-qa.mjs",
+    "test:advice": "node scripts/advice-api-qa.mjs",
+    "test:advice-ui": "node scripts/advice-ui-qa.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",
