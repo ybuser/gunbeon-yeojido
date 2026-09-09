@@ -15,6 +15,7 @@ import {
   type PublicPlace,
 } from '@/lib/advice-model';
 export default function AdvicePublic({ id }: { id: string }) {
+  const [ended, setEnded] = useState(false);
   const [detail, setDetail] = useState<AdviceDetail | null>(null),
     [message, setMessage] = useState(''),
     [busy, setBusy] = useState(false),
@@ -55,8 +56,13 @@ export default function AdvicePublic({ id }: { id: string }) {
       );
       setTarget((v) => v || data.snapshot.placeIds[0]);
       setMessage('');
+      setEnded(false);
     } catch (e) {
       setMessage((e as Error).message);
+      if ((e as { status?: number }).status === 410) {
+        setEnded(true);
+        setDetail(null);
+      }
     } finally {
       setReady(true);
     }
@@ -132,8 +138,32 @@ export default function AdvicePublic({ id }: { id: string }) {
       <main className="advice-page">
         <Brand />
         <div className="advice-empty">
-          <h1>{ready ? '공유를 열지 못했어요' : '여행안을 펼치고 있어요'}</h1>
+          <h1>
+            {ended
+              ? '공유 기간이 끝났어요'
+              : ready
+                ? '공유를 열지 못했어요'
+                : '여행안을 펼치고 있어요'}
+          </h1>
           <p role="status">{message}</p>
+          {ended && (
+            <Button
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                try {
+                  await adviceRequest(endpoint, { action: 'withdrawMine' });
+                  setMessage('이 브라우저에서 남긴 제안을 삭제했어요.');
+                } catch (e) {
+                  setMessage((e as Error).message);
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            >
+              내가 남긴 제안 삭제
+            </Button>
+          )}
           {ready && <Button onClick={() => load()}>다시 확인</Button>}
           <a href="/">군번여지도 홈으로</a>
         </div>
@@ -170,7 +200,19 @@ export default function AdvicePublic({ id }: { id: string }) {
               </span>
             </div>
           </section>
-          {!detail.owner && !mine && detail.status === 'open' && <Button className="advice-hero-action" onClick={() => document.querySelector('.advice-participation')?.scrollIntoView({behavior:'smooth',block:'start'})}>내가 한 수 보태기<ArrowRight size={16}/></Button>}
+          {!detail.owner && !mine && detail.status === 'open' && (
+            <Button
+              className="advice-hero-action"
+              onClick={() =>
+                document
+                  .querySelector('.advice-participation')
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
+            >
+              내가 한 수 보태기
+              <ArrowRight size={16} />
+            </Button>
+          )}
           <AdviceRoute snapshot={detail.snapshot} places={detail.places} />
           <p className="advice-note">
             여행자의 날짜·개인 만남 장소·복귀 정보가 빠진 공개 여행안입니다.
@@ -286,7 +328,13 @@ export default function AdvicePublic({ id }: { id: string }) {
                     ? '어느 곳을 다음 기회로 미룰까요?'
                     : '어느 장소를 바꿀까요?'}
                 <select
-                  aria-label={kind === 'add' ? '어느 장소 다음에 넣을까요?' : kind === 'remove' ? '어느 곳을 다음 기회로 미룰까요?' : '어느 장소를 바꿀까요?'}
+                  aria-label={
+                    kind === 'add'
+                      ? '어느 장소 다음에 넣을까요?'
+                      : kind === 'remove'
+                        ? '어느 곳을 다음 기회로 미룰까요?'
+                        : '어느 장소를 바꿀까요?'
+                  }
                   value={targetId}
                   onChange={(e) => setTarget(e.target.value)}
                 >

@@ -125,9 +125,13 @@ export async function adviceRateLimit(
 ) {
   const time = Date.now(),
     window = Math.floor(time / (minutes * 60000));
-  // Only trusted edge address, salted per window; never raw IPs or user-supplied forwarding chains.
+  // Attribute ordinary use to a signed browser session, not a shared carrier/NAT address.
+  // Fresh sessions have a broader edge burst guard; never store raw IPs or trust forwarding chains.
+  const session = await adviceSession(r);
   const edge = r.headers.get('cf-connecting-ip') || 'local-edge';
-  const id = await sign(kind + ':' + window + ':' + edge);
+  const actor = session.hash ? 'session:' + session.hash : 'entry:' + edge;
+  const ceiling = session.hash ? max : max * 20;
+  const id = await sign(kind + ':' + window + ':' + actor);
   const db = database();
   const row = await db
     .prepare(
@@ -135,7 +139,7 @@ export async function adviceRateLimit(
     )
     .bind(id, time + minutes * 60000)
     .first<{ count: number }>();
-  if ((row?.count || 0) > max)
+  if ((row?.count || 0) > ceiling)
     throw new AdviceProblem(
       429,
       '요청이 잠시 몰렸어요. 잠깐 뒤 다시 시도해 주세요.',

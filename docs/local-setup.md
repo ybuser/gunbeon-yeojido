@@ -86,3 +86,17 @@ Linux의 브라우저 OS 의존성이 부족하면 `npx playwright install --wit
 - `web/.openai/hosting.json`은 추적된 기존 프로젝트 연결이다. 새 PC의 배포 인증/소스 Git 연결은 `handoff.md`에 따라 다시 확보한다.
 - 개인 localStorage·브라우저 쿠키·로컬 DB·실제 키·Playwright 바이너리·빌드 결과·이전 임시 clone은 Git으로 옮겨지지 않는다. 다른 PC에 기존 개인 여행이 나타난다고 가정하지 않는다.
 - **별도 fresh clone 재현을 완료했다.** 같은 Mac에서 설치·타입·77개 단위·로컬D1·개발서버·그룹API11시나리오를 확인했다. 다른 OS/실제 다른 PC 실행은 미검증이며 [재현 기록](../reports/qa/day-passport/fresh-clone.md)을 참고한다.
+
+
+## 공개 여행 제안 추가 검사
+
+앱 루트 `web/`에서 실행한다. 이 기능은 D1 migration 0002/0003이 추가됐으므로 먼저 위의 로컬 migration 명령을 실행한다. 테스트가 만든 공유 링크만 종료/삭제하며 기존 그룹이나 운영 DB를 초기화하지 않는다.
+
+```sh
+node scripts/advice-api-qa.mjs
+QA_BROWSER_CHANNELS=chromium QA_CASES=small,desktop node scripts/advice-ui-qa.mjs
+```
+
+API 검사는 쿠키가 분리된 작성자/방문자/외부인 3개 HTTP 세션, UI 검사는 작성자/방문자 2개 브라우저 컨텍스트를 사용한다. UI 회귀는 정상 TourAPI를 실제로 소진하지 않도록 지역 목록을 오류 응답으로 격리하고, 기본 공개 관광지와 실제 D1을 이용한다. 실제 관광 API 검색 검증은 별도로 기록한다. 명령을 빠르게 반복하면 익명 공개 기능의 속도 제한에 걸릴 수 있으므로 실패 원인을 확인하고 해당 시간 창 뒤에 재실행한다.
+
+공개 ID는 관리 자격증명이 아니다. 공유 작성·수정 권한 쿠키는 Git/로그/보고서에 저장하지 않는다. 다른 PC에서 기존 공개 링크는 열리지만 관리 권한은 자동 이동하지 않는다.

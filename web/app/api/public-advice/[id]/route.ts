@@ -40,7 +40,16 @@ export async function GET(r: Request) {
           page?: number;
         };
       return adviceReply(
-        { ...data, places: (data.places || []).map(publicPlace) },
+        {
+          ...data,
+          ...(!response.ok
+            ? {
+                message:
+                  '관광정보 검색을 연결하지 못했어요. 잠시 후 다시 검색하거나 지역 장소 후보에서 골라주세요.',
+              }
+            : {}),
+          places: (data.places || []).map(publicPlace),
+        },
         response.status,
         session.cookie,
       );
@@ -62,7 +71,10 @@ export async function GET(r: Request) {
 export async function POST(r: Request) {
   try {
     const b = await adviceBody(r),
-      row = await findShare(idFrom(r), b.action === 'withdraw'),
+      row = await findShare(
+        idFrom(r),
+        b.action === 'withdraw' || b.action === 'withdrawMine',
+      ),
       session = await adviceSession(r),
       db = database();
     if (!session.hash)
@@ -72,6 +84,21 @@ export async function POST(r: Request) {
         400,
         '내 여행은 직접 수정하고, 다른 사람의 한 수를 기다려보세요.',
       );
+    if (b.action === 'withdrawMine') {
+      await db.batch([
+        db
+          .prepare(
+            'DELETE FROM advice_reports WHERE suggestion_id IN (SELECT id FROM advice_suggestions WHERE share_id=? AND visitor_hash=?)',
+          )
+          .bind(row.id, session.hash),
+        db
+          .prepare(
+            'DELETE FROM advice_suggestions WHERE share_id=? AND visitor_hash=?',
+          )
+          .bind(row.id, session.hash),
+      ]);
+      return adviceReply({ ok: true });
+    }
     if (b.action === 'suggest') {
       if (row.status !== 'open')
         throw new AdviceProblem(409, '이 여행의 제안은 마감됐어요.');

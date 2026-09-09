@@ -109,7 +109,10 @@ export default function TripCompletion({
               ))}
           <p>
             직접 지정한 만남 장소는 공개 기록에 넣지 않아요. 조회되지 않은
-            관광지는 이번 카드에서 제외합니다.
+            관광지는{' '}
+            {editing
+              ? '기존 선택을 유지하면 방문 기록에 남아요.'
+              : '이번 카드에서 제외합니다.'}
           </p>
           <label>
             <Checkbox

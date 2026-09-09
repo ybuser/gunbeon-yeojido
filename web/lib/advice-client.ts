@@ -20,10 +20,13 @@ export async function adviceRequest<T = Record<string, unknown>>(
   );
   const data = (await r.json()) as Record<string, unknown>;
   if (!r.ok)
-    throw new Error(
-      typeof data.message === 'string'
-        ? data.message
-        : '연결을 확인하고 다시 시도해 주세요.',
+    throw Object.assign(
+      new Error(
+        typeof data.message === 'string'
+          ? data.message
+          : '연결을 확인하고 다시 시도해 주세요.',
+      ),
+      { status: r.status },
     );
   return data as T;
 }

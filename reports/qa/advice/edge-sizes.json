@@ -1,0 +1,78 @@
+[
+  {
+    "channel": "msedge",
+    "version": "152.0.4191.66",
+    "viewport": {
+      "name": "small",
+      "width": 360,
+      "height": 740
+    },
+    "status": "passed",
+    "checks": [
+      "Publish safe snapshot and export real PNG without private meeting, time or title",
+      "Anonymous guest submits a concrete replacement without test password",
+      "Cancel keeps original; save applies exact replacement and only then marks it adopted",
+      "Record edit preserves completion date; new copy preserves record; restoration keeps original itinerary and does not start outing",
+      "Public import survives password gate and opens a fresh private editor"
+    ],
+    "errors": [],
+    "providers": "TourAPI regional endpoint isolated as unavailable; real base catalog and D1; Kakao disabled in this workflow check"
+  },
+  {
+    "channel": "msedge",
+    "version": "152.0.4191.66",
+    "viewport": {
+      "name": "large",
+      "width": 430,
+      "height": 932
+    },
+    "status": "passed",
+    "checks": [
+      "Publish safe snapshot and export real PNG without private meeting, time or title",
+      "Anonymous guest submits a concrete replacement without test password",
+      "Cancel keeps original; save applies exact replacement and only then marks it adopted",
+      "Record edit preserves completion date; new copy preserves record; restoration keeps original itinerary and does not start outing",
+      "Public import survives password gate and opens a fresh private editor"
+    ],
+    "errors": [],
+    "providers": "TourAPI regional endpoint isolated as unavailable; real base catalog and D1; Kakao disabled in this workflow check"
+  },
+  {
+    "channel": "msedge",
+    "version": "152.0.4191.66",
+    "viewport": {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900
+    },
+    "status": "passed",
+    "checks": [
+      "Publish safe snapshot and export real PNG without private meeting, time or title",
+      "Anonymous guest submits a concrete replacement without test password",
+      "Cancel keeps original; save applies exact replacement and only then marks it adopted",
+      "Record edit preserves completion date; new copy preserves record; restoration keeps original itinerary and does not start outing",
+      "Public import survives password gate and opens a fresh private editor"
+    ],
+    "errors": [],
+    "providers": "TourAPI regional endpoint isolated as unavailable; real base catalog and D1; Kakao disabled in this workflow check"
+  },
+  {
+    "channel": "msedge",
+    "version": "152.0.4191.66",
+    "viewport": {
+      "name": "wide",
+      "width": 1920,
+      "height": 1080
+    },
+    "status": "passed",
+    "checks": [
+      "Publish safe snapshot and export real PNG without private meeting, time or title",
+      "Anonymous guest submits a concrete replacement without test password",
+      "Cancel keeps original; save applies exact replacement and only then marks it adopted",
+      "Record edit preserves completion date; new copy preserves record; restoration keeps original itinerary and does not start outing",
+      "Public import survives password gate and opens a fresh private editor"
+    ],
+    "errors": [],
+    "providers": "TourAPI regional endpoint isolated as unavailable; real base catalog and D1; Kakao disabled in this workflow check"
+  }
+]

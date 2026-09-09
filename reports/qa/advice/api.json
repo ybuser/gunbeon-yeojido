@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "at": "2026-09-09T04:43:15.089Z",
+  "base": "http://localhost:3000",
+  "cases": [
+    "core API remains password protected",
+    "publish whitelist rejects manual references",
+    "publish ignores extra private fields and exposes no capability",
+    "public page renders privacy-safe metadata without test password",
+    "CSRF and foreign ownership cannot mutate a share",
+    "guest adds one idempotent concrete proposal",
+    "reports reach owner; foreign guest cannot withdraw",
+    "withdraw then re-propose cannot receive stale adoption",
+    "close, reopen, unmark and hide retain original public snapshot",
+    "delete withdraws public reading, searching and new participation"
+  ],
+  "mode": "real local/production D1, isolated HTTP cookie contexts; base public catalog only; no TourAPI or map calls"
+}

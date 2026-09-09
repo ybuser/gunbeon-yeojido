@@ -852,6 +852,11 @@ export default function PassportApp() {
     if (!adviceIdValid(id)) return;
     setAdviceLinkHandled(true);
     adviceRequest<AdviceDetail>('/api/public-advice/' + id)
+      .catch((e) => {
+        if (e.status === 410)
+          return adviceRequest<AdviceDetail>('/api/advice?id=' + id);
+        throw e;
+      })
       .then((detail) => {
         if (detail.owner) {
           const original = entries.find((e) => e.adviceShareId === id);
@@ -2614,7 +2619,8 @@ export default function PassportApp() {
                 : null;
             if (old && composer.entry?.adviceShareId)
               entry.adviceShareId = composer.entry.adviceShareId;
-            if (old && composer.entry?.adviceReceipt) entry.adviceReceipt = composer.entry.adviceReceipt;
+            if (old && composer.entry?.adviceReceipt)
+              entry.adviceReceipt = composer.entry.adviceReceipt;
             const adopted =
               composer.advice &&
               adviceIsApplied(entry, composer.advice.suggestion)
