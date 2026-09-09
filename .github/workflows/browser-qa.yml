@@ -50,6 +50,7 @@ jobs:
           QA_OUT_DIR=test-results/browser/guide npm run test:guide
           QA_OUT_DIR=test-results/browser/custom npm run test:custom
           QA_OUT_DIR=test-results/browser/outing npm run test:outing
+          QA_OUT_DIR=test-results/browser/day npm run test:day
       - uses: actions/upload-artifact@v4
         if: always()
         with:

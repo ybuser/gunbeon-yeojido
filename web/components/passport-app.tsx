@@ -67,6 +67,8 @@ import CourseCover from './course-cover';
 import MeetingPicker from './meeting-picker';
 import OutingPanel from './outing-panel';
 import TripCompletion from './trip-completion';
+import DayRecord from './day-record';
+import { dayRecord, dayRecordSvg, dayRecordText } from '@/lib/day-passport';
 import TripBuilder, { scheduleTime } from './trip-builder';
 import WeatherCard from './weather-card';
 import { VerifiedFacts, ApiFacts } from './place-facts';
@@ -559,14 +561,14 @@ export default function PassportApp() {
   );
   useEffect(() => {
     if (live.mode === 'loading') return;
-    const candidates =
-      view === 'outing' && (startCandidate || activeOuting)
+    const candidates = [
+      ...[completion, shared].filter((entry): entry is Entry => !!entry),
+      ...(view === 'outing' && (startCandidate || activeOuting)
         ? [startCandidate || activeOuting!.entry]
-        : reviewEntry
-          ? [reviewEntry]
-          : view === 'passport'
-            ? entries.slice(0, 4)
-            : [];
+        : []),
+      ...(reviewEntry ? [reviewEntry] : []),
+      ...(['passport', 'dashboard'].includes(view) ? entries : []),
+    ];
     const plans = candidates.filter((e) => e.plan).map((e) => e.plan!);
     const ids = [
       ...new Set([
@@ -612,6 +614,8 @@ export default function PassportApp() {
     };
   }, [
     reviewEntry,
+    completion,
+    shared,
     view,
     entries,
     activeOuting,
@@ -904,6 +908,21 @@ export default function PassportApp() {
     }
   }
   function downloadCard(e: Entry) {
+    if (e.completedAt && dayRecord(e, places).missingCount) {
+      setNotice('다녀온 관광지를 모두 불러온 뒤 카드를 저장해 주세요.');
+      return;
+    }
+    if (hasVisitRecord(e)) {
+      const url = URL.createObjectURL(
+        new Blob([dayRecordSvg(e, places)], { type: 'image/svg+xml' }),
+      );
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = '군번여지도-하루의한장.svg';
+      anchor.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      return;
+    }
     const card = publicCard(e);
     const safe = (x: string) =>
       x.replace(
@@ -1005,6 +1024,8 @@ export default function PassportApp() {
         <TabsContent value="dashboard">
           <TravelHome
             entries={entries}
+            places={places}
+            onContinue={(entry) => openBuilder(entry, 'edit')}
             outing={activeOuting}
             store={groupStore}
             onOpen={openEntry}
@@ -1803,27 +1824,31 @@ export default function PassportApp() {
                   )
                   .map((e) => (
                     <article className="saved-mission" key={entryKey(e)}>
-                      <div className="saved-mission-cover">
-                        <CourseCover
-                          places={
-                            resolveEntry(e, places)?.mission.stops.map(
-                              (s) => s.place,
-                            ) ||
-                            e.plan?.stops.map(
-                              (stop) =>
-                                places.find((p) => p.id === stop.placeId) || {
-                                  id: stop.placeId,
-                                  title:
-                                    e.plan?.manualPlaces?.find(
-                                      (p) => p.id === stop.placeId,
-                                    )?.title || '장소 정보 확인 중',
-                                  image_url: '',
-                                },
-                            ) ||
-                            []
-                          }
-                        />
-                      </div>
+                      {hasVisitRecord(e) ? (
+                        <DayRecord entry={e} places={places} compact />
+                      ) : (
+                        <div className="saved-mission-cover">
+                          <CourseCover
+                            places={
+                              resolveEntry(e, places)?.mission.stops.map(
+                                (s) => s.place,
+                              ) ||
+                              e.plan?.stops.map(
+                                (stop) =>
+                                  places.find((p) => p.id === stop.placeId) || {
+                                    id: stop.placeId,
+                                    title:
+                                      e.plan?.manualPlaces?.find(
+                                        (p) => p.id === stop.placeId,
+                                      )?.title || '장소 정보 확인 중',
+                                    image_url: '',
+                                  },
+                              ) ||
+                              []
+                            }
+                          />
+                        </div>
+                      )}
                       <div className="saved-mission-heading">
                         <span>{e.region}</span>
                         <h2>{e.title}</h2>
@@ -2010,29 +2035,43 @@ export default function PassportApp() {
                 </SheetHeader>
                 {shared && (
                   <div className="editor-body">
-                    <div className="share-preview">
-                      <span>군번여지도 강원</span>
-                      <h2>{publicCard(shared).mission}</h2>
-                      <p>
-                        {shared.region} ·{' '}
-                        {shared.stamps.join(' · ') || '계획한 여행'}
-                      </p>
-                      <small>복무 경험을 관광 경험으로.</small>
-                    </div>
+                    {hasVisitRecord(shared) ? (
+                      <DayRecord entry={shared} places={places} />
+                    ) : (
+                      <div className="share-preview">
+                        <span>군번여지도 강원</span>
+                        <h2>{publicCard(shared).mission}</h2>
+                        <p>
+                          {shared.region} ·{' '}
+                          {shared.stamps.join(' · ') || '계획한 여행'}
+                        </p>
+                        <small>복무 경험을 관광 경험으로.</small>
+                      </div>
+                    )}
                     <Button
                       className="primary-cta"
                       onClick={() => downloadCard(shared)}
+                      disabled={
+                        hasVisitRecord(shared) &&
+                        dayRecord(shared, places).missingCount > 0
+                      }
                     >
                       <Download size={17} />
                       카드 이미지 저장
                     </Button>
                     <Button
                       variant="outline"
+                      disabled={
+                        hasVisitRecord(shared) &&
+                        dayRecord(shared, places).missingCount > 0
+                      }
                       onClick={() =>
                         copy(
-                          publicCard(shared).message +
-                            ' ' +
-                            publicCard(shared).mission,
+                          hasVisitRecord(shared)
+                            ? dayRecordText(shared, places)
+                            : publicCard(shared).message +
+                                ' ' +
+                                publicCard(shared).mission,
                         )
                       }
                     >
@@ -2514,9 +2553,15 @@ export default function PassportApp() {
         <TripCompletion
           key={entryKey(completion)}
           entry={completion}
+          places={places}
           onClose={() => setCompletion(null)}
-          onConfirm={(stamps) => {
-            const finished = completeTrip(completion, stamps);
+          onConfirm={(stamps, visitedPlaceIds) => {
+            const finished = completeTrip(
+              completion,
+              stamps,
+              new Date(),
+              visitedPlaceIds,
+            );
             setEntries((v) =>
               v.map((e) => (entryKey(e) === entryKey(finished) ? finished : e)),
             );
@@ -2528,7 +2573,9 @@ export default function PassportApp() {
             setCompletion(null);
             setRecordTab('memories');
             go('passport');
-            setNotice('다녀온 여행을 기록했습니다.');
+            setNotice(
+              '하루의 한 장을 만들었어요. 공유 카드에서 저장할 수 있습니다.',
+            );
           }}
         />
       )}
@@ -2867,6 +2914,7 @@ export default function PassportApp() {
         </SheetContent>
       </Sheet>
       {notice &&
+        !shared &&
         !composer &&
         !completion &&
         !startCandidate &&

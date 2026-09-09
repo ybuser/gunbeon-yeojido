@@ -32,10 +32,13 @@ export default function MemoryImage({
   src,
   alt = '',
   loading,
+  style,
+  onLoad,
   ...props
 }: ImgHTMLAttributes<HTMLImageElement>) {
   const node = useRef<HTMLImageElement>(null),
-    [url, setUrl] = useState<string>();
+    [url, setUrl] = useState<string>(),
+    [loadedUrl, setLoadedUrl] = useState<string>();
   useEffect(() => {
     let active = true;
     setUrl(undefined);
@@ -68,6 +71,14 @@ export default function MemoryImage({
       alt={alt}
       ref={node}
       src={url}
+      style={{
+        ...style,
+        visibility: url && loadedUrl === url ? style?.visibility : 'hidden',
+      }}
+      onLoad={(event) => {
+        setLoadedUrl(url);
+        onLoad?.(event);
+      }}
       loading={loading}
       data-original-src={src}
     />

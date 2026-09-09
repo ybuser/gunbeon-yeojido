@@ -1,0 +1,44 @@
+[
+  {
+    "channel": "chrome",
+    "version": "152.0.7977.76",
+    "viewport": {
+      "name": "small",
+      "width": 360,
+      "height": 740
+    },
+    "device": "desktop viewport/touch emulation",
+    "tourApi": "isolated quota response; actual public base catalogue",
+    "kakao": "real SDK",
+    "checks": [
+      "Guide is optional, reduced motion starts paused, manual navigation and skip work without provider calls",
+      "Comparison recalculates route; explicit apply, undo and stale undo prevention; map instance survives title/stay/stop edits",
+      "Empty return field then changed departure does not crash; reversed time blocks comparison; save preserves adjustment",
+      "Cancel leaves plan; explicit visited subset only; exported card omits other stops and personal title/time/coordinates",
+      "All four story scenes finish; no horizontal overflow or uncaught page errors"
+    ],
+    "errors": [],
+    "status": "passed"
+  },
+  {
+    "channel": "chrome",
+    "version": "152.0.7977.76",
+    "viewport": {
+      "name": "large",
+      "width": 430,
+      "height": 932
+    },
+    "device": "desktop viewport/touch emulation",
+    "tourApi": "isolated quota response; actual public base catalogue",
+    "kakao": "real SDK",
+    "checks": [
+      "Guide is optional, reduced motion starts paused, manual navigation and skip work without provider calls",
+      "Comparison recalculates route; explicit apply, undo and stale undo prevention; map instance survives title/stay/stop edits",
+      "Empty return field then changed departure does not crash; reversed time blocks comparison; save preserves adjustment",
+      "Cancel leaves plan; explicit visited subset only; exported card omits other stops and personal title/time/coordinates",
+      "All four story scenes finish; no horizontal overflow or uncaught page errors"
+    ],
+    "errors": [],
+    "status": "passed"
+  }
+]

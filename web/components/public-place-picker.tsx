@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type {} from './mission-map';
+import { loadKakaoMaps } from '@/lib/kakao-maps';
 type Value = { lat: number; lon: number };
 export default function PublicPlacePicker({
   mapKey,
@@ -34,11 +34,11 @@ export default function PublicPlacePicker({
     if (!mapKey || !element.current || (!center && !value)) return;
     let disposed = false;
     let cleanup = () => {};
-    const draw = () =>
-      window.kakao?.maps.load(() => {
-        if (disposed || !element.current || !window.kakao) return;
-        const api = window.kakao.maps,
-          start = value || center!;
+    setReady(false);
+    loadKakaoMaps(mapKey)
+      .then((api) => {
+        if (disposed || !element.current) return;
+        const start = value || center!;
         try {
           const map = new api.Map(element.current, {
             center: new api.LatLng(start.lat, start.lon),
@@ -84,34 +84,14 @@ export default function PublicPlacePicker({
             '지도를 연결하지 못했습니다. 위치 없이 먼저 추가할 수 있어요.',
           );
         }
+      })
+      .catch(() => {
+        if (!disposed)
+          setMessage(
+            '지도를 연결하지 못했습니다. 새로고침하거나 위치 없이 먼저 추가해 주세요.',
+          );
       });
-    if (window.kakao) draw();
-    else {
-      let script = document.getElementById(
-        'kakao-sdk',
-      ) as HTMLScriptElement | null;
-      if (script?.dataset.failed === 'true') {
-        script.remove();
-        script = null;
-      }
-      if (!script) {
-        script = document.createElement('script');
-        script.id = 'kakao-sdk';
-        script.src =
-          'https://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=' +
-          encodeURIComponent(mapKey);
-        document.head.appendChild(script);
-      }
-      script.addEventListener('load', draw, { once: true });
-      script.addEventListener(
-        'error',
-        () => {
-          if (script) script.dataset.failed = 'true';
-          setMessage('지도를 연결하지 못했습니다. 위치 없이 추가할 수 있어요.');
-        },
-        { once: true },
-      );
-    }
+    // Fail once per page rather than retrying from every render.
     return () => {
       disposed = true;
       cleanup();

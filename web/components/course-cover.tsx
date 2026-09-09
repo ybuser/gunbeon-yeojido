@@ -15,6 +15,7 @@ function Tile({
   eager: boolean;
 }) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const photo = placePhoto(place),
     src = photoUrl(place);
   return (
@@ -23,13 +24,26 @@ function Tile({
       title={photo ? photo.caption + ' · ' + photo.credit : place.title}
     >
       {src && !failed ? (
-        <MemoryImage
-          src={src}
-          style={{ objectFit: photo?.fit === 'contain' ? 'contain' : 'cover' }}
-          alt={`${index + 1}. ${place.title}`}
-          loading={eager ? 'eager' : 'lazy'}
-          onError={() => setFailed(true)}
-        />
+        <>
+          {!loaded && (
+            <span className="course-cover-missing">
+              <MapPin size={22} />
+              <span>{place.title}</span>
+            </span>
+          )}
+          <MemoryImage
+            src={src}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              objectFit: photo?.fit === 'contain' ? 'contain' : 'cover',
+            }}
+            alt={`${index + 1}. ${place.title}`}
+            loading={eager ? 'eager' : 'lazy'}
+            onError={() => setFailed(true)}
+            onLoad={() => setLoaded(true)}
+          />
+        </>
       ) : (
         <span className="course-cover-missing">
           <MapPin size={22} />

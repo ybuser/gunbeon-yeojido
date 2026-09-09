@@ -2,42 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Mission, Place } from '@/lib/domain';
 import { validCoord } from '@/lib/domain';
-type Point = { getLat: () => number; getLng: () => number };
-type KMap = {
-  setBounds: (b: unknown) => void;
-  relayout: () => void;
-  getCenter: () => Point;
-  setCenter: (point: Point) => void;
-};
-type KakaoAPI = {
-  load: (f: () => void) => void;
-  Map: new (el: HTMLElement, opts: unknown) => KMap;
-  LatLng: new (lat: number, lon: number) => Point;
-  LatLngBounds: new () => { extend: (p: unknown) => void };
-  Marker: new (opts: unknown) => {
-    setMap: (map: KMap | null) => void;
-    setPosition: (point: Point) => void;
-  };
-  event: {
-    addListener: (
-      target: unknown,
-      event: string,
-      handler: (e: { latLng: Point }) => void,
-    ) => void;
-    removeListener: (
-      target: unknown,
-      event: string,
-      handler: (e: { latLng: Point }) => void,
-    ) => void;
-  };
-  Polyline: new (opts: unknown) => unknown;
-  CustomOverlay: new (opts: unknown) => { setMap: (map: KMap | null) => void };
-};
-declare global {
-  interface Window {
-    kakao?: { maps: KakaoAPI };
-  }
-}
+import { loadKakaoMaps, type KMap, type KakaoAPI } from '@/lib/kakao-maps';
 export default function MissionMap({
   mission,
   origin,
@@ -50,108 +15,96 @@ export default function MissionMap({
   onSelectPlace?: (place: Place) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const instance = useRef<{ map: KMap; api: KakaoAPI } | null>(null);
   const [ready, setReady] = useState(false);
   const selectRef = useRef(onSelectPlace);
+  selectRef.current = onSelectPlace;
+  const places = [origin, ...mission.stops.map((s) => s.place)].filter(
+    (p, i, all) => validCoord(p) && all.findIndex((x) => x.id === p.id) === i,
+  );
+  const latest = useRef({ places, mission, origin });
+  latest.current = { places, mission, origin };
+  const hasCoordinates = places.length > 0;
+  const geometry = JSON.stringify([
+    origin.id,
+    places.map((p) => [p.id, p.lat, p.lon, p.title]),
+    mission.stops.map((s) => s.place.id),
+  ]);
   useEffect(() => {
-    selectRef.current = onSelectPlace;
-  }, [onSelectPlace]);
-  useEffect(() => {
-    if (!mapKey || !ref.current) return;
+    if (!mapKey || !ref.current || !hasCoordinates) return;
     let canceled = false;
     let resize: ResizeObserver | undefined;
-    const overlays: { setMap: (map: KMap | null) => void }[] = [];
     setReady(false);
-    const draw = () => {
-      window.kakao?.maps.load(() => {
-        if (canceled || !ref.current || !window.kakao) return;
-        try {
-          const m = window.kakao.maps;
-          const bounds = new m.LatLngBounds();
-          const nodes = [origin, ...mission.stops.map((x) => x.place)]
-            .filter((p, i, a) => a.findIndex((x) => x.id === p.id) === i)
-            .filter(validCoord);
-          const pts = nodes.map((p) => new m.LatLng(p.lat!, p.lon!));
-          if (!pts.length) return;
-          const map = new m.Map(ref.current, { center: pts[0], level: 7 });
-          pts.forEach((p, index) => {
-            bounds.extend(p);
-            const place = nodes[index];
-            const number =
-              mission.stops.findIndex((x) => x.place.id === place.id) + 1;
-            const label = document.createElement('button');
-            label.className =
-              'map-place-pin' + (place.id === origin.id ? ' hub-pin' : '');
-            label.textContent = number ? String(number) : '만남';
-            const samePoint = nodes.filter(
-              (n) =>
-                Math.abs(n.lat! - place.lat!) < 0.00001 &&
-                Math.abs(n.lon! - place.lon!) < 0.00001,
-            );
-            if (samePoint.length > 1)
-              label.style.transform = `translateX(${(samePoint.findIndex((n) => n.id === place.id) - (samePoint.length - 1) / 2) * 50}px)`;
-            label.setAttribute(
-              'aria-label',
-              (number ? number + '번 ' : '') + place.title + ' 방문 정보',
-            );
-            label.title =
-              place.title + (place.id === origin.id ? ' · 만남 거점' : '');
-            label.addEventListener('click', () => selectRef.current?.(place));
-            const overlay = new m.CustomOverlay({
-              position: p,
-              content: label,
-              yAnchor: 1,
-              zIndex: 5,
-            });
-            overlay.setMap(map);
-            overlays.push(overlay);
-          });
-          map.setBounds(bounds);
-          resize = new ResizeObserver(() => {
-            map.relayout();
-            map.setBounds(bounds);
-          });
-          resize.observe(ref.current);
-          setReady(true);
-        } catch {
-          setReady(false);
-        }
+    loadKakaoMaps(mapKey)
+      .then((api) => {
+        if (canceled || !ref.current) return;
+        const first = latest.current.places[0];
+        if (!first) return;
+        const map = new api.Map(ref.current, {
+          center: new api.LatLng(first.lat!, first.lon!),
+          level: 7,
+        });
+        instance.current = { map, api };
+        resize = new ResizeObserver(() => {
+          const center = map.getCenter();
+          map.relayout();
+          map.setCenter(center);
+        });
+        resize.observe(ref.current);
+        setReady(true);
+      })
+      .catch(() => {
+        if (!canceled) setReady(false);
       });
-    };
-    if (window.kakao) draw();
-    else {
-      let tag = document.getElementById(
-        'kakao-sdk',
-      ) as HTMLScriptElement | null;
-      if (tag?.dataset.failed === 'true') {
-        tag.remove();
-        tag = null;
-      }
-      if (!tag) {
-        tag = document.createElement('script');
-        tag.id = 'kakao-sdk';
-        tag.src =
-          'https://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=' +
-          encodeURIComponent(mapKey);
-        document.head.appendChild(tag);
-      }
-      tag.addEventListener('load', draw, { once: true });
-      tag.addEventListener(
-        'error',
-        () => {
-          if (tag) tag.dataset.failed = 'true';
-        },
-        { once: true },
-      );
-    }
     return () => {
       canceled = true;
       resize?.disconnect();
-      overlays.forEach((x) => x.setMap(null));
+      instance.current = null;
     };
-  }, [mapKey, mission, origin]);
-  const places = [origin, ...mission.stops.map((s) => s.place)].filter(
-    (p, i, a) => validCoord(p) && a.findIndex((x) => x.id === p.id) === i,
-  );
+  }, [mapKey, hasCoordinates]);
+  useEffect(() => {
+    if (!ready || !instance.current) return;
+    const { map, api } = instance.current;
+    const { places: nodes, mission: trip, origin: hub } = latest.current;
+    const bounds = new api.LatLngBounds();
+    const overlays = nodes.map((place) => {
+      const point = new api.LatLng(place.lat!, place.lon!);
+      bounds.extend(point);
+      const number = trip.stops.findIndex((s) => s.place.id === place.id) + 1;
+      const label = document.createElement('button');
+      label.type = 'button';
+      label.className =
+        'map-place-pin' + (place.id === hub.id ? ' hub-pin' : '');
+      label.textContent = number ? String(number) : '만남';
+      const samePoint = nodes.filter(
+        (n) =>
+          Math.abs(n.lat! - place.lat!) < 0.00001 &&
+          Math.abs(n.lon! - place.lon!) < 0.00001,
+      );
+      if (samePoint.length > 1)
+        label.style.transform = `translateX(${(samePoint.findIndex((n) => n.id === place.id) - (samePoint.length - 1) / 2) * 50}px)`;
+      label.setAttribute(
+        'aria-label',
+        (number ? number + '번 ' : '') + place.title + ' 방문 정보',
+      );
+      label.title = place.title + (place.id === hub.id ? ' · 만남 거점' : '');
+      label.addEventListener('click', () =>
+        selectRef.current?.(
+          latest.current.places.find((p) => p.id === place.id) || place,
+        ),
+      );
+      const overlay = new api.CustomOverlay({
+        position: point,
+        content: label,
+        yAnchor: 1,
+        zIndex: 5,
+      });
+      overlay.setMap(map);
+      return overlay;
+    });
+    if (nodes.length) map.setBounds(bounds);
+    return () => overlays.forEach((overlay) => overlay.setMap(null));
+  }, [geometry, ready]);
   const lats = places.map((x) => x.lat!),
     lons = places.map((x) => x.lon!);
   const minLat = Math.min(...lats),

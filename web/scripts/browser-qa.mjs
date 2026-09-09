@@ -345,6 +345,9 @@ for (const channel of channels) {
         );
         await p.getByRole('button', { name: '여행 완료', exact: true }).click();
         await p
+          .getByRole('checkbox', { name: '장소 목록 없이 하루만 기록할게요' })
+          .check();
+        await p
           .getByRole('button', { name: '여행 완료로 기록', exact: true })
           .click();
         await p.getByRole('button', { name: /^여행 기록/ }).click();

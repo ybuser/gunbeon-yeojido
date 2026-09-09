@@ -42,6 +42,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import MissionMap from './mission-map';
+import PlanAdjustment from './plan-adjustment';
 import PublicPlacePicker from './public-place-picker';
 import CourseCover from './course-cover';
 import MeetingPicker, { FavoritePlaces } from './meeting-picker';
@@ -238,13 +239,10 @@ export default function TripBuilder({
       custom: true,
       departureAt: parseKoreaInput(departure),
       transport,
-      timeBudgetMinutes: Math.max(
-        1,
-        Math.round(
-          (Date.parse(parseKoreaInput(deadline)) -
-            Date.parse(parseKoreaInput(departure))) /
-            60000,
-        ),
+      timeBudgetMinutes: Math.round(
+        (Date.parse(parseKoreaInput(deadline)) -
+          Date.parse(parseKoreaInput(departure))) /
+          60000,
       ),
       brief: '직접 고른 장소와 순서로 계획한 하루입니다.',
       stops: stops.flatMap((s) => {
@@ -587,7 +585,7 @@ export default function TripBuilder({
                         onChange={(e) => {
                           const next = parseKoreaInput(e.target.value),
                             prior = parseKoreaInput(departure);
-                          if (next && prior)
+                          if (next && prior && parseKoreaInput(deadline))
                             setDeadline(
                               localInputDate(
                                 new Date(
@@ -647,6 +645,22 @@ export default function TripBuilder({
                         </Button>
                       </div>
                     )}
+                  <PlanAdjustment
+                    unresolved={missing.length > 0}
+                    mission={mission}
+                    settings={previewSettings}
+                    origin={origin}
+                    onApply={(next) => {
+                      setStops(
+                        next.map((s) => ({
+                          placeId: s.place.id,
+                          stay: s.stay,
+                          walk: s.walk,
+                        })),
+                      );
+                      change();
+                    }}
+                  />
                   <ol className="builder-stops">
                     {stops.map((stop, i) => {
                       const p = allPlaces.find((p) => p.id === stop.placeId);

@@ -18,6 +18,7 @@
     "test:outing": "node scripts/planning-outing-qa.mjs",
     "test:groups": "node scripts/groups-api-qa.mjs",
     "test:groups-ui": "node scripts/groups-ui-qa.mjs",
+    "test:day": "node scripts/day-passport-qa.mjs",
     "test:guide": "node scripts/guide-page-qa.mjs"
   },
   "dependencies": {

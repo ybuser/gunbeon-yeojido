@@ -37,16 +37,16 @@ const totals = Object.fromEntries(['KorService2', 'KorWithService2'].map(service
   service, operations.filter(row => row.service === service)
     .reduce((sum, row) => sum + row.expectedCallsPerDay, 0),
 ]));
-const korOnDemandSingleType = (3 * R + 2 * D + 3 * Q + P) * sessionsPerDay;
-const korWithValidatedReferenceCodes = (R + 2 * D + Q + P) * sessionsPerDay;
 console.log(JSON.stringify({
   status: 'illustrative planning assumptions; not observed traffic or approved quota',
-  asOf: '2026-09-08', inputs, operations, totals,
-  optimizedKorScenarios: {
-    onDemandOneTypePerRegionLoad: korOnDemandSingleType,
-    withValidatedReferenceCodesIfPermitted: korWithValidatedReferenceCodes,
-    notes: 'Same R/D/Q/P workload. Assumes only one category is needed per regional load. More categories/pages add requests. Reference-code policy and mappings require confirmation.',
+  asOf: '2026-09-09', inputs, operations, totals,
+  operatingApplication: {
+    officialDefaultPerDay: 100000,
+    currentAccountApprovedAmount: null,
+    scope: 'Confirm service/operation aggregation with TourAPI; representative API one application per contest team.',
+    nextStep: 'Request the official operating allocation and additional reviewed expansion when normal demand or peaks need more.',
   },
+  featurePolicy: 'Preserve all five categories, search, detail, images and accessibility. Never shrink normal requests to fit a low quota.',
   exclusions: ['retries', 'pagination beyond input Q', 'optional APIs', 'weather', 'manual QA', 'sync jobs'],
   approvalNote: 'Confirm whether each service or each operation has its own cap. Round-up values are proposed application amounts, not automatic entitlements.',
 }, null, 2));
