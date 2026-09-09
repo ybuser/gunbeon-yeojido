@@ -89,7 +89,7 @@ for (const channel of (process.env.QA_BROWSER_CHANNELS || 'chrome').split(
         animations: 'disabled',
       });
       result.checks.push(
-        'Guide login returns to requested page; all nineteen real screenshots load; responsive layout',
+        'Guide login returns to requested page; all twenty-two real screenshots load; responsive layout',
       );
       await p
         .getByRole('link', { name: '군번여지도로 돌아가기', exact: true })

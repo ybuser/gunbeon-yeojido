@@ -55,6 +55,8 @@ for (const channel of (
       status: 'running',
     };
     let groups = [];
+    let guest;
+    let guestContext;
     const apiCounts = {};
     p.on('pageerror', (e) =>
       result.errors.push(
@@ -200,12 +202,17 @@ for (const channel of (
       );
       result.checks.push('Group edit saved and invitation generated');
       const inviteCode = await p.locator('.invite-tools input').inputValue();
-      const guestContext = await browser.newContext({
+      guestContext = await browser.newContext({
         viewport: size,
         locale: 'ko-KR',
         timezoneId: 'Asia/Seoul',
       });
-      const guest = await guestContext.newPage();
+      guest = await guestContext.newPage();
+      guest.on('pageerror', (e) => result.errors.push(`Guest: ${e.message}`));
+      guest.on('response', (r) => {
+        if (new URL(r.url()).pathname === '/api/groups')
+          (result.guestRequests ??= []).push({ method: r.request().method(), status: r.status() });
+      });
       await guestContext.route('**/api/places?*', (r) =>
         r.fulfill({
           status: 503,
@@ -224,7 +231,10 @@ for (const channel of (
       await guest
         .getByRole('button', { name: '여행 시작하기', exact: true })
         .click();
+      await guest.locator('.app-shell[data-ready="true"]').waitFor();
       await guest.getByLabel('그룹에서 사용할 이름').fill('동행 테스트');
+      assert.equal(await guest.getByLabel('그룹에서 사용할 이름').inputValue(), '동행 테스트');
+      assert.equal(await guest.getByLabel('초대코드', { exact: true }).inputValue(), inviteCode);
       await guest
         .getByRole('button', { name: '초대 확인', exact: true })
         .click();
@@ -243,6 +253,8 @@ for (const channel of (
         })
         .waitFor();
       await guestContext.close();
+      guest = undefined;
+      guestContext = undefined;
       result.checks.push(
         'Invitation survives test login; another browser session joins and reads the same plan',
       );
@@ -303,6 +315,7 @@ for (const channel of (
     } catch (e) {
       result.status = 'failed';
       result.error = e.message;
+      if (guest) await guest.screenshot({ path: path.join(out, `${channel}-${size.name}-guest-failure.png`) }).catch(() => {});
       await p
         .screenshot({
           path: path.join(out, `${channel}-${size.name}-failure.png`),
@@ -310,6 +323,7 @@ for (const channel of (
         .catch(() => {});
       console.log(channel, size.name, result.error);
     } finally {
+      await guestContext?.close();
       for (const id of groups)
         await post({ action: 'deleteGroup', groupId: id }).catch(() => {});
       report.cases.push(result);
