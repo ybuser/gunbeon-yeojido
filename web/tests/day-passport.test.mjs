@@ -229,3 +229,20 @@ test('record SVG escapes public place text and contains no external resource', (
   assert.ok(!svg.includes('<image'));
   assert.ok(!svg.includes('href='));
 });
+
+test('unresolved recorded references remain distinct and cannot silently export incomplete visits', () => {
+  const entry = completeTrip(
+    createEntry(mission, origin, 'missing'),
+    ['복귀'],
+    now,
+    ['A', 'B'],
+  );
+  const partial = [places[0]];
+  assert.equal(dayRecord(entry, partial).missingCount, 1);
+  assert.throws(() => dayRecordSvg(entry, partial), /RECORD_PLACES_UNRESOLVED/);
+  assert.throws(
+    () => dayRecordText(entry, partial),
+    /RECORD_PLACES_UNRESOLVED/,
+  );
+  assert.equal(dayRecord(entry, places).missingCount, 0);
+});

@@ -68,7 +68,7 @@ import MeetingPicker from './meeting-picker';
 import OutingPanel from './outing-panel';
 import TripCompletion from './trip-completion';
 import DayRecord from './day-record';
-import { dayRecordSvg, dayRecordText } from '@/lib/day-passport';
+import { dayRecord, dayRecordSvg, dayRecordText } from '@/lib/day-passport';
 import TripBuilder, { scheduleTime } from './trip-builder';
 import WeatherCard from './weather-card';
 import { VerifiedFacts, ApiFacts } from './place-facts';
@@ -561,14 +561,14 @@ export default function PassportApp() {
   );
   useEffect(() => {
     if (live.mode === 'loading') return;
-    const candidates =
-      view === 'outing' && (startCandidate || activeOuting)
+    const candidates = [
+      ...[completion, shared].filter((entry): entry is Entry => !!entry),
+      ...(view === 'outing' && (startCandidate || activeOuting)
         ? [startCandidate || activeOuting!.entry]
-        : reviewEntry
-          ? [reviewEntry]
-          : view === 'passport'
-            ? entries.slice(0, 4)
-            : [];
+        : []),
+      ...(reviewEntry ? [reviewEntry] : []),
+      ...(['passport', 'dashboard'].includes(view) ? entries : []),
+    ];
     const plans = candidates.filter((e) => e.plan).map((e) => e.plan!);
     const ids = [
       ...new Set([
@@ -614,6 +614,8 @@ export default function PassportApp() {
     };
   }, [
     reviewEntry,
+    completion,
+    shared,
     view,
     entries,
     activeOuting,
@@ -906,6 +908,10 @@ export default function PassportApp() {
     }
   }
   function downloadCard(e: Entry) {
+    if (e.completedAt && dayRecord(e, places).missingCount) {
+      setNotice('다녀온 관광지를 모두 불러온 뒤 카드를 저장해 주세요.');
+      return;
+    }
     if (hasVisitRecord(e)) {
       const url = URL.createObjectURL(
         new Blob([dayRecordSvg(e, places)], { type: 'image/svg+xml' }),
@@ -2045,12 +2051,20 @@ export default function PassportApp() {
                     <Button
                       className="primary-cta"
                       onClick={() => downloadCard(shared)}
+                      disabled={
+                        hasVisitRecord(shared) &&
+                        dayRecord(shared, places).missingCount > 0
+                      }
                     >
                       <Download size={17} />
                       카드 이미지 저장
                     </Button>
                     <Button
                       variant="outline"
+                      disabled={
+                        hasVisitRecord(shared) &&
+                        dayRecord(shared, places).missingCount > 0
+                      }
                       onClick={() =>
                         copy(
                           hasVisitRecord(shared)
@@ -2900,6 +2914,7 @@ export default function PassportApp() {
         </SheetContent>
       </Sheet>
       {notice &&
+        !shared &&
         !composer &&
         !completion &&
         !startCandidate &&

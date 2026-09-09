@@ -8,6 +8,21 @@ export class TourError extends Error {
     super(code);
   }
 }
+// Delays follow an actual provider rejection, never a locally invented daily budget.
+export function providerRetryDelay(
+  code: string,
+  header: string | null,
+  now = Date.now(),
+) {
+  if (header?.trim()) {
+    const seconds = Number(header);
+    const delay = Number.isFinite(seconds)
+      ? seconds * 1000
+      : Date.parse(header) - now;
+    if (Number.isFinite(delay) && delay > 0) return delay;
+  }
+  return code === 'DAILY_QUOTA_EXCEEDED' ? 10 * 60000 : 30000;
+}
 export const API_BASE = 'https://apis.data.go.kr/B551011/';
 export async function tourRequest(
   service: string,
@@ -50,45 +65,39 @@ export async function tourRequest(
   } catch {
     throw new TourError('NETWORK_OR_TIMEOUT');
   }
-  if (!response.ok) {
-    let providerCode = '';
-    try {
-      const body = (await response.json()) as {
-        OpenAPI_ServiceResponse?: {
-          cmmMsgHeader?: { returnReasonCode?: string };
-        };
-      };
-      providerCode = String(
-        body.OpenAPI_ServiceResponse?.cmmMsgHeader?.returnReasonCode || '',
-      );
-    } catch {}
-    if (response.status === 429 || providerCode === '22') {
-      const code =
-        providerCode === '22' ? 'DAILY_QUOTA_EXCEEDED' : 'RATE_LIMITED';
-      if (limits) await limits.saveProviderLimit(limitId, code);
-      throw new TourError(code);
-    }
-    throw new TourError('HTTP_' + response.status);
-  }
+  const raw = await response.text();
   let json;
   try {
-    json = await response.json();
-  } catch {
-    throw new TourError('NON_JSON_RESPONSE');
-  }
-  const envelopeCode = String(
-    (
-      json as {
-        OpenAPI_ServiceResponse?: {
-          cmmMsgHeader?: { returnReasonCode?: string };
-        };
-      }
-    )?.OpenAPI_ServiceResponse?.cmmMsgHeader?.returnReasonCode || '',
+    json = JSON.parse(raw);
+  } catch {}
+  // The gateway can return XML errors even when JSON was requested.
+  // Inspect only machine codes; never persist provider bodies or key-bearing URLs.
+  const providerCode = String(
+    json?.OpenAPI_ServiceResponse?.cmmMsgHeader?.returnReasonCode ??
+      json?.response?.header?.resultCode ??
+      raw.match(/<(?:returnReasonCode|resultCode)>\s*(\d+)\s*<\//)?.[1] ??
+      '',
   );
-  if (envelopeCode === '22') {
-    if (limits) await limits.saveProviderLimit(limitId, 'DAILY_QUOTA_EXCEEDED');
-    throw new TourError('DAILY_QUOTA_EXCEEDED');
+  if (
+    providerCode === '22' ||
+    providerCode === '23' ||
+    response.status === 429
+  ) {
+    const code =
+      providerCode === '22' ? 'DAILY_QUOTA_EXCEEDED' : 'RATE_LIMITED';
+    const retryMs = providerRetryDelay(
+      code,
+      response.headers.get('retry-after'),
+    );
+    if (limits) await limits.saveProviderLimit(limitId, code, retryMs);
+    throw new TourError(code, { retryAt: Date.now() + retryMs });
   }
+  if (providerCode && !['0000', '00'].includes(providerCode))
+    throw new TourError(
+      'PROVIDER_' + providerCode.replace(/[^a-zA-Z0-9_]/g, ''),
+    );
+  if (!response.ok) throw new TourError('HTTP_' + response.status);
+  if (!json) throw new TourError('NON_JSON_RESPONSE');
   const r = (
     json as {
       response?: {
@@ -103,7 +112,7 @@ export async function tourRequest(
   if (!r || !['0000', '00'].includes(String(r.header?.resultCode)))
     throw new TourError(
       'PROVIDER_' +
-        String(r?.header?.resultCode || 'UNKNOWN').replace(
+        String(r?.header?.resultCode || providerCode || 'UNKNOWN').replace(
           /[^a-zA-Z0-9_]/g,
           '',
         ),

@@ -27,8 +27,10 @@ export async function GET(request: Request) {
         places: [],
         message:
           e instanceof TourError && e.code === 'DAILY_QUOTA_EXCEEDED'
-            ? '국문 관광정보의 일일 요청 한도를 모두 사용했습니다. 같은 요청은 10분 동안 다시 보내지 않습니다. 한도 해제 또는 증설 후 다시 확인할 수 있습니다.'
-            : '한국관광공사 실시간 데이터를 연결하지 못했습니다. 아래 장소는 별도 공개 원천 자료입니다.',
+            ? '국문 관광정보의 일일 요청 한도를 모두 사용했습니다. 잠시 중복 재시도를 멈춥니다. 한도 초기화 또는 증설 반영 후 다시 확인할 수 있습니다.'
+            : e instanceof TourError && e.code === 'RATE_LIMITED'
+              ? '관광정보 요청이 잠시 몰렸습니다. 잠시 뒤 다시 조회해 주세요. 일일 한도 초과와는 다른 상태입니다.'
+              : '한국관광공사 실시간 데이터를 연결하지 못했습니다. 아래 장소는 별도 공개 원천 자료입니다.',
       },
       { status: 503, headers: { 'Cache-Control': 'no-store' } },
     );

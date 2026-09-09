@@ -12,11 +12,11 @@
 
 실행 중인 앱을 Chrome에서 촬영했습니다. 예시 그룹·일정은 검증용 데이터입니다.
 
-| 홈 · 예정된 여행과 그룹 | 그룹 · 함께 관리하는 일정 |
+| 홈 · 하루 여권 | 그룹 · 함께 관리하는 일정 |
 |---|---|
-| ![모바일 홈](reports/screenshots/home-mobile.png) | ![모바일 그룹 일정](reports/screenshots/group-mobile.png) |
+| ![모바일 홈](web/public/guide/09-home.png) | ![모바일 그룹 일정](reports/screenshots/group-mobile.png) |
 
-![데스크톱 홈](reports/screenshots/home-desktop.png)
+![데스크톱 홈](reports/screenshots/day-passport-desktop.png)
 
 <img src="web/public/guide/01-discover.png" width="280" alt="날짜 없는 추천 코스 탐색" /> <img src="web/public/guide/02-course.png" width="280" alt="장소별 사진이 나뉜 코스 상세" />
 
@@ -26,10 +26,12 @@
 2. **날짜 없이 둘러보기** — 강원 접경 5군의 추천 코스 15개를 지역·취향으로 살펴봅니다. 코스를 고른 뒤 일정표에서 날짜·시간을 정합니다. 둘러보기는 현재 시각과 개인 복귀 조건을 사용하지 않습니다.
 3. **내 코스 만들기** — 빈 여행을 먼저 저장하거나 추천 코스를 가져옵니다. TourAPI 검색·가까운 장소·즐겨찾기·지도/직접 입력으로 최대 12곳을 담고 순서와 체류 시간을 바꿉니다.
 4. **그룹에 공유하기** — 개인 여행을 선택하거나 그룹 안에서 새 일정을 만듭니다. 직접 지정한 장소는 포함 여부를 확인합니다. 동시 수정 충돌 시 자신의 변경을 새 여행 사본으로 저장할 수 있습니다.
-5. **출타와 기록** — 내 여행에 담은 뒤 개인 복귀 기준을 정하고 ‘출타 시작’을 누릅니다. 여행이 끝나면 ‘여행 완료’ 확인 후 스탬프를 남깁니다.
+5. **여유 조정** — 일정표에서 한 곳 생략·머무는 시간 변경 전후의 복귀 여유와 도보 추정을 비교합니다. 적용 후 저장하고, 다른 편집 전에는 되돌릴 수 있습니다.
+6. **출타와 기록** — 내 여행에 담은 뒤 개인 복귀 기준을 정하고 ‘출타 시작’을 누릅니다. 여행이 끝나면 실제 다녀온 관광지를 선택하고 스탬프를 남깁니다. ‘하루의 한 장’은 이미지·문구로 저장할 수 있습니다. 홈에는 건너뛸 수 있는 16초 이야기 사용법도 있습니다.
 
 ## 구현 범위
 
+- 하루 여권 표지·여유 조정 비교/되돌리기·실제 방문 선택·공개 기록 카드·선택형 16초 사용법
 - 홈의 예정된 여행·소속 그룹, 그룹별 여러 일정, 다른 기기 초대·공동 편집
 - 1~4칸 코스 사진, 직접 코스 편집, 즐겨찾는 만남 장소, 빈 일정 저장
 - 계획용 지도·미션과 실시간 현재 출타 분리, 거리 추정 기반 복귀 여유
@@ -39,7 +41,7 @@
 
 ## 데이터와 저장
 
-TourAPI `areaBasedList2`는 2026-09-08 실측에서 **HTTP 429 / 오류 22: 일일 호출 한도 초과**를 반환했습니다. 코드 조회는 성공했습니다. 키가 없어서 발생한 오류가 아닙니다. UI와 서버에서 원인을 구분하고 반복 호출을 차단합니다. [원인·공식 정책·증설/저장 신청 안내](reports/tourapi_operations_policy.md).
+TourAPI는 **2026-09-09 고성의 5유형 조회 성공, 149개 장소 수신**을 확인했습니다. 9/8에는 일일 한도(오류 22)가 발생했습니다. 정상 기능을 축소하지 않고 **운영계정 기본 일 10만 신청 및 운영팀 추가 증설**을 준비합니다. 현재 우리 계정의 승인량은 별도 확인 대상입니다. JSON/XML의 일일·순간 한도와 인증 오류를 구분합니다. [실연동 증빙](reports/qa/day-passport/tourapi-live.json) · [증설·저장 정책](reports/api_capacity_strategy.md).
 
 관광공사 정책과 개발 부문 FAQ에 별도 저장 조건이 있어 **TourAPI 응답을 운영 DB에 적재하는 기능은 적용하지 않았습니다.** 페이지 메모리로 API 응답을 재사용하고 새로고침 시 초기화합니다. 이미지는 CORS가 허용되면 Blob 메모리(최대 48 MiB), 그 외에는 원본과 브라우저 캐시를 사용합니다. 모든 출처의 이미지 재사용이 보장되는 것은 아닙니다.
 
@@ -48,6 +50,8 @@ TourAPI `areaBasedList2`는 2026-09-08 실측에서 **HTTP 429 / 오류 22: 일�
 참여 방식은 브라우저 쿠키 기반 테스트 인증입니다. 본인 인증이나 계정 복구를 제공하지 않으며, 쿠키 삭제·기기 변경 시 새 초대가 필요합니다. 초대는 72시간 동안 유효하고 관리자에게 취소·멤버 제외·그룹 삭제 기능이 있습니다.
 
 ## 시작
+
+**다른 PC에서 이어서 개발:** [Agent 안내](AGENTS.md) → [현재 상태](docs/handoff.md) → [키 없는 새 PC 설정](docs/local-setup.md) → [남은 목표](docs/roadmap.md).
 
 Node.js 22.13 이상.
 
@@ -74,6 +78,7 @@ npm run test:custom
 npm run test:outing
 npm run test:groups
 npm run test:groups-ui
+npm run test:day
 ```
 
 브라우저 재현 방법과 API 실패 검사 설정은 [QA 보고서](reports/browser_qa_report.md)에 있습니다. CI는 키 없이 Chromium에서 장애 대응 흐름을 실행합니다.
@@ -83,7 +88,7 @@ npm run test:groups-ui
 React 19 · TypeScript · Tailwind · Vinext/App Router · Sites · D1/Drizzle. 환경변수는 `.env.local`과 배포 secret으로 관리하며 키는 Git에 저장하지 않습니다.
 
 - [이번 공개 적용·CI 기록](reports/discovery_delivery.md)
-- [API 한도 대응 실행안](reports/api_capacity_strategy.md) · [운영 신청·문의 준비본](reports/api_capacity_requests.md) · [하루 여권·여유 조정 제안](reports/memorable_experience_proposal.md) — 조사·기획 자료이며 신규 기능은 아직 미적용
+- [API 한도 대응 실행안](reports/api_capacity_strategy.md) · [운영 신청·문의 준비본](reports/api_capacity_requests.md) · [하루 여권·여유 조정 구현](reports/day_passport_delivery.md)
 - [이번 UX 검토와 다음 계획](reports/discovery_ux_review.md) · [사용 시나리오 가이드](reports/usage_guide.md) · [이번 검증 결과](reports/qa/discovery/)
 - [그룹·UX·데이터 운영 및 다음 계획](reports/travel_groups_delivery.md)
 - [공식 규정](reports/notion_requirements.md) · [개발 계획](reports/implementation_plan.md) · [제출 준비](reports/submission_assets.md)

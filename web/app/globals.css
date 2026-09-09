@@ -5240,3 +5240,25 @@ input {
     animation: none;
   }
 }
+.trip-completion .completion-stamps {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+.trip-completion .completion-stamps label {
+  padding: 10px;
+  gap: 9px;
+  align-items: flex-start;
+  min-height: 78px;
+}
+.trip-completion .completion-stamps small {
+  line-height: 1.4;
+  font-size: 12px;
+}
+.trip-completion [data-slot='alert-dialog-footer'] {
+  position: sticky;
+  bottom: -16px;
+  background: white;
+  padding: 12px 0 4px;
+  z-index: 1;
+}

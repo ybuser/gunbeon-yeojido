@@ -239,13 +239,10 @@ export default function TripBuilder({
       custom: true,
       departureAt: parseKoreaInput(departure),
       transport,
-      timeBudgetMinutes: Math.max(
-        1,
-        Math.round(
-          (Date.parse(parseKoreaInput(deadline)) -
-            Date.parse(parseKoreaInput(departure))) /
-            60000,
-        ),
+      timeBudgetMinutes: Math.round(
+        (Date.parse(parseKoreaInput(deadline)) -
+          Date.parse(parseKoreaInput(departure))) /
+          60000,
       ),
       brief: '직접 고른 장소와 순서로 계획한 하루입니다.',
       stops: stops.flatMap((s) => {
@@ -588,7 +585,7 @@ export default function TripBuilder({
                         onChange={(e) => {
                           const next = parseKoreaInput(e.target.value),
                             prior = parseKoreaInput(departure);
-                          if (next && prior)
+                          if (next && prior && parseKoreaInput(deadline))
                             setDeadline(
                               localInputDate(
                                 new Date(

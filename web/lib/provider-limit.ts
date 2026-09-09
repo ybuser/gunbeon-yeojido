@@ -19,13 +19,17 @@ export async function readProviderLimit(id: string) {
     return null;
   }
 }
-export async function saveProviderLimit(id: string, error: string) {
+export async function saveProviderLimit(
+  id: string,
+  error: string,
+  retryMs = 10 * 60000,
+) {
   try {
     await database()
       .prepare(
         'INSERT INTO provider_limits(id,error,retry_at) VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET error=excluded.error,retry_at=excluded.retry_at',
       )
-      .bind(id, error, Date.now() + 10 * 60000)
+      .bind(id, error, Date.now() + retryMs)
       .run();
   } catch {}
 }

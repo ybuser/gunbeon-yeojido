@@ -49,7 +49,6 @@ export default function TripCompletion({
           {candidates.map((place) => (
             <label key={place.id}>
               <Checkbox
-                aria-label={'다녀온 장소: ' + place.title}
                 checked={visited.includes(place.id)}
                 onCheckedChange={(checked) => {
                   setWithoutPlaces(false);

@@ -34,9 +34,17 @@ export default function DayRecord({
         </ol>
       ) : (
         <p>
-          {record.confirmed
-            ? '장소 목록 없이 하루를 기록했어요.'
-            : '이전 기록에는 다녀온 장소를 따로 남기지 않았어요.'}
+          {record.missingCount
+            ? '다녀온 관광지 정보를 불러와야 해요.'
+            : record.confirmed
+              ? '장소 목록 없이 하루를 기록했어요.'
+              : '이전 기록에는 다녀온 장소를 따로 남기지 않았어요.'}
+        </p>
+      )}
+      {record.missingCount > 0 && (
+        <p role="status">
+          관광지 {record.missingCount}곳을 아직 불러오지 못했어요. 여행 정보에서
+          다시 조회할 수 있습니다.
         </p>
       )}
       {record.places.length > 4 && (

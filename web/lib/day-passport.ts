@@ -123,10 +123,17 @@ export function dayRecord(entry: Entry, places: Place[]) {
     })),
     stamps: publicCard(entry).stamps,
     confirmed: entry.visitedPlaceIds !== undefined,
+    missingCount: [...visited].filter(
+      (id) =>
+        planIds.has(id) &&
+        !id.startsWith('manual:') &&
+        !places.some((p) => p.id === id),
+    ).length,
   };
 }
 export function dayRecordText(entry: Entry, places: Place[]) {
   const card = dayRecord(entry, places);
+  if (card.missingCount) throw new Error('RECORD_PLACES_UNRESOLVED');
   return [
     card.title,
     card.places.map((p) => p.title).join(' · '),
@@ -138,6 +145,7 @@ export function dayRecordText(entry: Entry, places: Place[]) {
 }
 export function dayRecordSvg(entry: Entry, places: Place[]) {
   const card = dayRecord(entry, places);
+  if (card.missingCount) throw new Error('RECORD_PLACES_UNRESOLVED');
   const escape = (text: string) =>
     text.replace(
       /[&<>"']/g,
