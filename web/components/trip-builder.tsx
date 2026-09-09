@@ -42,6 +42,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import MissionMap from './mission-map';
+import PlanAdjustment from './plan-adjustment';
 import PublicPlacePicker from './public-place-picker';
 import CourseCover from './course-cover';
 import MeetingPicker, { FavoritePlaces } from './meeting-picker';
@@ -647,6 +648,22 @@ export default function TripBuilder({
                         </Button>
                       </div>
                     )}
+                  <PlanAdjustment
+                    unresolved={missing.length > 0}
+                    mission={mission}
+                    settings={previewSettings}
+                    origin={origin}
+                    onApply={(next) => {
+                      setStops(
+                        next.map((s) => ({
+                          placeId: s.place.id,
+                          stay: s.stay,
+                          walk: s.walk,
+                        })),
+                      );
+                      change();
+                    }}
+                  />
                   <ol className="builder-stops">
                     {stops.map((stop, i) => {
                       const p = allPlaces.find((p) => p.id === stop.placeId);

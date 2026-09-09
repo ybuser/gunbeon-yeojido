@@ -24,7 +24,10 @@ import {
 import { pageFetch, clearPageCache } from '@/lib/page-cache';
 import { groupKinds } from '@/lib/group-model';
 import type { GroupSummary, GroupDetail, GroupPlan } from '@/lib/group-model';
-import type { Entry, ActiveOuting } from '@/lib/domain';
+import type { Entry, ActiveOuting, Place } from '@/lib/domain';
+import CourseCover from './course-cover';
+import DayStory from './day-story';
+import { resolveEntry } from '@/lib/domain';
 import { entryKey, hasVisitRecord, localInputDate } from '@/lib/domain';
 type GroupReply = {
   message?: string;
@@ -119,6 +122,8 @@ function GroupTile({ g, onClick }: { g: GroupSummary; onClick: () => void }) {
 }
 export function TravelHome({
   entries,
+  places,
+  onContinue,
   outing,
   store,
   onOpen,
@@ -127,6 +132,8 @@ export function TravelHome({
   onNew,
 }: {
   entries: Entry[];
+  places: Place[];
+  onContinue: (entry: Entry) => void;
   outing: ActiveOuting | null;
   store: TravelGroupStore;
   onOpen: (e: Entry) => void;
@@ -166,6 +173,11 @@ export function TravelHome({
           <Plus size={18} />새 여행
         </Button>
       </div>
+      <DayStory
+        places={places}
+        onBrowse={() => onGo('home')}
+        onJoin={() => onGo('groups')}
+      />
       {outing && (
         <button className="active-home-banner" onClick={() => onGo('outing')}>
           <span>
@@ -189,7 +201,39 @@ export function TravelHome({
           </div>
           {planned.length ? (
             <div className="agenda-list">
-              {planned.slice(0, 4).map((e) => (
+              <article className="day-passport-cover" aria-label="함께 쓸 하루">
+                <div className="day-cover-copy">
+                  <span className="section-overline">
+                    {category(planned[0]) === 2
+                      ? '다시 준비할 하루'
+                      : '함께 쓸 하루'}{' '}
+                    · {planned[0].region}
+                  </span>
+                  <h3>{planned[0].title}</h3>
+                  <p>
+                    {dateLabel(planned[0].plan?.departureAt)} · 나만 보는 계획
+                  </p>
+                </div>
+                <CourseCover
+                  eager
+                  places={
+                    resolveEntry(planned[0], places)?.mission.stops.map(
+                      (s) => s.place,
+                    ) ||
+                    planned[0].plan?.stops
+                      .map((s) => places.find((p) => p.id === s.placeId))
+                      .filter((p): p is Place => !!p) ||
+                    []
+                  }
+                />
+                <Button onClick={() => onContinue(planned[0])}>
+                  {outing && entryKey(outing.entry) === entryKey(planned[0])
+                    ? '현재 출타 이어보기'
+                    : '계속 계획하기'}
+                  <ArrowRight size={17} />
+                </Button>
+              </article>
+              {planned.slice(1, 4).map((e) => (
                 <button
                   key={entryKey(e)}
                   className="agenda-card"
@@ -225,7 +269,7 @@ export function TravelHome({
           ) : (
             <div className="home-empty">
               <CalendarDays size={34} />
-              <h3>일정부터 가볍게 만들어 보세요</h3>
+              <h3>기다리던 하루를, 함께.</h3>
               <p>아직 갈 곳을 정하지 않아도 저장할 수 있어요.</p>
               <Button onClick={onNew}>빈 여행 만들기</Button>
               <button className="text-link" onClick={() => onGo('home')}>
@@ -275,7 +319,7 @@ export function TravelHome({
       <button className="explore-home-link" onClick={() => onGo('home')}>
         <span>
           <strong>강원에서 갈 곳을 찾고 있다면</strong>
-          <small>지역과 출발 날짜에 맞는 여행을 둘러보세요.</small>
+          <small>지역과 취향에 맞는 여행을 둘러보세요.</small>
         </span>
         <ArrowRight />
       </button>

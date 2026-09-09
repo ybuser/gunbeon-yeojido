@@ -271,7 +271,7 @@ for (const channel of (
         .getByRole('button', { name: '내 코스 저장', exact: true })
         .click();
       await tab(p, '홈').click();
-      await p.locator('.agenda-card').waitFor();
+      await p.locator('.day-passport-cover').waitFor();
       await shot('home');
       await p.locator('.group-tile').filter({ hasText: '우리 가족' }).click();
       await p

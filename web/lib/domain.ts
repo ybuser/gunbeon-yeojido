@@ -615,6 +615,8 @@ export type Entry = {
   region: string;
   stamps: string[];
   completedAt?: string;
+  /** Explicitly chosen public stops. Missing on legacy entries; never infer all stops. */
+  visitedPlaceIds?: string[];
 };
 export type Family = { code: string; expiresAt: number; scopes: Scopes };
 export function publicCard(entry: Entry) {
@@ -878,8 +880,11 @@ export function planningSettings(
     m?.timeBudgetMinutes && m.timeBudgetMinutes > 0
       ? m.timeBudgetMinutes
       : settings.duration;
+  const plannedReturn = Date.parse(startedAt) + duration * 60000;
   const returnAt = m?.timeBudgetMinutes
-    ? new Date(Date.parse(startedAt) + duration * 60000).toISOString()
+    ? Number.isFinite(plannedReturn)
+      ? new Date(plannedReturn).toISOString()
+      : ''
     : settings.returnAt;
   return {
     ...settings,
@@ -992,6 +997,7 @@ export function completeTrip(
   entry: Entry,
   stamps: string[],
   now = new Date(),
+  visitedPlaceIds?: string[],
 ): Entry {
   if (!entry.plan?.stops.length) return entry;
   const chosen = stamps.filter((v) =>
@@ -1001,5 +1007,16 @@ export function completeTrip(
     ...entry,
     completedAt: now.toISOString(),
     stamps: [...new Set([...entry.stamps, ...chosen])],
+    ...(visitedPlaceIds !== undefined
+      ? {
+          visitedPlaceIds: [...new Set(visitedPlaceIds)].filter(
+            (id) =>
+              typeof id === 'string' &&
+              !id.startsWith('manual:') &&
+              entry.plan!.stops.some((stop) => stop.placeId === id) &&
+              !entry.plan!.manualPlaces?.some((place) => place.id === id),
+          ),
+        }
+      : {}),
   };
 }
