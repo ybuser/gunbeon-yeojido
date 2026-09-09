@@ -1,0 +1,18 @@
+{
+  "base": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
+  "checkedAt": "2026-09-09T06:22:08.902Z",
+  "checks": [
+    "Explicit migration preserves group/share ownership and consumes old-cookie authority",
+    "Second browser restores travel, groups and public-share management",
+    "Imported anonymous suggestion remains owned and withdrawable after account migration",
+    "Old A tab cannot read/write/import/rename/logout through B cookies",
+    "Revision conflicts, malformed data, CSRF and invalid passwords fail safely",
+    "HttpOnly session and per-device logout; disabled/corrupt social login never authenticates"
+  ],
+  "status": "passed",
+  "syntheticAccountIds": [
+    "6a8e2940-20cd-4ea1-be76-555b45b6649f",
+    "8fe3d7c3-c255-4889-8abd-5f1e566ed1c8"
+  ],
+  "providerAuthentication": "Not configured; actual Google/Naver consent unverified"
+}

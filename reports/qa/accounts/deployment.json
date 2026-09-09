@@ -1,0 +1,25 @@
+{
+  "checkedAt": "2026-09-09T06:23:57.937Z",
+  "gitHub": {
+    "pr": 22,
+    "mergeCommit": "54abdc8b5ec53459f7789bbb2105997119696805",
+    "tree": "e7cfad8b73bf7f6c8ca50b42b1bf6b1eff2e4f5a"
+  },
+  "site": {
+    "version": 14,
+    "sourceCommit": "f8d54f587b148446df393759df8cfcb4be5a80b7",
+    "versionId": "appgprj_6a9e5a33eaa08191a72a52abf77522cc~appgver_515019e4cec0819191eb0909144cef8d",
+    "projectId": "appgprj_6a9e5a33eaa08191a72a52abf77522cc",
+    "deploymentId": "appgdep_6aa0faf77388819195248a9850ec655e",
+    "status": "succeeded",
+    "url": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
+    "updatedAt": "2026-09-09T06:21:55.238892+00:00",
+    "envSetRevision": 2
+  },
+  "database": {
+    "binding": "DB",
+    "tableCount": 17,
+    "migrationAdded": "0004_accounts"
+  },
+  "socialLogin": "Google/Naver adapters implemented; Client IDs/secrets not configured; live consent unverified"
+}

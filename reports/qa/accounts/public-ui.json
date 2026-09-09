@@ -1,0 +1,28 @@
+{
+  "base": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
+  "checkedAt": "2026-09-09T06:22:44.398Z",
+  "results": [
+    {
+      "channel": "chrome",
+      "version": "153.0.8010.36",
+      "viewport": {
+        "name": "large",
+        "width": 430,
+        "height": 932
+      },
+      "checks": [
+        "Real registration → explicit import → overflow record editing → server save; share card remains visible",
+        "Second browser signs in to same account and restores edited record without localStorage seed",
+        "Offline write remains in UI with retry; stale revision cannot overwrite another device"
+      ],
+      "screenshots": [
+        "chrome-large-01-login.png",
+        "chrome-large-02-import.png",
+        "chrome-large-03-record-menu.png",
+        "chrome-large-04-record-edit.png",
+        "chrome-large-05-save-conflict.png"
+      ],
+      "status": "passed"
+    }
+  ]
+}

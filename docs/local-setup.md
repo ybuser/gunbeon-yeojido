@@ -82,9 +82,9 @@ Linux의 브라우저 OS 의존성이 부족하면 `npx playwright install --wit
 ## 5. 로컬과 배포 환경은 별개
 
 - **로컬 D1:** `web/wrangler.local.jsonc`의 placeholder ID와 `.wrangler` 상태. migration 명령은 `--local`이다. 새 clone에 기존 로컬 DB는 없다.
-- **서버 D1:** 기존 Sites 프로젝트의 `DB` binding. 공유 그룹·초대·일정이 저장된다. 서버 migration/secret은 Sites 절차로 별도 확인한다. 로컬 DB ID에 `--remote`를 붙이지 않는다.
+- **서버 D1:** 기존 Sites 프로젝트의 `DB` binding. 로그인 계정·개인 여행과 공유 그룹·초대·일정이 저장된다. 서버 migration/secret은 Sites 절차로 별도 확인한다. 로컬 DB ID에 `--remote`를 붙이지 않는다.
 - `web/.openai/hosting.json`은 추적된 기존 프로젝트 연결이다. 새 PC의 배포 인증/소스 Git 연결은 `handoff.md`에 따라 다시 확보한다.
-- 개인 localStorage·브라우저 쿠키·로컬 DB·실제 키·Playwright 바이너리·빌드 결과·이전 임시 clone은 Git으로 옮겨지지 않는다. 다른 PC에 기존 개인 여행이 나타난다고 가정하지 않는다.
+- 개인 localStorage·브라우저 쿠키·로컬 DB·실제 키·Playwright 바이너리·빌드 결과·이전 임시 clone은 Git으로 옮겨지지 않는다. 게스트 기록은 자동 이동하지 않는다. 운영에서 같은 개인 계정으로 로그인하면 서버에 저장한 여행은 이어서 사용할 수 있다.
 - **별도 fresh clone 재현을 완료했다.** 같은 Mac에서 설치·타입·77개 단위·로컬D1·개발서버·그룹API11시나리오를 확인했다. 다른 OS/실제 다른 PC 실행은 미검증이며 [재현 기록](../reports/qa/day-passport/fresh-clone.md)을 참고한다.
 
 

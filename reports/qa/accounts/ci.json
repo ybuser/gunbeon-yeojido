@@ -1,0 +1,108 @@
+{
+  "conclusion": "success",
+  "createdAt": "2026-09-09T06:16:20Z",
+  "headSha": "41d6cdd452c9e2a0f2d53071b665559f575e914b",
+  "jobs": [
+    {
+      "completedAt": "2026-09-09T06:21:12Z",
+      "conclusion": "success",
+      "databaseId": 102359207058,
+      "name": "keyless-browser-flow",
+      "startedAt": "2026-09-09T06:16:23Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-09T06:16:25Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-09T06:16:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-09T06:16:27Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-09-09T06:16:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-09T06:16:34Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4",
+          "number": 3,
+          "startedAt": "2026-09-09T06:16:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-09T06:16:46Z",
+          "conclusion": "success",
+          "name": "Run npm ci",
+          "number": 4,
+          "startedAt": "2026-09-09T06:16:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-09T06:17:07Z",
+          "conclusion": "success",
+          "name": "Run npx playwright install --with-deps chromium",
+          "number": 5,
+          "startedAt": "2026-09-09T06:16:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-09T06:17:11Z",
+          "conclusion": "success",
+          "name": "Run npx wrangler d1 migrations apply DB --local --config wrangler.local.jsonc",
+          "number": 6,
+          "startedAt": "2026-09-09T06:17:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-09T06:21:09Z",
+          "conclusion": "success",
+          "name": "Exercise fallback, planning, briefing and group sharing flows",
+          "number": 7,
+          "startedAt": "2026-09-09T06:17:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-09T06:21:10Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 8,
+          "startedAt": "2026-09-09T06:21:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-09T06:21:10Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-node@v4",
+          "number": 15,
+          "startedAt": "2026-09-09T06:21:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-09T06:21:11Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 16,
+          "startedAt": "2026-09-09T06:21:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-09T06:21:11Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-09-09T06:21:11Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/ybuser/gunbeon-yeojido/actions/runs/34318329541/job/102359207058"
+    }
+  ],
+  "updatedAt": "2026-09-09T06:21:13Z",
+  "url": "https://github.com/ybuser/gunbeon-yeojido/actions/runs/34318329541"
+}

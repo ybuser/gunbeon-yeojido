@@ -1,43 +1,35 @@
 # 개발 인수인계
 
-**2026-09-09 · 여행 기록 수정과 한 수 보태기 공개 배포 완료.** `AGENTS.md` → 이 문서 → `local-setup.md` → `roadmap.md` 순서로 읽는다. 최신 사용자 지시와 실제 코드가 과거 기획·검토안보다 우선한다.
-
-## 진행 중 작업 (최신)
-
-`feat/accounts-record-menu`에서 기록 더보기·개인 계정/서버 저장을 구현했다. `04fd0e4`와 `66d2392` push 완료. 이슈 #21. 타입/89단위 검사, 계정 API6그룹, Chrome153·Edge152 360/430/1440/1920px 새 계정 UI 흐름 통과. 기존 회귀·CI·공개 배포 마무리 중이다.
-
-`docs/social-login-setup.md`에 실제 변수·콜백·발급/검수 절차. Google/Naver 키 미설정으로 실제 제공자 로그인은 미검증. 개인 아이디 로그인은 실제 D1 인증/저장이다. 서버 migration0004 추가(17개 테이블), Secret 변경 없음. `reports/accounts_delivery.md`와 `reports/qa/accounts/`에 근거.
-
-아래 표는 아직 공개된 이전 버전 v13이다. 새 배포 완료 후 현재 표를 갱신한다.
+**2026-09-09 · 기록 더보기·개인 계정·서버 여행 저장 공개 배포 완료.** `AGENTS.md` → 이 문서 → `local-setup.md` → `roadmap.md` 순서로 읽는다. 최신 사용자 지시와 실제 코드가 과거 기획·검토안보다 우선한다.
 
 ## 현재 기준선
 
 | 항목 | 확인값 |
 |---|---|
 | GitHub / 기본 브랜치 | https://github.com/ybuser/gunbeon-yeojido / `master` |
-| 제품 PR | [#19](https://github.com/ybuser/gunbeon-yeojido/pull/19), 2026-09-09 05:05:19 UTC 병합 |
-| 제품 병합 SHA | `a2fa7f79501aad2af8dee659813bce36e162ecd5` |
-| 구현 커밋 | `6d4b9f8` → `906d9a4` → `04f68d96dcf2a8ab381344d4d9b923198c5b3b67` 모두 push/병합 |
-| 문서 후속 | 이 인수인계·최종 검사 JSON은 제품 병합 뒤 문서 커밋. 최종 문서 SHA는 `git log -1`로 확인 |
-| Sites | 기존 프로젝트 `appgprj_6a9e5a33eaa08191a72a52abf77522cc`, **v13** |
-| Sites 앱 소스 SHA | `4c2c98f178e1130c626c25d067f28b4fb8fbb83e` |
-| 앱 소스 tree | `0349cee1f1a77402cdda29c0f6dcaa06847033fe` — GitHub `HEAD:web`와 동일 |
-| 공개 배포 | `appgdep_6aa0e91e08c88191b465b15d4ddd304d`, **succeeded**, 2026-09-09 05:06:04 UTC |
-| 주소 | https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site/ · `/guide` · 임시 비밀번호1234 |
-| 익명 공개 | 사용자가 발행한 `/p/{32자리 공개 ID}`와 전용 공개 API만 비밀번호 예외 |
-| D1 / secret | DB binding 유지, migration0002/0003 추가 적용. secret 변경 없음, env revision2 |
+| 제품 PR / 이슈 | [#22](https://github.com/ybuser/gunbeon-yeojido/pull/22) 병합, [#21](https://github.com/ybuser/gunbeon-yeojido/issues/21) 종료 |
+| 제품 병합 SHA | `54abdc8b5ec53459f7789bbb2105997119696805` |
+| 구현·검증 커밋 | `04fd0e4` → `66d2392` → `c6cea60` → `378e7ba` → `ec7c163` → `96899b1` → `41d6cdd` 모두 push/병합 |
+| 문서 후속 | 이 인수인계·운영 검사 JSON은 제품 병합 뒤 문서 커밋. 최종 문서 SHA는 `git log -1`로 확인 |
+| Sites | 기존 프로젝트 `appgprj_6a9e5a33eaa08191a72a52abf77522cc`, **v14** |
+| Sites 앱 소스 SHA | `f8d54f587b148446df393759df8cfcb4be5a80b7` |
+| 앱 소스 tree | `e7cfad8b73bf7f6c8ca50b42b1bf6b1eff2e4f5a` — GitHub `HEAD:web`와 동일 |
+| 공개 배포 | `appgdep_6aa0faf77388819195248a9850ec655e`, **succeeded**, 2026-09-09 06:21:55 UTC |
+| 주소 | https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site/ · `/login` · `/account` · `/guide` |
+| 로그인 | 개인 아이디 계정 + 체험 입장1234. Google/Naver Client ID/Secret 미설정, 실동의 미검증 |
+| D1 / secret | migration0004 추가 적용, 운영 DB17개 테이블 확인. 기존 binding/Secret 유지, env revision2 |
 
 ## 이번 기능과 검사
 
-- 기록 이름·실제 방문 장소·스탬프 수정, 원래 완료 날짜 보존. 확인 후 같은 계획으로 복원하거나 기록을 유지한 새 여행 복사. 현재 출타 자동 시작 없음.
-- 질문+관광지 단위 공개 제안, 작성자 개인 일정 검토·저장 후 반영 표시, 중단 시 `adviceReceipt` 복구, 공개안으로 새 여행 만들기.
-- PNG/링크·X 작성창 공유, 제안 마감·신고·숨김·삭제, 만료 후 본인 제안 삭제. 관리 쿠키를 잃었을 때의 정식 계정 복구는 아직 없다.
-- D1에는 공개 장소 참조·질문·선택형 제안·상태만 저장한다. TourAPI 원문/이미지 적재, 개인 날짜/만남/복귀 정보 자동 공개는 없음.
-- 타입·85단위·빌드 통과. 실제 D1 API10시나리오 통과. Chrome153/Edge152 각360·430·1440·1920px 통과. 최종 만료화면 회귀와19장 가이드도 통과. 실제 휴대폰이 아닌 데스크톱 viewport/touch 모의다.
-- GitHub 품질/기존+신규 전체 키 없는 브라우저 CI 통과 후 병합. `reports/qa/advice/ci.json` 참조.
-- 실제 서버 TourAPI 고성 카페3개 검색, 선택 장소 상세 검증201, 공개 제안 재조회 결측0. 로컬·운영 결과 분리. 자동 UI의 목록 오류 격리를 실제 API 성공으로 쓰지 않는다.
-- 공개 v13에서 별도 쿠키 API10시나리오, Chrome430px 전체 흐름, 실제 TourAPI, 가이드 검사. `reports/qa/advice/public-*.json` 참조.
-- 설계·제한·화면: `reports/advice_implementation.md`, `reports/advice_benchmark.md`, `reports/usage_guide.md`, `/guide`. 초안 리뷰 문서는 발견 당시 기록이며 최종 미해결 목록이 아니다.
+- 기록 오른쪽 위 ⋮에 관리 메뉴를 정리했다. 공유 카드는 별도 전폭 버튼. 완료 기록 수정·계획 복원·새 여행 복사와 한 수 검토/반영은 유지한다.
+- 실제 개인 아이디·비밀번호 인증, 계정별 개인 여행/즐겨찾기/출타/스탬프 D1 저장. 기기 기록·그룹·공개 공유/제안 관리 권한은 사용자가 가져오기를 선택한 뒤 검증한 이전 쿠키 범위만 연결한다.
+- 서버 읽기 성공 전 쓰지 않는다. 저장 큐와 revision 충돌, 저장 실패 재시도/JSON 백업, 다른 탭의 계정 변경을 방어한다. 기존 계정 자료를 무조건 덮어쓰지 않는다.
+- Google/Naver OAuth 경로는 구현했지만 아직 키·제공자 실로그인이 없다. `docs/social-login-setup.md`의 정확한 주소·변수·콘솔 절차를 따른다. 기존 개인 계정은 내 계정의 로그인 연결로 연결한다.
+- 타입·89단위·빌드 통과. 계정 API6그룹 통과. Chrome153/Edge152 각360·430·1440·1920px 실제 가입→기기 가져오기→메뉴 수정→다른 브라우저 복원, 저장 실패/충돌 검증. 실제 휴대폰이 아닌 viewport/touch 모의다.
+- 최종 GitHub 품질2개·전체 키 없는 브라우저 CI 통과 후 병합. [최종 브라우저 실행](https://github.com/ybuser/gunbeon-yeojido/actions/runs/34318329541): 계정/그룹/관광 fallback/22장 가이드/직접 코스/현재 출타/하루 여권/공개 한 수까지 포함. `reports/qa/accounts/ci.json` 참조.
+- CI에서 게스트 입력이 hydration 이전에 실행되던 검사 문제는 app-ready 대기와 입력 값 assertion으로 수정했다. 게스트 실패 화면·응답 상태도 수집한다.
+- 운영 재검사 결과는 `reports/qa/accounts/public-*.json`에 별도 기록한다. UI의 관광 목록 격리는 실제 TourAPI 성공 근거가 아니다. 실제 제공자 소셜 로그인도 이번 통과 항목이 아니다.
+- README·22장 `/guide`·`reports/usage_guide.md`에 실제 화면/사용 시나리오. 구현·한계는 `reports/accounts_delivery.md`.
 
 ## 다른 PC에서 재개
 
@@ -50,9 +42,9 @@ git log -5 --oneline
 
 기존 폴더는 미커밋 변경을 먼저 보존하고 `git fetch origin --prune` / `git pull --ff-only`로 최신 상태를 확인한다. Node22/npm 설치·환경 파일·D1 migration·키 없는 QA는 `local-setup.md`를 따른다. 이전 PC의 `/tmp` checkout이나 브라우저 바이너리 경로를 복사하지 않는다.
 
-앱 루트는 `web/`다. 새 D1 schema0002/0003은 추가 적용하고 기존 SQL/스냅샷을 수정하지 않는다. `npm run test:advice`는 격리된3개 HTTP쿠키 세션, `npm run test:advice-ui`는 작성자/방문자 브라우저를 나눠 검증한다. 테스트가 만든 공유만 정리하고 운영 DB를 초기화하지 않는다.
+앱 루트는 `web/`다. 새 D1 schema0002/0003/0004는 추가 적용하고 기존 SQL/스냅샷을 수정하지 않는다. `npm run test:advice`는 격리된3개 HTTP쿠키 세션, `npm run test:advice-ui`는 작성자/방문자 브라우저를 나눠 검증한다. 테스트가 만든 공유만 정리하고 운영 DB를 초기화하지 않는다.
 
-Git clone은 개인 localStorage·참여/관리 쿠키·로컬 DB·실제 키·Playwright 바이너리를 옮기지 않는다. 그룹은 운영 D1, 개인 계획은 해당 브라우저에 남아 있다. 공개 링크는 새 기기에서도 열리지만 관리 권한은 자동 이동하지 않는다. 개인 계정·서버 저장이 최신 작업에 추가되었다. 이전 브라우저 관리 권한은 내 계정에서 명시적으로 가져와야 한다. 비밀번호 복구/자동 탈퇴는 후속이다.
+Git clone은 개인 localStorage·참여/관리 쿠키·로컬 DB·실제 키·Playwright 바이너리를 옮기지 않는다. 운영에서 같은 계정으로 로그인하면 서버 여행·그룹·연결한 공유를 이어간다. 로컬 DB와 운영 DB는 별도다. 체험 이용의 기기 기록/관리 권한은 내 계정에서 명시적으로 가져와야 한다. 비밀번호 복구/자동 탈퇴는 후속이다.
 
 ## GitHub / Sites / D1
 
@@ -64,6 +56,8 @@ Git clone은 개인 localStorage·참여/관리 쿠키·로컬 DB·실제 키·P
 - `.env.local`과 배포 secret은 독립이다. 키를 Git/문서에 남기지 않는다. 연결 장애 시 로컬 진행과 배포 미반영 상태를 구분해 기록한다.
 
 ## 다음 첫 작업
+
+0. Google/Naver Client ID/Secret과 AUTH_BASE_URL을 로컬/운영에 각각 설정한 뒤 신규 로그인·기존 계정 연결·재로그인을 실제 제공자에서 확인한다. 네이버 검수와 Google 게시/도메인 요건을 확인하고, 비밀번호 복구/탈퇴·문의 창구를 정식 운영 전에 보완한다. 키 원문은 채팅에 요청하지 않는다.
 
 1. [#20](https://github.com/ybuser/gunbeon-yeojido/issues/20): 실제 장병·가족·연인·친구5–10쌍이 공개 질문→제안→검토→새 여행을 이해하는지 관찰. Android Chrome / iPhone Safari의 PNG저장·인스타 링크 스티커·X 작성창 확인. 전환율 수치를 꾸미지 않는다.
 2. [#15](https://github.com/ybuser/gunbeon-yeojido/issues/15): 정상 TourAPI 기능 유지+승인량/집계 단위 확인·운영계정/공모전 증설. 문의 초안은 `api_capacity_requests.md`. 실제 문의 발송·증설 승인은 아직 없음.

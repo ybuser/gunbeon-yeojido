@@ -1,0 +1,22 @@
+[
+  {
+    "channel": "chrome",
+    "width": 360,
+    "status": "passed",
+    "checks": [
+      "Guide login returns to requested page; all twenty-two real screenshots load; responsive layout",
+      "Authenticated local photo fetched once across repeated opening via page-memory reuse"
+    ],
+    "errors": []
+  },
+  {
+    "channel": "chrome",
+    "width": 1440,
+    "status": "passed",
+    "checks": [
+      "Guide login returns to requested page; all twenty-two real screenshots load; responsive layout",
+      "Authenticated local photo fetched once across repeated opening via page-memory reuse"
+    ],
+    "errors": []
+  }
+]
