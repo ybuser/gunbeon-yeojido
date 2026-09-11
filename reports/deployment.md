@@ -25,7 +25,7 @@
 
 ## 소스 관리
 
-사용자 GitHub: https://github.com/ybuser/gunbeon-yeojido ([PR #4](https://github.com/ybuser/gunbeon-yeojido/pull/4) 점검, [PR #6](https://github.com/ybuser/gunbeon-yeojido/pull/6) 공개 입장, [PR #8](https://github.com/ybuser/gunbeon-yeojido/pull/8) 직접 코스 편집, [PR #10](https://github.com/ybuser/gunbeon-yeojido/pull/10) 계획·현재 출타와 개인 장소).
+사용자 GitHub: https://github.com/MySonIsSoldier/gunbeon-yeojido ([PR #4](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/4) 점검, [PR #6](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/6) 공개 입장, [PR #8](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/8) 직접 코스 편집, [PR #10](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/10) 계획·현재 출타와 개인 장소).
 
 - b04b020: 접경5군 관광정보 및 추가3 API 실 호출 검증.
 - 8acbf7a: 모바일 여행 UI 전면 개편, 지도·상세·가족 조건 상태 처리 수정.

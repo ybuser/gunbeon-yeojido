@@ -4,7 +4,7 @@
 
 **2026-09-09 기록 더보기·개인 계정·서버 저장까지 구현·검증·공개배포 완료.** PR22가 master에 병합되고 Sitesv14가 배포되었다. 최종 근거는 handoff.md와 reports/advice_implementation.md에 있다. 계정 증설 신청/승인과 최종 접수는 남아 있다.
 
-2026-09-09 추가 요청: 여행 기록 수정/계획 복원, ‘한 수 보태기’ 공개 제안과 개인 계획 반영, 공개안 가져오기, 19장 가이드를 구현했다. PR19·최종 배포 근거는 handoff.md에서 확인한다. 성장 효과 검증은 [#20](https://github.com/ybuser/gunbeon-yeojido/issues/20)의 실제 사용자·모바일 SNS 관찰로 이어간다.
+2026-09-09 추가 요청: 여행 기록 수정/계획 복원, ‘한 수 보태기’ 공개 제안과 개인 계획 반영, 공개안 가져오기, 19장 가이드를 구현했다. PR19·최종 배포 근거는 handoff.md에서 확인한다. 성장 효과 검증은 [#20](https://github.com/MySonIsSoldier/gunbeon-yeojido/issues/20)의 실제 사용자·모바일 SNS 관찰로 이어간다.
 
 ## 우선순위와 완료 조건
 

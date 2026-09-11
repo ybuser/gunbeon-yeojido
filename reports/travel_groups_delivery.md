@@ -60,7 +60,7 @@
 - 외부 주소의 격리 세션 3개 그룹 API 11케이스·94요청 통과: [결과](qa/travel-groups/public-api.json).
 - 외부 주소 Chrome·Edge의 360px/1440px 그룹 UI·초대 로그인·다른 세션 참여 통과: [결과](qa/travel-groups/public-ui.json).
 - 외부 실제 `/api/places?region=철원군` 응답은 503 / `DAILY_QUOTA_EXCEEDED`로 원인을 올바르게 표시했다. 테스트 목록 응답과 별도로 확인했다.
-- [GitHub 자동 검사](https://github.com/ybuser/gunbeon-yeojido/actions/runs/34185982751)에서 키 없는 Chromium의 그룹 API·그룹 UI·기존 코스·현재 출타 흐름을 모두 통과했다.
-- [PR #12](https://github.com/ybuser/gunbeon-yeojido/pull/12)에 구현·검사·문서를 모았다. 실제 공개 시연 전 TourAPI 한도 증설과 실응답 재검증이 남아 있다.
+- [GitHub 자동 검사](https://github.com/MySonIsSoldier/gunbeon-yeojido/actions/runs/34185982751)에서 키 없는 Chromium의 그룹 API·그룹 UI·기존 코스·현재 출타 흐름을 모두 통과했다.
+- [PR #12](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/12)에 구현·검사·문서를 모았다. 실제 공개 시연 전 TourAPI 한도 증설과 실응답 재검증이 남아 있다.
 
 QA는 이번 실행에서 생성한 그룹만 삭제했다. 기존 사용자 그룹·개인 여행은 수정하지 않았다. 화면 캡처는 README의 검증된 로컬 실행 화면을 사용한다.

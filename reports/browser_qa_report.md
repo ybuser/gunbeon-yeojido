@@ -53,9 +53,9 @@
 
 - `npm test`: **22개 통과**. 시간/운영/예보/저장/공유/키 처리 회귀 검사.
 - `npm run typecheck`, `npm run build`: 통과. 빌드의 Vinext 라우트 자동 분류 안내는 남아 있다.
-- [GitHub 품질 검사](https://github.com/ybuser/gunbeon-yeojido/actions/runs/34111851002): 설치·타입 검사·22개 테스트·빌드 통과.
-- [GitHub 브라우저 검사](https://github.com/ybuser/gunbeon-yeojido/actions/runs/34111851092): Linux Chromium의 360/1440px에서 API 키 없이 장애 대응·가족·공유 흐름 2개 통과. 실행 결과와 스크린샷을 CI artifact로 보관한다.
-- [이슈 1](https://github.com/ybuser/gunbeon-yeojido/issues/1), [저장/제안 이슈 2](https://github.com/ybuser/gunbeon-yeojido/issues/2), [운영/기상 이슈 3](https://github.com/ybuser/gunbeon-yeojido/issues/3), [PR 4](https://github.com/ybuser/gunbeon-yeojido/pull/4)에 진단·수정·검증을 연결한다.
+- [GitHub 품질 검사](https://github.com/MySonIsSoldier/gunbeon-yeojido/actions/runs/34111851002): 설치·타입 검사·22개 테스트·빌드 통과.
+- [GitHub 브라우저 검사](https://github.com/MySonIsSoldier/gunbeon-yeojido/actions/runs/34111851092): Linux Chromium의 360/1440px에서 API 키 없이 장애 대응·가족·공유 흐름 2개 통과. 실행 결과와 스크린샷을 CI artifact로 보관한다.
+- [이슈 1](https://github.com/MySonIsSoldier/gunbeon-yeojido/issues/1), [저장/제안 이슈 2](https://github.com/MySonIsSoldier/gunbeon-yeojido/issues/2), [운영/기상 이슈 3](https://github.com/MySonIsSoldier/gunbeon-yeojido/issues/3), [PR 4](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/4)에 진단·수정·검증을 연결한다.
 - 커밋: `60401f9` 제품 진단, `1713b36` 저장/제안/운영/예보 보완, `56efad6` 다환경 QA·브라우저 이동·CI.
 
 ## API 및 증빙 경계

@@ -8,6 +8,8 @@
 
 [화면으로 보는 사용 가이드](https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site/guide) · [사진 원문·이용조건 검토 목록](reports/photo_sources.md)
 
+소스 저장소: [MySonIsSoldier/gunbeon-yeojido](https://github.com/MySonIsSoldier/gunbeon-yeojido) · [기존 clone 연결 변경 안내](docs/local-setup.md#기존-clone의-조직-저장소-연결)
+
 ## 실제 화면
 
 실행 중인 앱을 Chrome에서 촬영했습니다. 예시 그룹·일정은 검증용 데이터입니다.

@@ -4,6 +4,8 @@
 
 ## 시작
 
+현재 정식 GitHub 저장소는 `MySonIsSoldier/gunbeon-yeojido`, 기본 브랜치는 `master`다. 2026-09-11 개인 계정에서 조직으로 이전했다. 작업 전 `git remote -v`를 확인하고 기존 clone의 변경은 `docs/local-setup.md`를 따른다. 사이트 도메인·Sites 소스 Git·API 키는 GitHub 소유자 이름으로 치환하지 않는다.
+
 1. `README.md`, `docs/handoff.md`, `docs/local-setup.md`, `docs/roadmap.md`를 읽는다.
 2. 루트에서 현재 작업을 확인한다. 기존 변경을 되돌리거나 덮어쓰지 않는다.
 

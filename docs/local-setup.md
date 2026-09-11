@@ -5,7 +5,7 @@ Git, **Node 22(최소 22.13.0, 기존 CI 22.18)**, npm이 필요하다. 아래�
 ## 1. 새 clone과 작업 브랜치
 
 ```sh
-git clone https://github.com/ybuser/gunbeon-yeojido.git
+git clone https://github.com/MySonIsSoldier/gunbeon-yeojido.git
 cd gunbeon-yeojido
 git fetch origin --prune
 git branch -r
@@ -13,7 +13,24 @@ git status --short
 git log -5 --oneline
 ```
 
-PR18이 master에 병합되었다. 새 clone은 기본 master로 시작하고, 후속 진행 브랜치가 있을 때만 docs/handoff.md와 원격 목록을 확인해 전환한다. 미커밋 파일·push되지 않은 브랜치는 clone에 포함되지 않는다. 비공개 저장소 인증은 해당 PC의 GitHub 로그인/credential manager를 사용한다.
+새 clone은 기본 master로 시작하고, 후속 진행 브랜치가 있을 때만 docs/handoff.md와 원격 목록을 확인해 전환한다. 미커밋 파일·push되지 않은 브랜치는 clone에 포함되지 않는다. GitHub 인증은 해당 PC의 로그인/credential manager를 사용한다.
+
+### 기존 clone의 조직 저장소 연결
+
+2026-09-11 GitHub 저장소를 개인 계정에서 `MySonIsSoldier` 조직으로 이전했다. 이미 받은 작업 폴더에서는 다시 clone하지 않고 원격 주소만 바꾼다. 아래 명령은 작업 파일·로컬 DB·환경 파일을 변경하지 않는다.
+
+```sh
+git status --short
+git remote set-url origin https://github.com/MySonIsSoldier/gunbeon-yeojido.git
+git remote -v
+git fetch origin --prune
+# GitHub CLI를 사용하는 PC에서만 실행
+gh repo set-default MySonIsSoldier/gunbeon-yeojido
+```
+
+`git remote -v`에서 별도로 지정한 push 주소도 이전 주소라면 `git remote set-url --push origin https://github.com/MySonIsSoldier/gunbeon-yeojido.git`로 바꾼다. 작업 중인 변경을 보존한 뒤 현재 브랜치에 맞춰 `git pull --ff-only`를 실행한다. SSH 인증을 사용하는 PC는 같은 저장소의 `git@github.com:MySonIsSoldier/gunbeon-yeojido.git` 주소를 쓸 수 있다.
+
+조직의 쓰기 권한과 해당 PC의 GitHub 인증은 별도다. Sites 배포 소스 Git, 공개 사이트 도메인, Kakao SDK 도메인과 Google/Naver 콜백 주소는 그대로 사용한다. 이전 점검 근거는 [저장소 이전 기록](../reports/repository_transfer.md)에 있다.
 
 ## 2. API 키 없는 로컬 환경
 

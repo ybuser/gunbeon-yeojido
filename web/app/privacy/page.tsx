@@ -34,7 +34,7 @@ export default function Privacy() {
           운영자에게 전달해 주세요. 공개 문의에 비밀번호, 개인 장소나 여행 원문을 적지 마세요.
         </p>
         <p>
-          <a href="https://github.com/ybuser/gunbeon-yeojido/issues/new">
+          <a href="https://github.com/MySonIsSoldier/gunbeon-yeojido/issues/new">
             프로젝트 운영자에게 문의
           </a>
         </p>
