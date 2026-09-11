@@ -1,0 +1,12 @@
+{
+  "base": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
+  "checkedAt": "2026-09-11T05:40:07.729Z",
+  "browser": "153.0.8010.36",
+  "checks": [
+    "Privacy contact points to organization issue form",
+    "Usage guide points to organization documentation",
+    "Expanded photo credits point to organization photo source list"
+  ],
+  "tourism": "Only repository links inspected; tourism responses stubbed, no provider validation",
+  "status": "passed"
+}

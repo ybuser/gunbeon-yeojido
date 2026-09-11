@@ -1,27 +1,33 @@
 # 개발 인수인계
 
-**2026-09-09 · 기록 더보기·개인 계정·서버 여행 저장 공개 배포 완료.** `AGENTS.md` → 이 문서 → `local-setup.md` → `roadmap.md` 순서로 읽는다. 최신 사용자 지시와 실제 코드가 과거 기획·검토안보다 우선한다.
+**2026-09-11 · 조직 저장소 이전 및 앱 링크 공개 반영 완료.** `AGENTS.md` → 이 문서 → `local-setup.md` → `roadmap.md` 순서로 읽는다. 최신 사용자 지시와 실제 코드가 과거 기획·검토안보다 우선한다.
 
 ## 현재 기준선
 
-2026-09-11 저장소를 `MySonIsSoldier/gunbeon-yeojido`로 이전했다. 현재 원격/gh 기본 저장소와 clone·문서·앱 링크를 변경했으며 조직에서의 새 CI/배포 확인 중이다. [이전 점검 기록](../reports/repository_transfer.md). 아래 배포 표는 완료된 v14 기준이며 후속 배포 뒤 갱신한다.
+2026-09-11 저장소를 `MySonIsSoldier/gunbeon-yeojido`로 이전했다. 현재 원격/gh 기본 저장소와 clone·문서·앱 링크를 변경하고 조직에서의 새 CI·PR23 병합·v15 배포를 완료했다. [이전 점검 기록](../reports/repository_transfer.md). 공개 사이트 도메인과 API/로그인 설정은 그대로다.
 
 | 항목 | 확인값 |
 |---|---|
 | GitHub / 기본 브랜치 | https://github.com/MySonIsSoldier/gunbeon-yeojido / `master` |
-| 제품 PR / 이슈 | [#22](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/22) 병합, [#21](https://github.com/MySonIsSoldier/gunbeon-yeojido/issues/21) 종료 |
-| 제품 병합 SHA | `54abdc8b5ec53459f7789bbb2105997119696805` |
-| 구현·검증 커밋 | `04fd0e4` → `66d2392` → `c6cea60` → `378e7ba` → `ec7c163` → `96899b1` → `41d6cdd` 모두 push/병합 |
+| 최신 PR | [#23](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/23) 조직 이전 링크/문서 변경, 2026-09-11 05:39:22 UTC 병합. 계정 기능은 PR22 |
+| 제품 병합 SHA | `7afeca11cae19c583844bae7d4a0855d6394920b` |
+| 최신 변경 커밋 | `dfef8ce0235d18aa152749773b8257ba9a11922b` push/병합. 기존 기능 커밋 이력 보존 |
 | 문서 후속 | 이 인수인계·운영 검사 JSON은 제품 병합 뒤 문서 커밋. 최종 문서 SHA는 `git log -1`로 확인 |
-| Sites | 기존 프로젝트 `appgprj_6a9e5a33eaa08191a72a52abf77522cc`, **v14** |
-| Sites 앱 소스 SHA | `f8d54f587b148446df393759df8cfcb4be5a80b7` |
-| 앱 소스 tree | `e7cfad8b73bf7f6c8ca50b42b1bf6b1eff2e4f5a` — GitHub `HEAD:web`와 동일 |
-| 공개 배포 | `appgdep_6aa0faf77388819195248a9850ec655e`, **succeeded**, 2026-09-09 06:21:55 UTC |
+| Sites | 기존 프로젝트 `appgprj_6a9e5a33eaa08191a72a52abf77522cc`, **v15** |
+| Sites 앱 소스 SHA | `f14e810b6803a4b03b4b81e5520735cbe1dbb4dd` |
+| 앱 소스 tree | `e235de4cc549ebeae7f2d29608fd2af76529b79f` — GitHub `HEAD:web`와 동일 |
+| 공개 배포 | `appgdep_6aa3941963548191ad82d6078eb2c7ac`, **succeeded**, 2026-09-11 05:39:49 UTC |
 | 주소 | https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site/ · `/login` · `/account` · `/guide` |
 | 로그인 | 개인 아이디 계정 + 체험 입장1234. Google/Naver Client ID/Secret 미설정, 실동의 미검증 |
-| D1 / secret | migration0004 추가 적용, 운영 DB17개 테이블 확인. 기존 binding/Secret 유지, env revision2 |
+| D1 / secret | migration0004 유지, 새 migration 없음. 9/11 운영 DB17개 테이블 확인, binding/Secret 유지, env revision2 |
 
-## 이번 기능과 검사
+## 9/11 저장소 이전 검사
+
+- 원격 fetch/push·gh 기본 저장소를 새 조직 주소로 변경. 타입·89단위·빌드 통과. 새 조직에서 Quality checks2개와 전체 Browser flow checks 통과 후 PR23 병합.
+- Actions 정책·workflow·키 없는 CI를 확인했다. 이전 때문에 바꿔야 할 owner 조건/패키지/보호 정책/비밀값 없음. 앱 링크3개를 v15에 반영했고 배포 결과는 `reports/qa/repository-transfer/`에 기록했다.
+- 공개 URL·Sites 앱 소스 Git·Kakao/Google/Naver 도메인·DB/키는 보존했다. 다른 PC에서는 `local-setup.md`의 기존 clone 연결 변경을 먼저 수행한다.
+
+## 계정 기능과 검사 (9/9)
 
 - 기록 오른쪽 위 ⋮에 관리 메뉴를 정리했다. 공유 카드는 별도 전폭 버튼. 완료 기록 수정·계획 복원·새 여행 복사와 한 수 검토/반영은 유지한다.
 - 실제 개인 아이디·비밀번호 인증, 계정별 개인 여행/즐겨찾기/출타/스탬프 D1 저장. 기기 기록·그룹·공개 공유/제안 관리 권한은 사용자가 가져오기를 선택한 뒤 검증한 이전 쿠키 범위만 연결한다.

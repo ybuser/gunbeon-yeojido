@@ -1,0 +1,35 @@
+{
+  "checkedAt": "2026-09-11T05:41:04.484Z",
+  "repository": "MySonIsSoldier/gunbeon-yeojido",
+  "branch": "master",
+  "pr": 23,
+  "mergeCommit": "7afeca11cae19c583844bae7d4a0855d6394920b",
+  "appTree": "e235de4cc549ebeae7f2d29608fd2af76529b79f",
+  "site": {
+    "projectId": "appgprj_6a9e5a33eaa08191a72a52abf77522cc",
+    "sourceCommit": "f14e810b6803a4b03b4b81e5520735cbe1dbb4dd",
+    "versionNumber": 15,
+    "versionId": "appgprj_6a9e5a33eaa08191a72a52abf77522cc~appgver_b366fcd362648191bebd7ea6b832baf7",
+    "deploymentId": "appgdep_6aa3941963548191ad82d6078eb2c7ac",
+    "status": "succeeded",
+    "url": "https://gunbeon-yeojido-gangwon.ybuser.chatgpt.site",
+    "updatedAt": "2026-09-11T05:39:49.789382+00:00",
+    "envSetRevision": 2
+  },
+  "database": {
+    "binding": "DB",
+    "tableCount": 17,
+    "newMigrations": 0
+  },
+  "checks": {
+    "typecheck": "passed",
+    "unitTests": 89,
+    "build": "passed",
+    "sourceOldRepositoryReferences": 0,
+    "actionsWorkflowRuns": [
+      34566456305,
+      34566471484,
+      34566471455
+    ]
+  }
+}

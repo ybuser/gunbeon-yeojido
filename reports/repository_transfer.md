@@ -33,4 +33,8 @@ GitHub Pages는 `has_pages=false`다. [GitHub 공식 이전 안내](https://docs
 
 ## 검증·배포 기록
 
-이전 이후 새 commit/push·PR·자동 검사·공개 링크 반영 결과는 `docs/handoff.md` 및 `reports/qa/repository-transfer/`에 기록한다. 과거 성공 실행을 새 조직에서 발생한 실행으로 취급하지 않는다.
+- [PR23](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/23) 생성·병합 완료. 변경 커밋 `dfef8ce0235d18aa152749773b8257ba9a11922b`, 병합 `7afeca11cae19c583844bae7d4a0855d6394920b`.
+- 이전 후 새 조직에서 실행한 품질 검사2개와 [전체 브라우저 CI](https://github.com/MySonIsSoldier/gunbeon-yeojido/actions/runs/34566471455) 통과. 로컬 타입·89단위·빌드 통과. 추적 파일의 이전 저장소 참조0개.
+- Sitesv15 공개 배포 succeeded. 앱 소스와 GitHub 앱 tree 일치, env revision2와 운영 DB17개 테이블 유지.
+- 공개 사이트의 Chrome153/430px 화면에서 사진 출처·가이드·문의 링크3곳을 확인했다. 관광 API 응답은 이 링크 검사에서 격리했으며 실제 제공자 API 검사가 아니다.
+- `reports/qa/repository-transfer/ci.json`, `deployment.json`, `public-links.json` 및 `docs/handoff.md`에 실제 결과를 남겼다. 과거 CI 기록과 이전 후 새 실행을 구분한다.

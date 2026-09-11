@@ -6,6 +6,8 @@
 
 2026-09-09 추가 요청: 여행 기록 수정/계획 복원, ‘한 수 보태기’ 공개 제안과 개인 계획 반영, 공개안 가져오기, 19장 가이드를 구현했다. PR19·최종 배포 근거는 handoff.md에서 확인한다. 성장 효과 검증은 [#20](https://github.com/MySonIsSoldier/gunbeon-yeojido/issues/20)의 실제 사용자·모바일 SNS 관찰로 이어간다.
 
+2026-09-11 저장소 이전 점검 완료: `MySonIsSoldier/gunbeon-yeojido` 원격·문서·앱 링크, PR23 병합, 조직 CI 통과, Sitesv15 반영. 서비스 범위와 다음 목표는 유지한다.
+
 ## 우선순위와 완료 조건
 
 | 순서 | 목표 | 완료 조건 |
