@@ -52,11 +52,11 @@
 - 최종 Chrome360/1440·Edge360에서 만료 화면을 410 응답으로 재현하고, 실제 D1의 본인 제안 삭제까지 추가 통과. 공유 전체를 30일 기다린 실험이 아니다.
 - 실제 서버 TourAPI: 고성 ‘카페’ 검색3개, 선택한 TourAPI 장소 상세 검증201, 공개 재조회 결측0. 원문 응답·키를 증빙에 저장하지 않았다.
 - 가이드 19개 실제 캡처 로드와 360/1440 반응형·반복 사진 메모리 재사용 통과. UI 런타임 예외·가로 넘침 없음.
-- 사용성/실제 SNS 검증 후속은 [#20](https://github.com/ybuser/gunbeon-yeojido/issues/20). 실제 인스타/X 게시, 실제 스마트폰 Safari, 정식 관리권 복구는 아직 미검증·미구현 범위를 구분한다.
+- 사용성/실제 SNS 검증 후속은 [#20](https://github.com/MySonIsSoldier/gunbeon-yeojido/issues/20). 실제 인스타/X 게시, 실제 스마트폰 Safari, 정식 관리권 복구는 아직 미검증·미구현 범위를 구분한다.
 
 
 ### 공개 배포
 
-[PR19](https://github.com/ybuser/gunbeon-yeojido/pull/19)는 품질/키 없는 전체 브라우저 CI 통과 후 병합했다. Sitesv13은 2026-09-09 05:06:04UTC 성공, env revision2 유지, D1 migration0002/0003 추가. GitHub 병합 앱과 Sites 소스 tree는 동일하다. 정확한 SHA/배포 연결은 `qa/advice/deployment.json`에 있다.
+[PR19](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/19)는 품질/키 없는 전체 브라우저 CI 통과 후 병합했다. Sitesv13은 2026-09-09 05:06:04UTC 성공, env revision2 유지, D1 migration0002/0003 추가. GitHub 병합 앱과 Sites 소스 tree는 동일하다. 정확한 SHA/배포 연결은 `qa/advice/deployment.json`에 있다.
 
 운영 URL 새 세션에서도 API10시나리오, Chrome430px 작성자/방문자 전체 흐름, 실제 TourAPI 검색3개/상세 검증, 가이드19장·360/1440px 검사를 통과했다. `public-*.json`에 UI 격리/실연동 범위를 구분했다. 모든 검사 공유는 만든 세션에서 삭제했으며 기존 그룹이나 실제 사용자의 데이터를 수정하지 않았다.

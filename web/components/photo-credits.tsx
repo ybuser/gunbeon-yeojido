@@ -41,7 +41,7 @@ export default function PhotoCredits() {
         원문을 확인해야 합니다. 새로 추가한 사진의 원문·원본 주소·선별 및 제외
         기록은{' '}
         <a
-          href="https://github.com/ybuser/gunbeon-yeojido/blob/master/reports/photo_sources.md"
+          href="https://github.com/MySonIsSoldier/gunbeon-yeojido/blob/master/reports/photo_sources.md"
           target="_blank"
           rel="noreferrer"
         >

@@ -1,6 +1,6 @@
 # 둘러보기·사진·사용 가이드 전달 기록
 
-2026-09-08 · [이슈 #13](https://github.com/ybuser/gunbeon-yeojido/issues/13) · [PR #14](https://github.com/ybuser/gunbeon-yeojido/pull/14)
+2026-09-08 · [이슈 #13](https://github.com/MySonIsSoldier/gunbeon-yeojido/issues/13) · [PR #14](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/14)
 
 ## 공개 적용
 
@@ -28,6 +28,6 @@
 
 관광공사 목록은 일일 한도 초과 응답으로 격리했습니다. 실시간 목록 성공을 뜻하지 않습니다. 실제 모바일 OS/Safari·현장 교통/운영 조건은 별도 확인 대상입니다. 기존 전체 lint 규칙 오류는 남아 있고 새 독립 모듈 lint는 통과했습니다.
 
-GitHub 자동 검사도 모두 통과했습니다. [브라우저 CI](https://github.com/ybuser/gunbeon-yeojido/actions/runs/34189862533)는 키 없는 환경에서 그룹 API·그룹 UI·탐색·가이드·맞춤 코스·현재 출타를 재현했습니다. [품질 검사](https://github.com/ybuser/gunbeon-yeojido/actions/runs/34189862536)는 TypeScript·단위 검사·빌드를 확인했습니다.
+GitHub 자동 검사도 모두 통과했습니다. [브라우저 CI](https://github.com/MySonIsSoldier/gunbeon-yeojido/actions/runs/34189862533)는 키 없는 환경에서 그룹 API·그룹 UI·탐색·가이드·맞춤 코스·현재 출타를 재현했습니다. [품질 검사](https://github.com/MySonIsSoldier/gunbeon-yeojido/actions/runs/34189862536)는 TypeScript·단위 검사·빌드를 확인했습니다.
 
 PR #14는 2026-09-08 05:18:23 UTC에 머지됐고 이슈 #13은 종료됐습니다. 머지 커밋: `b16265f7cdc5efe5651d61472ccbd2865e55583c`.

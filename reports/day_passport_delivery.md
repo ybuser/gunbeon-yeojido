@@ -1,6 +1,6 @@
 # 하루 여권 구현·검증 기록
 
-2026-09-09 · **① 웹·앱 개발 부문** · [PR18](https://github.com/ybuser/gunbeon-yeojido/pull/18) 병합·Sitesv12 공개배포 완료. GitHub/Sites 연결 정보는 [인수인계](../docs/handoff.md)에 있다.
+2026-09-09 · **① 웹·앱 개발 부문** · [PR18](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/18) 병합·Sitesv12 공개배포 완료. GitHub/Sites 연결 정보는 [인수인계](../docs/handoff.md)에 있다.
 
 ## 적용한 경험
 
@@ -47,7 +47,7 @@ JSON/XML 22(일일)와 23(순간), 일반429, 인증 오류를 분리한다. 제
 ## 인수인계·반영
 
 - [새 clone 재개 검사](qa/day-passport/fresh-clone.md): 같은 Mac의 독립 원격clone에서 설치·타입·77단위·로컬D1·그룹API11시나리오 통과.
-- [품질 CI](https://github.com/ybuser/gunbeon-yeojido/actions/runs/34303867468), [브라우저 CI](https://github.com/ybuser/gunbeon-yeojido/actions/runs/34303867523) 통과 후 병합.
+- [품질 CI](https://github.com/MySonIsSoldier/gunbeon-yeojido/actions/runs/34303867468), [브라우저 CI](https://github.com/MySonIsSoldier/gunbeon-yeojido/actions/runs/34303867523) 통과 후 병합.
 - 로컬 개발 중 가이드360/그룹1440 검사는 코드 갱신에 따른 페이지 reload로 각각 한 차례 중단됐다. 변경 종료 후 별도 실행에서 통과했고, CI 새 환경에서도 모두 통과했다.
 - 서버D1스키마·운영secret 변경 없이 v12반영. 개발·검사 중 생성한 운영 데이터는 없고 공개 브라우저 검사는 독립 테스트 세션의 개인 일정만 사용한다.
 

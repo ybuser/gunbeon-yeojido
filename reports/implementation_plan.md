@@ -22,7 +22,7 @@
 
 ## 기술 선택
 
-React19+TypeScript+Tailwind4, Next.js App Router 호환 Vinext/Sites 런타임, 서버 API routes, 로컬 데모 여권은 localStorage, 핵심 계산은 순수 함수. Kakao JS 지도키가 없을 때 지리 개략도 명시. 공식 TourAPI는 no-store 실시간 HTTP 호출; 통일부/보훈부 정규화는 별도 공개 원천. 공통키를 이용한 공공 API 6종 표본 인증 및 호출을 확인했다. 앱에서는 국문·무장애·기상청을 사용하며, 추가 3종은 추천에 통합되지 않았다. Sites는 외부 공개 배포와 임시 비밀번호 입장을 제공한다. 지정 심사 인증 조건은 제출 전에 확인한다. 소스 기준 GitHub ybuser/gunbeon-yeojido.
+React19+TypeScript+Tailwind4, Next.js App Router 호환 Vinext/Sites 런타임, 서버 API routes, 로컬 데모 여권은 localStorage, 핵심 계산은 순수 함수. Kakao JS 지도키가 없을 때 지리 개략도 명시. 공식 TourAPI는 no-store 실시간 HTTP 호출; 통일부/보훈부 정규화는 별도 공개 원천. 공통키를 이용한 공공 API 6종 표본 인증 및 호출을 확인했다. 앱에서는 국문·무장애·기상청을 사용하며, 추가 3종은 추천에 통합되지 않았다. Sites는 외부 공개 배포와 임시 비밀번호 입장을 제공한다. 지정 심사 인증 조건은 제출 전에 확인한다. 소스 기준 GitHub MySonIsSoldier/gunbeon-yeojido.
 
 ## 마일스톤
 

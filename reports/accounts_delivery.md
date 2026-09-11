@@ -43,6 +43,6 @@ Google/Naver 실제 Client ID/Secret이 아직 등록되지 않아 제공자 동
 
 ## 최종 공개 확인
 
-PR [#22](https://github.com/ybuser/gunbeon-yeojido/pull/22) 병합, Sites v14 공개 배포 완료. 타입·89단위·빌드와 기존/신규 전체 브라우저 CI 통과 후 반영했다. 운영 D1의 17개 테이블을 확인했다.
+PR [#22](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/22) 병합, Sites v14 공개 배포 완료. 타입·89단위·빌드와 기존/신규 전체 브라우저 CI 통과 후 반영했다. 운영 D1의 17개 테이블을 확인했다.
 
 공개 사이트의 실제 계정 API6그룹과 Chrome153/430px 가입→가져오기→메뉴 수정→다른 브라우저 복원→저장 실패 재시도/충돌 검사가 통과했다. `reports/qa/accounts/public-api.json`, `public-ui.json`, `deployment.json`, `ci.json` 참조. Google/Naver 실제 제공자 동의는 키 설정 후 남아 있다.

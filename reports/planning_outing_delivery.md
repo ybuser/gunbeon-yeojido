@@ -1,6 +1,6 @@
 # 즐겨찾기·여행 계획·현재 출타 구현과 검증
 
-2026-09-08. **① 웹·앱 개발 부문**, 강원 지역특화 서비스. [이슈 #9](https://github.com/ybuser/gunbeon-yeojido/issues/9)와 [PR #10](https://github.com/ybuser/gunbeon-yeojido/pull/10)에서 관리한다. 사용자 후속 요청에 따라 초기 공개 민간 장소 제한을 변경했다. 아래는 구현·실행한 검증 결과이며, 현장 방문이나 실제 사용자 조사 결과가 아니다.
+2026-09-08. **① 웹·앱 개발 부문**, 강원 지역특화 서비스. [이슈 #9](https://github.com/MySonIsSoldier/gunbeon-yeojido/issues/9)와 [PR #10](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/10)에서 관리한다. 사용자 후속 요청에 따라 초기 공개 민간 장소 제한을 변경했다. 아래는 구현·실행한 검증 결과이며, 현장 방문이나 실제 사용자 조사 결과가 아니다.
 
 ## 확정한 사용자 경험
 

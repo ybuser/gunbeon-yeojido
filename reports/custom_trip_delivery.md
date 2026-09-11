@@ -2,7 +2,7 @@
 
 > 버전6까지의 설계·구현 이력입니다. 2026-09-08 버전7에서 공개 장소 확인 체크를 제거하고 개인 장소·즐겨찾기, 빈 코스 저장, 계획/현재 출타 분리와 시간창 보관을 적용했습니다. 현재 동작과 저장 범위는 [최신 구현·검증](planning_outing_delivery.md)을 기준으로 합니다.
 
-① 웹·앱 개발 부문의 강원 관광 서비스 범위에서, 추천 코스를 고르는 경험을 자신의 일정으로 수정하는 경험까지 확장했다. 공개 테스트 비밀번호 진입은 [PR #6](https://github.com/ybuser/gunbeon-yeojido/pull/6), 직접 코스 편집은 [이슈 #7](https://github.com/ybuser/gunbeon-yeojido/issues/7)·[PR #8](https://github.com/ybuser/gunbeon-yeojido/pull/8)에서 관리한다.
+① 웹·앱 개발 부문의 강원 관광 서비스 범위에서, 추천 코스를 고르는 경험을 자신의 일정으로 수정하는 경험까지 확장했다. 공개 테스트 비밀번호 진입은 [PR #6](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/6), 직접 코스 편집은 [이슈 #7](https://github.com/MySonIsSoldier/gunbeon-yeojido/issues/7)·[PR #8](https://github.com/MySonIsSoldier/gunbeon-yeojido/pull/8)에서 관리한다.
 
 ## 확정한 사용자 흐름
 

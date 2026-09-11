@@ -220,7 +220,7 @@ export default function Guide() {
         <Link href="/#data" prefetch={false}>
           여행 정보와 사진 출처 <ArrowUpRight size={16} />
         </Link>
-        <a href="https://github.com/ybuser/gunbeon-yeojido/blob/master/reports/usage_guide.md">
+        <a href="https://github.com/MySonIsSoldier/gunbeon-yeojido/blob/master/reports/usage_guide.md">
           GitHub에서 가이드 보기 <ArrowUpRight size={16} />
         </a>
       </footer>
